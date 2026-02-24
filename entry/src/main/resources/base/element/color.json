@@ -2,7 +2,43 @@
   "color": [
     {
       "name": "start_window_background",
-      "value": "#FFFFFF"
+      "value": "#FF101010"
+    },
+    {
+      "name": "jellyfin_background",
+      "value": "#FF101010"
+    },
+    {
+      "name": "text_input_background",
+      "value": "#0DFFFFFF"
+    },
+    {
+      "name": "placeholder_color",
+      "value": "#ff858585"
+    },
+    {
+      "name": "theme_color",
+      "value": "#38a2db"
+    },
+    {
+      "name": "theme_color_second",
+      "value": "#ff1f1f1f"
+    },
+    {
+      "name": "error_color",
+      "value": "#c9677a"
+    },
+    {
+      "name": "jellyfin_home_title_bar_dark",
+      "value": "#ff202020"
+    },
+    {
+      "name": "jellyfin_home_background_dark",
+      "value": "#ff101010"
+    },
+    {
+      "name": "button_color_second",
+      "value": "#DBFFFFFF"
     }
   ]
 }

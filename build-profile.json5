@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B87AC3BBE6CAFCBFDB042C38A22AAA9F7F903BF0515B05AE22AEB355057B327D16FDA20B0B197C3",
+          "profile": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p12",
+          "storePassword": "0000001BE99B3E6F59F3A7B9840CC316496AFF65AFD101A025C0C88B5FE0AE5D25B6E4A86E8ABD4D773993"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

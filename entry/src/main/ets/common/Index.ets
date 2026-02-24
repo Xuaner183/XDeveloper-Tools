@@ -1,1 +1,1 @@
-export { ColorResourseArray } from './ColorArray';
+export * from './ColorArray';

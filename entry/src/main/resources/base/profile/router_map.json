@@ -1,0 +1,9 @@
+{
+  "routerMap": [
+    {
+      "name": "Colors",
+      "pageSourceFile": "src/main/ets/pages/Colors.ets",
+      "buildFunction": "ColorsBuilder"
+    }
+  ]
+}
