@@ -1,7 +1,10 @@
-import { ColorSysResourse, ColorSysString, ColorsCommon } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
+import { AppStorageV2 } from '@kit.ArkUI';
 
+const lightModeIndex: number = 0;
+const darkModeIndex: number = 1;
 
 
 @Extend(Text)
@@ -26,15 +29,16 @@ export function ColorsBuilder() {
 @Preview
 @ComponentV2
 struct Colors {
+  private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
+  private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
-  @Local symbolSelectedIndex: number = 0;
+  @Local symbolSelectedIndex: number = this.useAppInfo.colorModeLocalInColorsPage === ThemeColorMode.DARK ? 1 : 0;
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
-  private useColorsCommon: ColorsCommon = new ColorsCommon(this.getContext());
-  @Local colorModeLocal: ThemeColorMode = ThemeColorMode.LIGHT;
+  @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -64,14 +68,20 @@ struct Colors {
     Flex({ direction: FlexDirection.RowReverse }) {
       TabSegmentButtonV2({
         items: this.symbolItems,
-        selectedIndex: this.symbolSelectedIndex!!,
+        selectedIndex: this.useAppInfo.colorModeLocalInColorsPage!!,
         onItemClicked: (index: number) => {
           switch (index) {
-            case 0:
+            case lightModeIndex:
               this.colorModeLocal = ThemeColorMode.LIGHT;
+              this.useAppInfo.colorModeLocalInColorsPage = lightModeIndex;
+              this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, lightModeIndex);
+              console.info('[Colors] 点击了浅色模式！')
               break;
-            case 1:
+            case darkModeIndex:
               this.colorModeLocal = ThemeColorMode.DARK;
+              this.useAppInfo.colorModeLocalInColorsPage = darkModeIndex;
+              console.info('[Colors] 点击了深色模式！')
+              this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, darkModeIndex);
               break;
           }
         }
@@ -92,7 +102,7 @@ struct Colors {
     zIndex: number = 1
   ) {
     ListItem() {
-      WithTheme({ colorMode: this.colorModeLocal }) {
+      WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
         Flex({
           direction: FlexDirection.Column,
           justifyContent: FlexAlign.SpaceEvenly,
