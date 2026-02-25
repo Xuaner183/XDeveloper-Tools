@@ -101,19 +101,48 @@ export class ResourceManager extends UIAbilityContext {
   /**
    * 获取多个颜色资源的值
    * 返回资源名称对应的颜色值（十进制）
+   * @throws 批量获取颜色资源失败
    */
-  public async getMultipleResourceColorSys(resId: Array<number>): Promise<number[]> {
+  // public async getMultipleResourceColorSys(resId: Array<number>): Promise<number[] | null> {
+  //   try {
+  //     let resPromise: Promise<number>[] = [];
+  //     const rM = resourceManager.getSysResourceManager();
+  //     for (let i = 0; i < resId.length; i++) {
+  //       resPromise.push(rM.getColor(resId[i]));
+  //     }
+  //     const colorResult: number[] = await Promise.all(resPromise);
+  //     return colorResult;
+  //   } catch (e) {
+  //     console.error(`[ResourceManager] 批量获取颜色资源失败：${(e as BusinessError).message} (${(e as BusinessError).stack}) (${(e as BusinessError).code})`)
+  //     return null;
+  //   }
+  // }
+  public async getMultipleResourceColorSys(resId: Array<string>): Promise<number[]> {
+    const realResult: number[] = [];
     try {
       let resPromise: Promise<number>[] = [];
       const rM = resourceManager.getSysResourceManager();
       for (let i = 0; i < resId.length; i++) {
-        resPromise.push(rM.getColor(resId[i]));
+        resPromise.push(rM.getColorByName(resId[i]));
       }
-      const colorResult: number[] = await Promise.all(resPromise);
-      return colorResult;
+      const colorResult: PromiseSettledResult<number>[] = await Promise.allSettled(resPromise);
+      colorResult.forEach((v, index) => {
+        if (v.status === "fulfilled") {
+          console.log(`[ResourceManager] Index: ${index} 成功: ${v.value}`);
+          realResult.push(v.value)
+        } else {
+          console.error(`[ResourceManager] Index: ${index} 失败: ${v.reason}`);
+          realResult.push(-1)
+        }
+      })
+      // return realResult;
     } catch (e) {
-      console.error(`[ResourceManager] 批量获取颜色资源失败${(e as BusinessError).message}`)
-      return new Array(resId.length).fill(4294967295);
+      const errorText = `[ResourceManager] 批量获取颜色资源失败：${(e as BusinessError).message} (${(e as BusinessError).stack}) (${(e as BusinessError).code})`
+      // console.error(errorText);
+      throw Error(errorText);
+      // return null;
+    } finally {
+      return realResult;
     }
   }
 

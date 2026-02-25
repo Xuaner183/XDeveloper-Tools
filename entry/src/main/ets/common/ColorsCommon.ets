@@ -3,7 +3,7 @@ import { UIAbilityContext, type common } from './UIAbilityContext';
 import { resourceManager } from '@kit.LocalizationKit';
 import { type AppInfo } from './AppInfo';
 import { ResourceManager as RM } from './ResourceManager';
-import { ColorSysResourseId, multiConvertDecimalColorToHex } from './ColorArray';
+import { ColorSysResourseId, multiConvertDecimalColorToHex, ColorSysString, ColorSysBackgroundString } from './ColorArray';
 
 export class ColorsCommon extends UIAbilityContext {
 
@@ -45,9 +45,19 @@ export class ColorsPageInit extends UIAbilityContext {
   private useRM: RM = new RM(this.uiContext);
 
   public async init() {
-    const colorDecimal: number[] = await this.useRM.getMultipleResourceColorSys(ColorSysResourseId);
-    const colorHexString: string[] | null = multiConvertDecimalColorToHex(colorDecimal);
-    colorHexString && (this.useAppInfo.SYS_RESOURCE_HEX_STRING = colorHexString);
+    let colorDecimal: number[] | null = null;
+    try {
+      colorDecimal = await this.useRM.getMultipleResourceColorSys(ColorSysString);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      if (!colorDecimal) { console.error('[Colors] 初始化失败'); return }
+      const colorHexString: string[] | null = multiConvertDecimalColorToHex(colorDecimal);
+      if (colorHexString) {
+        this.useAppInfo.SYS_RESOURCE_HEX_STRING = colorHexString;
+        console.log(`[ColorsPageInit] ${colorHexString.join(',\n')}`);
+      }
+    }
   }
 
   constructor(uiContext: common.UIAbilityContext, AppInfo: AppInfo) {

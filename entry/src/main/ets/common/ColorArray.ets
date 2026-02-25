@@ -1181,7 +1181,8 @@ export const ColorSysResourseId: number[] =
  */
 export function convertDecimalColorToHex(decimalColorValue: number): string {
   if (decimalColorValue < 0 || decimalColorValue > 0xFFFFFFFF) {
-    throw new Error('[ColorArray] 错误：非法十进制值');
+    console.error(`[ColorArray] 批量转换十进制颜色值为HEX失败：${decimalColorValue} 是非法十进制值`);
+    return 'null'
   }
   const paddedHexColor = ('00000000' + decimalColorValue.toString(16).toUpperCase()).slice(-8);
   return '#' + paddedHexColor.slice(-6);
@@ -1189,16 +1190,11 @@ export function convertDecimalColorToHex(decimalColorValue: number): string {
 /**
  * 批量转换十进制颜色值为HEX字符串
  */
-export function multiConvertDecimalColorToHex(decimalColorValue: Array<number>): Array<string> | null {
+export function multiConvertDecimalColorToHex(decimalColorValue: Array<number>): Array<string> {
   let result: Array<string> = [];
-  try {
-    for (let i = 0; i < decimalColorValue.length; i++) {
-      const v = convertDecimalColorToHex(decimalColorValue[i])
-      result.push(v);
-    }
-    return result;
-  } catch (e) {
-    console.error(`[ColorArray] 批量转换十进制颜色值为HEX失败：${e}`)
-    return null;
+  for (let i = 0; i < decimalColorValue.length; i++) {
+    const v = convertDecimalColorToHex(decimalColorValue[i])
+    result.push(v);
   }
+  return result;
 }
