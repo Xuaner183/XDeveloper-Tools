@@ -76,19 +76,6 @@ export const ColorResourseArray: Resource[] = [
   $r('sys.color.comp_background_float'),
 ]
 
-export const ColorAppResourseArray: Resource[] = [
-  $r('app.color.start_window_background'),
-  $r('app.color.jellyfin_background'),
-  $r('app.color.text_input_background'),
-  $r('app.color.placeholder_color'),
-  $r('app.color.theme_color'),
-  $r('app.color.theme_color_second'),
-  $r('app.color.error_color'),
-  $r('app.color.jellyfin_home_title_bar_dark'),
-  $r('app.color.jellyfin_home_background_dark'),
-  $r('app.color.button_color_second'),
-]
-
 export const ColorSysString: string[] = [
   'ohos_id_color_background',
   'ohos_id_color_background_dark',
