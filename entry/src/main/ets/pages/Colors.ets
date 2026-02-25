@@ -34,7 +34,7 @@ struct Colors {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
   private useColorsCommon: ColorsCommon = new ColorsCommon(this.getContext());
-  @Local colorModeLocal: ThemeColorMode = ThemeColorMode.SYSTEM;
+  @Local colorModeLocal: ThemeColorMode = ThemeColorMode.LIGHT;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -61,23 +61,25 @@ struct Colors {
    */
   @Builder
   SwitchColorMode() {
-    TabSegmentButtonV2({
-      items: this.symbolItems,
-      selectedIndex: this.symbolSelectedIndex!!,
-      onItemClicked: (index: number) => {
-        switch (index) {
-          case 0:
-            this.colorModeLocal = ThemeColorMode.LIGHT;
-            break;
-          case 1:
-            this.colorModeLocal = ThemeColorMode.DARK;
-            break;
+    Flex({ direction: FlexDirection.RowReverse }) {
+      TabSegmentButtonV2({
+        items: this.symbolItems,
+        selectedIndex: this.symbolSelectedIndex!!,
+        onItemClicked: (index: number) => {
+          switch (index) {
+            case 0:
+              this.colorModeLocal = ThemeColorMode.LIGHT;
+              break;
+            case 1:
+              this.colorModeLocal = ThemeColorMode.DARK;
+              break;
+          }
         }
-      }
-    })
-      .width(100)
-      .padding({ top:8, bottom: 8})
-      .margin({ left: 16, right: 16 })
+      })
+        .width(100)
+    }
+    .padding({ top: 8, bottom: 8, left: 16, right: 16 })
+    // .margin({ left: 16, right: 16 })
   }
 
   @LocalBuilder
