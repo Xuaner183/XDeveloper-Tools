@@ -1,7 +1,7 @@
 export * from './ColorArray';
-export { ColorsCommon } from './ColorsCommon';
+export { ColorsCommon, ColorsPageInit } from './ColorsCommon';
 export * from './PreferencesManager';
-export { RawfileResourceManager } from './RawfileResourceManager';
+export { ResourceManager } from './ResourceManager';
 export { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
 export { Initialize } from './Initialize';
 export { AppInfo } from './AppInfo';

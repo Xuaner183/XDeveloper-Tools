@@ -16,4 +16,6 @@ export class AppInfo extends UIAbilityContext {
   @Trace public colorModeLocalInApp: ConfigurationConstant.ColorMode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
   // 系统的颜色模式
   @Trace public colorModeLocalInSys: resourceManager.ColorMode = resourceManager.ColorMode.LIGHT;
+  // 系统颜色资源的HEX字符串版
+  public SYS_RESOURCE_HEX_STRING?: Array<string>;
 }

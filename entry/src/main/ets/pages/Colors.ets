@@ -1,4 +1,4 @@
-import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys, ColorsPageInit } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
@@ -129,6 +129,11 @@ struct Colors {
     .clickEffect({ level: ClickEffectLevel.LIGHT })
     .padding({ top: 8, bottom: 8 })
 
+  }
+
+  aboutToAppear(): void {
+    const useColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this), this.useAppInfo);
+    useColorsPageInit.init();
   }
 
   build() {

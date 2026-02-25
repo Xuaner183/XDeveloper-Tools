@@ -1,11 +1,11 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
-import { UIAbilityContext } from './UIAbilityContext';
+import { UIAbilityContext, type common } from './UIAbilityContext';
 import { resourceManager } from '@kit.LocalizationKit';
+import { type AppInfo } from './AppInfo';
+import { ResourceManager as RM } from './ResourceManager';
+import { ColorSysResourseId, multiConvertDecimalColorToHex } from './ColorArray';
 
-@ObservedV2
 export class ColorsCommon extends UIAbilityContext {
-
-  @Trace colorMode: resourceManager.ColorMode = resourceManager.ColorMode.LIGHT;
 
   private applicationContext = this.uiContext.getApplicationContext();
 
@@ -36,6 +36,22 @@ export class ColorsCommon extends UIAbilityContext {
   public async getColorMode(): Promise<resourceManager.ColorMode> {
     const rM: resourceManager.ResourceManager = this.uiContext.resourceManager;
     const configuration: resourceManager.Configuration = await rM.getConfiguration();
-    return this.colorMode = configuration.colorMode;
+    return configuration.colorMode;
+  }
+}
+
+export class ColorsPageInit extends UIAbilityContext {
+  private useAppInfo: AppInfo;
+  private useRM: RM = new RM(this.uiContext);
+
+  public async init() {
+    const colorDecimal: number[] = await this.useRM.getMultipleResourceColorSys(ColorSysResourseId);
+    const colorHexString: string[] | null = multiConvertDecimalColorToHex(colorDecimal);
+    colorHexString && (this.useAppInfo.SYS_RESOURCE_HEX_STRING = colorHexString);
+  }
+
+  constructor(uiContext: common.UIAbilityContext, AppInfo: AppInfo) {
+    super(uiContext);
+    this.useAppInfo = AppInfo;
   }
 }

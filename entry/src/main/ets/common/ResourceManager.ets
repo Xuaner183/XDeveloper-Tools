@@ -8,7 +8,7 @@ import { resourceManager } from '@kit.LocalizationKit';
  * 用于统一管理项目中需要从rawfile目录加载的JS等文本资源文件
  * 支持批量和单个获取资源内容
  */
-export class RawfileResourceManager extends UIAbilityContext {
+export class ResourceManager extends UIAbilityContext {
   private resourceCache: Map<string, string> = new Map();
   private loadingPromises: Map<string, Promise<string>> = new Map();
 
@@ -17,7 +17,7 @@ export class RawfileResourceManager extends UIAbilityContext {
    * @param filePath 资源文件路径（相对于rawfile目录）
    * @returns Promise<string> 资源文件内容
    */
-  public async getResource(filePath: string): Promise<string> {
+  public async getRawfileResource(filePath: string): Promise<string> {
     // 检查缓存
     if (this.resourceCache.has(filePath)) {
       return this.resourceCache.get(filePath)!;
@@ -29,7 +29,7 @@ export class RawfileResourceManager extends UIAbilityContext {
     }
 
     // 创建新的加载Promise
-    const loadPromise = this.loadResourceFile(filePath);
+    const loadPromise = this.loadResourceRawfile(filePath);
     this.loadingPromises.set(filePath, loadPromise);
 
     const content = await loadPromise;
@@ -49,11 +49,11 @@ export class RawfileResourceManager extends UIAbilityContext {
    * @param filePaths 资源文件路径数组
    * @returns Promise<Map<string, string>> 资源文件内容映射
    */
-  public async getMultipleResources(filePaths: string[]): Promise<Map<string, string>> {
+  public async getMultipleRawfileResources(filePaths: string[]): Promise<Map<string, string>> {
     const results = new Map<string, string>();
     // 并行加载所有资源
     const promises: Promise<void>[] = filePaths.map(async (filePath) => {
-      const content: string = await this.getResource(filePath);
+      const content: string = await this.getRawfileResource(filePath);
       results.set(filePath, content);
     });
     await Promise.all(promises);
@@ -65,7 +65,7 @@ export class RawfileResourceManager extends UIAbilityContext {
    * @param filePath 资源文件路径
    * @returns Promise<string> 资源文件内容
    */
-  private async loadResourceFile(filePath: string): Promise<string> {
+  private async loadResourceRawfile(filePath: string): Promise<string> {
     try {
       const rM: resourceManager.ResourceManager = this.uiContext.resourceManager;
       const fileContent = await rM.getRawFileContent(filePath);
@@ -102,18 +102,18 @@ export class RawfileResourceManager extends UIAbilityContext {
    * 获取多个颜色资源的值
    * 返回资源名称对应的颜色值（十进制）
    */
-  public async getMultipleResourceColorSys(resName: Array<string>): Promise<number[]> {
+  public async getMultipleResourceColorSys(resId: Array<number>): Promise<number[]> {
     try {
       let resPromise: Promise<number>[] = [];
       const rM = resourceManager.getSysResourceManager();
-      for (let i = 0; i < resName.length; i++) {
-        resPromise.push(rM.getColorByName(resName[i]));
+      for (let i = 0; i < resId.length; i++) {
+        resPromise.push(rM.getColor(resId[i]));
       }
       const colorResult: number[] = await Promise.all(resPromise);
       return colorResult;
     } catch (e) {
       console.error(`[ResourceManager] 批量获取颜色资源失败${(e as BusinessError).message}`)
-      return new Array(resName.length).fill(4294967295);
+      return new Array(resId.length).fill(4294967295);
     }
   }
 

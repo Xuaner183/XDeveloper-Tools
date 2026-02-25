@@ -1,4 +1,5 @@
 import { common } from '@kit.AbilityKit';
+export { type common } from '@kit.AbilityKit';
 
 /**
  *  介绍：类需要获取UIAbility组件的上下文
