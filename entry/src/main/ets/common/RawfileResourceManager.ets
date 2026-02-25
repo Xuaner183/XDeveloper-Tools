@@ -1,7 +1,7 @@
 import { BusinessError } from '@kit.BasicServicesKit';
 import { util } from '@kit.ArkTS';
 import { UIAbilityContext } from './UIAbilityContext'
-import type { resourceManager } from '@kit.LocalizationKit'
+import { resourceManager } from '@kit.LocalizationKit';
 
 /**
  * 获取rawfile工具
@@ -51,13 +51,11 @@ export class RawfileResourceManager extends UIAbilityContext {
    */
   public async getMultipleResources(filePaths: string[]): Promise<Map<string, string>> {
     const results = new Map<string, string>();
-    
     // 并行加载所有资源
-    const promises = filePaths.map(async (filePath) => {
-      const content = await this.getResource(filePath);
+    const promises: Promise<void>[] = filePaths.map(async (filePath) => {
+      const content: string = await this.getResource(filePath);
       results.set(filePath, content);
     });
-
     await Promise.all(promises);
     return results;
   }
@@ -69,12 +67,6 @@ export class RawfileResourceManager extends UIAbilityContext {
    */
   private async loadResourceFile(filePath: string): Promise<string> {
     try {
-      // 检查uiContext是否有效
-      if (!this.uiContext || !this.uiContext.resourceManager) {
-        console.error('[ResourceManager] UIAbilityContext或resourceManager为空');
-        return '';
-      }
-      
       const rM: resourceManager.ResourceManager = this.uiContext.resourceManager;
       const fileContent = await rM.getRawFileContent(filePath);
       
@@ -88,6 +80,40 @@ export class RawfileResourceManager extends UIAbilityContext {
       const businessError = error as BusinessError;
       console.error(`[ResourceManager] getRawFileContent失败 ${filePath}: ${businessError.message} (${businessError.code})`);
       return ''; // 错误时返回空字符串
+    }
+  }
+
+  /**
+   * 获取单个颜色资源的值
+   * 返回资源名称对应的颜色值（十进制）
+   */
+  public async getResourceColorSys(resName: string): Promise<number> {
+    try {
+      const rM = resourceManager.getSysResourceManager();
+      const colorResource = await rM.getColorByName(resName);
+      return colorResource;
+    } catch (e) {
+      console.error(`[ResourceManager] 获取颜色资源失败 ${(e as BusinessError).message}`)
+      // 错误则返回白色的十进制
+      return 4294967295
+    }
+  }
+  /**
+   * 获取多个颜色资源的值
+   * 返回资源名称对应的颜色值（十进制）
+   */
+  public async getMultipleResourceColorSys(resName: Array<string>): Promise<number[]> {
+    try {
+      let resPromise: Promise<number>[] = [];
+      const rM = resourceManager.getSysResourceManager();
+      for (let i = 0; i < resName.length; i++) {
+        resPromise.push(rM.getColorByName(resName[i]));
+      }
+      const colorResult: number[] = await Promise.all(resPromise);
+      return colorResult;
+    } catch (e) {
+      console.error(`[ResourceManager] 批量获取颜色资源失败${(e as BusinessError).message}`)
+      return new Array(resName.length).fill(4294967295);
     }
   }
 
