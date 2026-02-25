@@ -2,7 +2,15 @@
   "color": [
     {
       "name": "start_window_background",
-      "value": "#000000"
+      "value": "#FFFFFFFF"
+    },
+    {
+      "name": "background_linearGradient_color1",
+      "value": "#FFDDDDDD"
+    },
+    {
+      "name": "background_linearGradient_color2",
+      "value": "#FFFAFAFA"
     }
   ]
 }

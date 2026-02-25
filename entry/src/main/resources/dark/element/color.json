@@ -3,6 +3,14 @@
     {
       "name": "start_window_background",
       "value": "#000000"
+    },
+    {
+      "name": "background_linearGradient_color1",
+      "value": "#ff232428"
+    },
+    {
+      "name": "background_linearGradient_color2",
+      "value": "#ff454548"
     }
   ]
 }

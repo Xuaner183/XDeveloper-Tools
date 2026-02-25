@@ -1,11 +1,15 @@
-import { ColorSysResourse, ColorSysString } from '../common/Index';
+import { ColorSysResourse, ColorSysString, ColorsCommon } from '../common/Index';
+import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
+import { common } from '@kit.AbilityKit';
 
 
-@Extend(Text) function TextStyle() {
+
+@Extend(Text)
+function TextStyle() {
   .fontColor(Color.White)
-    .textShadow({
-      radius: 8,
-    })
+  .textShadow({
+    radius: 8,
+  })
   .fontWeight(FontWeight.Bold)
   .lineBreakStrategy(LineBreakStrategy.BALANCED)
   .maxFontScale(4)
@@ -13,7 +17,8 @@ import { ColorSysResourse, ColorSysString } from '../common/Index';
   .heightAdaptivePolicy(TextHeightAdaptivePolicy.MIN_FONT_SIZE_FIRST)
 }
 
-@Builder export function ColorsBuilder() {
+@Builder
+export function ColorsBuilder() {
   Colors();
 }
 
@@ -21,16 +26,22 @@ import { ColorSysResourse, ColorSysString } from '../common/Index';
 @Preview
 @ComponentV2
 struct Colors {
+  @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+    { symbol: $r('sys.symbol.sun_max_fill') },
+    { symbol: $r('sys.symbol.moon_fill') }
+  ]);
+  @Local symbolSelectedIndex: number = 0;
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
+  private useColorsCommon: ColorsCommon = new ColorsCommon(this.getContext());
+  @Local colorModeLocal: ThemeColorMode = ThemeColorMode.SYSTEM;
 
-  @Builder BackgroundMosaic() {
-    Image($r('app.media.mosaic'))
-      .height('681px').width('681px')
-      .objectRepeat(ImageRepeat.XY)
+  private getContext(): common.UIAbilityContext {
+    return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 
-  @Builder TextOverlay(
+  @Builder
+  TextOverlay(
     text1: string | Resource | undefined = undefined,
     text2: string | Resource | undefined = undefined
   ) {
@@ -45,6 +56,30 @@ struct Colors {
     .padding(8)
   }
 
+  /**
+   * 标题栏右上角切换局部深浅色开关
+   */
+  @Builder
+  SwitchColorMode() {
+    TabSegmentButtonV2({
+      items: this.symbolItems,
+      selectedIndex: this.symbolSelectedIndex!!,
+      onItemClicked: (index: number) => {
+        switch (index) {
+          case 0:
+            this.colorModeLocal = ThemeColorMode.LIGHT;
+            break;
+          case 1:
+            this.colorModeLocal = ThemeColorMode.DARK;
+            break;
+        }
+      }
+    })
+      .width(100)
+      .padding({ top:8, bottom: 8})
+      .margin({ left: 16, right: 16 })
+  }
+
   @LocalBuilder
   ListItemColorChunk(
     height: Length,
@@ -55,8 +90,12 @@ struct Colors {
     zIndex: number = 1
   ) {
     ListItem() {
-
-        Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.SpaceEvenly, alignItems: ItemAlign.Center }) {
+      WithTheme({ colorMode: this.colorModeLocal }) {
+        Flex({
+          direction: FlexDirection.Column,
+          justifyContent: FlexAlign.SpaceEvenly,
+          alignItems: ItemAlign.Center
+        }) {
           Rect({ width: '100%', height: '100%' })
             .fill(backgroundColor)
             .radius(14.4)
@@ -64,28 +103,28 @@ struct Colors {
         .height(height)
         .width(width)
         .zIndex(zIndex)
-        .backgroundImage($r('app.media.mosaic'),{
+        .backgroundImage($r('app.media.mosaic'), {
           repeat: ImageRepeat.XY
         })
         .backgroundImagePosition(Alignment.Center)
         .borderRadius(16)
         .overlay(this.TextOverlay(text1, text2))
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-        // .clip(true)
+      }
     }
     .width('100%')
     .height('auto')
     .clickEffect({ level: ClickEffectLevel.LIGHT })
     .padding({ top: 8, bottom: 8 })
+
   }
 
   build() {
+
     NavDestination() {
       Column() {
         Scroll(this.mainScroller) {
           Column() {
-            Column()
-              .height(120)
             List() {
               ListItemGroup() {
                 Repeat(ColorSysResourse)
@@ -97,7 +136,12 @@ struct Colors {
                       obj.index)
                   })
               }
-              .padding({ right: 16, left: 16, bottom: 120 })
+              .padding({
+                right: 16,
+                left: 16,
+                bottom: 120,
+                top: 120
+              })
             }
             .width('100%')
             .height('auto')
@@ -113,7 +157,8 @@ struct Colors {
       }
       .linearGradient({
         angle: 180,
-        colors: [['#ff232428', 0.0], ['#ff454548', 1]]
+        colors: [[$r('app.color.background_linearGradient_color1'), 0.0],
+          [$r('app.color.background_linearGradient_color2'), 1]]
       })
     }
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
@@ -125,5 +170,7 @@ struct Colors {
       backgroundBlurStyle: BlurStyle.Thin,
       barStyle: BarStyle.STACK
     })
+    .menus(this.SwitchColorMode())
   }
+
 }
