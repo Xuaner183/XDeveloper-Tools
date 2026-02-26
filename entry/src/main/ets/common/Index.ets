@@ -5,3 +5,4 @@ export { ResourceManager } from './ResourceManager';
 export { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
 export { Initialize } from './Initialize';
 export { AppInfo } from './AppInfo';
+export { ColorModeSwitch } from './ColorModeSwitch';

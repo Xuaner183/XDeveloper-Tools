@@ -1,4 +1,6 @@
-import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys,
+  ColorModeSwitch
+} from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
@@ -42,6 +44,7 @@ export function ColorsBuilder() {
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
   private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
+  private useColorModeSwitch: ColorModeSwitch = new ColorModeSwitch(this.getContext());
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
@@ -50,13 +53,10 @@ struct Colors {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
   @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
-  // @Local private systemTransition: NavigationSystemTransitionType = NavigationSystemTransitionType.DEFAULT;
   private isLoadDown: boolean = false;
   @Local private onTotalCount: number = 50;
   private isOnReachEnd: boolean = true;
   @Local private isListLoading: boolean = true;
-  @Provider('isModalOpen') private isModalOpen: boolean = false;
-  @Provider('isModalOpening') private isModalOpening: boolean = false;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -138,12 +138,14 @@ struct Colors {
             case lightModeIndex:
               this.colorModeLocal = ThemeColorMode.LIGHT;
               this.useAppInfo.colorModeLocalInColorsPage = lightModeIndex;
+              this.useColorModeSwitch.setLight();
               this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, lightModeIndex);
               console.info('[Colors] 点击了浅色模式！')
               break;
             case darkModeIndex:
               this.colorModeLocal = ThemeColorMode.DARK;
               this.useAppInfo.colorModeLocalInColorsPage = darkModeIndex;
+              this.useColorModeSwitch.setDark();
               console.info('[Colors] 点击了深色模式！')
               this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, darkModeIndex);
               break;
@@ -168,7 +170,7 @@ struct Colors {
     index: number
   ) {
     ListItem() {
-      WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
+      // WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
         Flex({
           direction: FlexDirection.Column,
           justifyContent: FlexAlign.SpaceEvenly,
@@ -188,24 +190,13 @@ struct Colors {
         .borderRadius(16)
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
         .overlay(this.TextOverlay(resourceIndexString, resourceColorName))
-      }
+      // }
     }
     .width('100%')
     .height('auto')
     .clickEffect({ level: ClickEffectLevel.LIGHT })
     .padding({ top: 8, bottom: 8 })
     .onClick(() => {
-      // const param: ColorsDetailRouterParam = {
-      //   chunkColor: chunkColor,
-      //   resourceIndexString: resourceIndexString,
-      //   resourceColorName: resourceColorName || '',
-      //   resourceIndexNumber: index,
-      //   DetailColorMode: this.colorModeLocal
-      // }
-      // this.getUIContext().getRouter().pushUrl({
-      //   url: 'pages/ColorsDetail',
-      //   params: param
-      // })
       this.useAppInfo.modalOpen[index] = true;
       console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
     })

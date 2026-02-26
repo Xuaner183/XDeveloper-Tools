@@ -1,6 +1,5 @@
-/**
- * 暂时仅背景色
- */
+import { ColorMetrics } from '@kit.ArkUI';
+
 
 export const ColorResourseBackgroundArray: Resource[] = [
   $r('sys.color.ohos_id_color_background'),
@@ -1197,4 +1196,19 @@ export function multiConvertDecimalColorToHex(decimalColorValue: Array<number>):
     result.push(v);
   }
   return result;
+}
+/**
+ * 获取资源形颜色真实颜色值
+ * @param 输入资源名称字符串
+ * @return 输出rgba字符串格式的颜色。 示例：'rgba(255, 100, 255, 0.5)'
+ */
+export function getResourceColorRgb(colorString: string) {
+  const resourceColor: Resource = $r(`sys.color.${colorString}`);
+  try {
+    const color = ColorMetrics.resourceColor(resourceColor);
+    return color.color;
+  } catch (e) {
+    console.error(`[ColorsDetail] 获取颜色资源错误： ${(e as BusinessError).message} code: ${(e as BusinessError).code}`);
+    return (e as BusinessError).message;
+  }
 }
