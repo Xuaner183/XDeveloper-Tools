@@ -56,12 +56,11 @@ struct Colors {
     indexText: string | Resource | undefined = undefined,
     resourceName: string | Resource | undefined = undefined
   ) {
-    Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.SpaceEvenly, alignItems: ItemAlign.Center }) {
-
-      Flex() {
+    Column() {
+      Column() {
         Row() {
           Button(indexText, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
-            .backgroundColor(Color.Red)
+            .backgroundColor('#fffd2872')
             .constraintSize({ minWidth: 30, minHeight: 30 })
             .fontWeight(FontWeight.Bold)
             .shadow(ShadowStyle.OUTER_DEFAULT_XS)
@@ -73,12 +72,15 @@ struct Colors {
           .flexGrow(1)
           .flexShrink(8)
       }
-
-      Text(resourceName)
-        .TextStyle()
-        .zIndex(8)
+      .width('100%')
+      Column() {
+        Text(resourceName)
+          .TextStyle()
+          .zIndex(8)
+      }
     }
-    .padding(8)
+    .padding(4)
+    .width('100%').height('100%')
   }
 
   /**
@@ -142,8 +144,8 @@ struct Colors {
         })
         .backgroundImagePosition(Alignment.Center)
         .borderRadius(16)
-        .overlay(this.TextOverlay(indexText, resourceName))
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+        .overlay(this.TextOverlay(indexText, resourceName))
       }
     }
     .width('100%')
@@ -167,7 +169,7 @@ struct Colors {
                     onTotalCount: () => this.onTotalCount
                   })
                   .each((obj) => {
-                    this.ListItemColorChunk(100, '100%', obj.item, String(obj.index), ColorSysString[obj.index],
+                    this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
                       obj.index)
                   })
                 if (this.isListLoading) {
@@ -219,7 +221,7 @@ struct Colors {
             .onReachEnd(async () => {
               if (this.isOnReachEnd && this.onTotalCount < ColorSysResourse.length) {
                 this.isOnReachEnd = false;
-                console.info(`[Colors] 开始加载 isListLoading = ${this.isListLoading}`)
+                console.info(`[Colors] 开始加载 isListLoading = ${this.isOnReachEnd}`)
                 this.onTotalCount += 4;
                 const promise: Promise<void>[] = [];
                 for (let i = 0; i < 40; i++) {
@@ -228,13 +230,13 @@ struct Colors {
                       setTimeout(() => {
                         this.onTotalCount += 4;
                         resolve();
-                      }, i * 100);
+                      }, i * 150);
                     })
                   );
                 }
                 await Promise.all([promise]);
                 this.isOnReachEnd = true;
-                console.info(`[Colors] 结束加载 isListLoading = ${this.isListLoading}`)
+                console.info(`[Colors] 结束加载 isListLoading = ${this.isOnReachEnd}`)
               } else {
                 this.isListLoading = false;
               }

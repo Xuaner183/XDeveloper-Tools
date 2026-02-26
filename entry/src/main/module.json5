@@ -49,6 +49,12 @@
           }
         ],
       }
+    ],
+    "metadata": [
+      {
+        "name": "configColorModeChangePerformanceInArkUI",
+        "value": "true"
+      }
     ]
   }
 }
