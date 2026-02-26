@@ -4,10 +4,19 @@ import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { NavLoadingParm } from './Loading';
 import { NavHomeParm } from './Home';
+import { ColorsDetailBuilder } from './ColorsDetail';
 
 const lightModeIndex: number = 0;
 const darkModeIndex: number = 1;
 
+export interface ColorsDetailRouterParam {
+  chunkColor: ResourceColor;
+  resourceIndexString: string | Resource;
+  resourceColorName: string;
+  resourceIndexNumber: number;
+  DetailColorMode: ThemeColorMode;
+  colorHex?: string;
+}
 
 @Extend(Text)
 function TextStyle() {
@@ -46,6 +55,8 @@ struct Colors {
   @Local private onTotalCount: number = 50;
   private isOnReachEnd: boolean = true;
   @Local private isListLoading: boolean = true;
+  @Provider('isModalOpen') private isModalOpen: boolean = false;
+  @Provider('isModalOpening') private isModalOpening: boolean = false;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -150,10 +161,11 @@ struct Colors {
   ListItemColorChunk(
     height: Length,
     width: Length,
-    backgroundColor: ResourceColor,
-    indexText: string | Resource | undefined = undefined,
-    resourceName: string | Resource | undefined = undefined,
-    zIndex: number = 1
+    chunkColor: ResourceColor,
+    resourceIndexString: string | Resource = '-1',
+    resourceColorName: string | undefined = undefined,
+    zIndex: number = 1,
+    index: number
   ) {
     ListItem() {
       WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
@@ -163,7 +175,7 @@ struct Colors {
           alignItems: ItemAlign.Center
         }) {
           Rect({ width: '100%', height: '100%' })
-            .fill(backgroundColor)
+            .fill(chunkColor)
             .radius(14.4)
         }
         .height(height)
@@ -175,13 +187,45 @@ struct Colors {
         .backgroundImagePosition(Alignment.Center)
         .borderRadius(16)
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-        .overlay(this.TextOverlay(indexText, resourceName))
+        .overlay(this.TextOverlay(resourceIndexString, resourceColorName))
       }
     }
     .width('100%')
     .height('auto')
     .clickEffect({ level: ClickEffectLevel.LIGHT })
     .padding({ top: 8, bottom: 8 })
+    .onClick(() => {
+      // const param: ColorsDetailRouterParam = {
+      //   chunkColor: chunkColor,
+      //   resourceIndexString: resourceIndexString,
+      //   resourceColorName: resourceColorName || '',
+      //   resourceIndexNumber: index,
+      //   DetailColorMode: this.colorModeLocal
+      // }
+      // this.getUIContext().getRouter().pushUrl({
+      //   url: 'pages/ColorsDetail',
+      //   params: param
+      // })
+      this.useAppInfo.modalOpen[index] = true;
+      console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
+    })
+    .bindSheet(
+      this.useAppInfo.modalOpen[index]!!,
+      ColorsDetailBuilder(
+        chunkColor,
+        resourceIndexString,
+        resourceColorName ? resourceColorName : '' ,
+        this.useAppInfo.SYS_RESOURCE_HEX_STRING ? this.useAppInfo.SYS_RESOURCE_HEX_STRING[index] : '',
+        this.colorModeLocal,
+        index
+      ),
+      {
+        onWillDisappear: () => {
+          this.useAppInfo.modalOpen[index] = false;
+          console.info(`[Colors] 关闭 ${index}: ${this.useAppInfo.modalOpen[index]}`)
+        }
+      }
+    )
 
   }
 
@@ -201,7 +245,7 @@ struct Colors {
                   })
                   .each((obj) => {
                     this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
-                      obj.index)
+                      obj.index, obj.index)
                   })
                 // 加载时显示无进度动画，加载完显示到底了
                 if (this.isListLoading) {
