@@ -67,15 +67,14 @@ export struct Loading {
       }
     })
     .onShown(() => {
-      this.isColors && setTimeout(() => {
-        this.Init()
-      }, 1000);
+      this.isColors && this.Init();
     })
-    .systemTransition(NavigationSystemTransitionType.NONE)
+    .systemTransition(NavigationSystemTransitionType.FADE)
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .mode(NavDestinationMode.DIALOG)
     .onBackPressed(() => {
-      this.mainNavPathStack.popToIndex(0);
+      this.mainNavPathStack.clear(true);
+      // this.mainNavPathStack.popToIndex(0);
       return true;
     })
   }

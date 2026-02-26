@@ -41,9 +41,11 @@ struct Colors {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
   @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
-  @Local private systemTransition: NavigationSystemTransitionType = NavigationSystemTransitionType.DEFAULT;
+  // @Local private systemTransition: NavigationSystemTransitionType = NavigationSystemTransitionType.DEFAULT;
   private isLoadDown: boolean = false;
   @Local private onTotalCount: number = 50;
+  private isOnReachEnd: boolean = true;
+  @Local private isListLoading: boolean = true;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -51,14 +53,28 @@ struct Colors {
 
   @Builder
   TextOverlay(
-    text1: string | Resource | undefined = undefined,
-    text2: string | Resource | undefined = undefined
+    indexText: string | Resource | undefined = undefined,
+    resourceName: string | Resource | undefined = undefined
   ) {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.SpaceEvenly, alignItems: ItemAlign.Center }) {
-      Text(text1)
-        .TextStyle()
-        .zIndex(8)
-      Text(text2)
+
+      Flex() {
+        Row() {
+          Button(indexText, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
+            .backgroundColor(Color.Red)
+            .constraintSize({ minWidth: 30, minHeight: 30 })
+            .fontWeight(FontWeight.Bold)
+            .shadow(ShadowStyle.OUTER_DEFAULT_XS)
+        }
+        // .borderRadius(16)
+        .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
+        .alignSelf(ItemAlign.Start)
+        Blank()
+          .flexGrow(1)
+          .flexShrink(8)
+      }
+
+      Text(resourceName)
         .TextStyle()
         .zIndex(8)
     }
@@ -103,8 +119,8 @@ struct Colors {
     height: Length,
     width: Length,
     backgroundColor: ResourceColor,
-    text1: string | Resource | undefined = undefined,
-    text2: string | Resource | undefined = undefined,
+    indexText: string | Resource | undefined = undefined,
+    resourceName: string | Resource | undefined = undefined,
     zIndex: number = 1
   ) {
     ListItem() {
@@ -126,7 +142,7 @@ struct Colors {
         })
         .backgroundImagePosition(Alignment.Center)
         .borderRadius(16)
-        .overlay(this.TextOverlay(text1, text2))
+        .overlay(this.TextOverlay(indexText, resourceName))
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
       }
     }
@@ -154,12 +170,41 @@ struct Colors {
                     this.ListItemColorChunk(100, '100%', obj.item, String(obj.index), ColorSysString[obj.index],
                       obj.index)
                   })
+                if (this.isListLoading) {
+                  ListItem() {
+                    Row() {
+                      Text('正在加载...')
+                      LoadingProgress()
+                        .width(30)
+                        .height(30)
+                    }
+                    .width('100%')
+                    .height(100)
+                    .justifyContent(FlexAlign.Center)
+                  }
+                  .width('100%')
+                  .height('auto')
+                  .padding({ right: 16, left: 16 })
+                }
+                if (!this.isListLoading) {
+                  ListItem() {
+                    Row() {
+                      Text('到底了')
+                    }
+                    .width('100%')
+                    .height(100)
+                    .justifyContent(FlexAlign.Center)
+                  }
+                  .width('100%')
+                  .height('auto')
+                  .padding({ right: 16, left: 16 })
+                }
               }
               .padding({
                 right: 16,
                 left: 16,
-                bottom: 120,
-                top: 120
+                top: 120,
+                bottom: 120
               })
             }
             .width('100%')
@@ -171,9 +216,27 @@ struct Colors {
               scrollForward: NestedScrollMode.PARENT_FIRST,
               scrollBackward: NestedScrollMode.SELF_FIRST
             })
-            .onReachEnd(() => {
-              if (this.onTotalCount < ColorSysResourse.length) {
-                this.onTotalCount += 50;
+            .onReachEnd(async () => {
+              if (this.isOnReachEnd && this.onTotalCount < ColorSysResourse.length) {
+                this.isOnReachEnd = false;
+                console.info(`[Colors] 开始加载 isListLoading = ${this.isListLoading}`)
+                this.onTotalCount += 4;
+                const promise: Promise<void>[] = [];
+                for (let i = 0; i < 40; i++) {
+                  promise.push(
+                    new Promise(resolve => {
+                      setTimeout(() => {
+                        this.onTotalCount += 4;
+                        resolve();
+                      }, i * 100);
+                    })
+                  );
+                }
+                await Promise.all([promise]);
+                this.isOnReachEnd = true;
+                console.info(`[Colors] 结束加载 isListLoading = ${this.isListLoading}`)
+              } else {
+                this.isListLoading = false;
               }
             })
             .cachedCount(4)
@@ -189,25 +252,23 @@ struct Colors {
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((ctx) => {
       this.mainNavPathStack = ctx.pathStack;
+      if (!this.isLoadDown) {
+        this.mainNavPathStack.pushPath({
+          name: 'Loading',
+          param: { isColors: true } as NavHomeParm,
+          onPop: (popInfo: PopInfo) => {
+            if (popInfo.result) {
+              const param = popInfo.result as NavLoadingParm;
+              param.isLoadDown && (this.isLoadDown = true);
+              console.info('[Colors] 初始化完成')
+            }
+          }
+        })
+      }
       // const parm = ctx.pathInfo.param as NavHomeParm;
       // parm.systemTransition && (this.systemTransition = parm.systemTransition);
     })
     .onShown(() => {
-      if (!this.isLoadDown) {
-        setTimeout(() => {
-          this.mainNavPathStack.pushPath({
-            name: 'Loading',
-            param: { isColors: true } as NavHomeParm,
-            onPop: (popInfo: PopInfo) => {
-              if (popInfo.result) {
-                const param = popInfo.result as NavLoadingParm;
-                param.isLoadDown && (this.isLoadDown = true);
-                console.info('[Colors] 初始化完成')
-              }
-            }
-          }, false)
-        }, 0)
-      }
     })
     .bindToScrollable([this.mainScroller])
     .title('颜色', {
