@@ -83,6 +83,36 @@ struct Colors {
     .width('100%').height('100%')
   }
 
+  @Builder IsLoading() {
+    ListItem() {
+      Row() {
+        Text('正在加载...')
+        LoadingProgress()
+          .width(30)
+          .height(30)
+      }
+      .width('100%')
+      .height(100)
+      .justifyContent(FlexAlign.Center)
+    }
+    .width('100%')
+    .height('auto')
+    .padding({ right: 16, left: 16 })
+  }
+  @Builder IsEnd() {
+    ListItem() {
+      Row() {
+        Text('到底了')
+      }
+      .width('100%')
+      .height(100)
+      .justifyContent(FlexAlign.Center)
+    }
+    .width('100%')
+    .height('auto')
+    .padding({ right: 16, left: 16 })
+  }
+
   /**
    * 标题栏右上角切换局部深浅色开关
    */
@@ -164,6 +194,7 @@ struct Colors {
           Column() {
             List() {
               ListItemGroup() {
+                // 批量加载 ListItem
                 Repeat(ColorSysResourse)
                   .virtualScroll({
                     onTotalCount: () => this.onTotalCount
@@ -172,34 +203,11 @@ struct Colors {
                     this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
                       obj.index)
                   })
+                // 加载时显示无进度动画，加载完显示到底了
                 if (this.isListLoading) {
-                  ListItem() {
-                    Row() {
-                      Text('正在加载...')
-                      LoadingProgress()
-                        .width(30)
-                        .height(30)
-                    }
-                    .width('100%')
-                    .height(100)
-                    .justifyContent(FlexAlign.Center)
-                  }
-                  .width('100%')
-                  .height('auto')
-                  .padding({ right: 16, left: 16 })
-                }
-                if (!this.isListLoading) {
-                  ListItem() {
-                    Row() {
-                      Text('到底了')
-                    }
-                    .width('100%')
-                    .height(100)
-                    .justifyContent(FlexAlign.Center)
-                  }
-                  .width('100%')
-                  .height('auto')
-                  .padding({ right: 16, left: 16 })
+                  this.IsLoading();
+                } else {
+                  this.IsEnd();
                 }
               }
               .padding({
@@ -267,8 +275,6 @@ struct Colors {
           }
         })
       }
-      // const parm = ctx.pathInfo.param as NavHomeParm;
-      // parm.systemTransition && (this.systemTransition = parm.systemTransition);
     })
     .onShown(() => {
     })
@@ -278,11 +284,6 @@ struct Colors {
       barStyle: BarStyle.STACK
     })
     .menus(this.SwitchColorMode())
-    // .systemTransition(this.systemTransition)
-    // .onBackPressed(() => {
-    //   this.mainNavPathStack.popToIndex(0);
-    //   return true;
-    // })
   }
 
 }
