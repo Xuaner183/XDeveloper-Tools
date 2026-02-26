@@ -3,7 +3,9 @@ import { UIAbilityContext, type common } from './UIAbilityContext';
 import { resourceManager } from '@kit.LocalizationKit';
 import { type AppInfo } from './AppInfo';
 import { ResourceManager as RM } from './ResourceManager';
-import { ColorSysResourseId, multiConvertDecimalColorToHex, ColorSysString, ColorSysBackgroundString } from './ColorArray';
+import { multiConvertDecimalColorToHex, ColorSysString } from './ColorArray';
+import { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
+import { PreferencesControl } from './PreferencesManager';
 
 export class ColorsCommon extends UIAbilityContext {
 
@@ -43,8 +45,16 @@ export class ColorsCommon extends UIAbilityContext {
 export class ColorsPageInit extends UIAbilityContext {
   private useAppInfo: AppInfo;
   private useRM: RM = new RM(this.uiContext);
+  private usePreferencesControl: PreferencesControl = new PreferencesControl(this.uiContext);
 
   public async init() {
+    const sysColorResHexStringPref = await this.usePreferencesControl.prefGet(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.SYS_RESOURCE_HEX_STRING, []);
+    if (Array.isArray(sysColorResHexStringPref) && sysColorResHexStringPref.length >= 10 &&
+    (sysColorResHexStringPref as Array<string | number | boolean | Object>)
+      .every((item) => (typeof item === 'string'))) {
+      this.useAppInfo.SYS_RESOURCE_HEX_STRING = sysColorResHexStringPref as string[];
+      return;
+    }
     let colorDecimal: number[] | null = null;
     try {
       colorDecimal = await this.useRM.getMultipleResourceColorSys(ColorSysString);
@@ -55,7 +65,10 @@ export class ColorsPageInit extends UIAbilityContext {
       const colorHexString: string[] | null = multiConvertDecimalColorToHex(colorDecimal);
       if (colorHexString) {
         this.useAppInfo.SYS_RESOURCE_HEX_STRING = colorHexString;
-        console.log(`[ColorsPageInit] ${colorHexString.join(',\n')}`);
+        this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.SYS_RESOURCE_HEX_STRING, colorHexString);
+        // colorHexString.forEach((v: string, index: number) => {
+          // console.log(`[ColorsPageInit] ${index}: ${v}`);
+        // })
       }
     }
   }

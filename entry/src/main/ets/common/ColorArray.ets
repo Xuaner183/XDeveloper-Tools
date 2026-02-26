@@ -1181,7 +1181,7 @@ export const ColorSysResourseId: number[] =
  */
 export function convertDecimalColorToHex(decimalColorValue: number): string {
   if (decimalColorValue < 0 || decimalColorValue > 0xFFFFFFFF) {
-    console.error(`[ColorArray] 批量转换十进制颜色值为HEX失败：${decimalColorValue} 是非法十进制值`);
+    console.error(`[ColorArray] 批量转换十进制颜色值为HEX失败：${decimalColorValue.toString()} 是非法十进制值`);
     return 'null'
   }
   const paddedHexColor = ('00000000' + decimalColorValue.toString(16).toUpperCase()).slice(-8);

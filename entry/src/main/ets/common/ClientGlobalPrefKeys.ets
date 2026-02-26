@@ -8,4 +8,6 @@ export class ClientGlobalPrefKeys {
   static readonly COLOR_MODE_LOCAL_IN_APP: string = 'colorModeLocalInApp';
   // 系统的颜色模式
   static readonly COLOR_MODE_LOCAL_IN_SYS: string = 'colorModeLocalInSys';
+  // 系统颜色HEX字符串
+  static readonly SYS_RESOURCE_HEX_STRING: string = 'sysResourceHexString';
 }

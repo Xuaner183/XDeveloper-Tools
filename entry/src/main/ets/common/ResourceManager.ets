@@ -128,10 +128,10 @@ export class ResourceManager extends UIAbilityContext {
       const colorResult: PromiseSettledResult<number>[] = await Promise.allSettled(resPromise);
       colorResult.forEach((v, index) => {
         if (v.status === "fulfilled") {
-          console.log(`[ResourceManager] Index: ${index} 成功: ${v.value}`);
+          // console.log(`[ResourceManager] Index: ${index} 成功: ${v.value}`);
           realResult.push(v.value)
         } else {
-          console.error(`[ResourceManager] Index: ${index} 失败: ${v.reason}`);
+          // console.error(`[ResourceManager] Index: ${index} 失败: ${JSON.stringify(v.reason)}`);
           realResult.push(-1)
         }
       })
