@@ -37,7 +37,7 @@ export class PreferencesControl extends UIAbilityContext {
         return null;
       })
       if (prefGet) {
-        console.info(`[PreferencesControl] 获取用户首选项(${key})的值为 ${prefGet}`)
+        // console.info(`[PreferencesControl] 获取用户首选项(${key})的值为 ${prefGet}`)
         return prefGet;
       } else { return null; }
     } else { return null; }
@@ -76,7 +76,7 @@ export class PreferencesControl extends UIAbilityContext {
               console.error(`[PreferencesControl] 存储用户首选项 flush (${key}) 失败: ${e.message}}(${e.code})`);
             });
         }).then(() => {
-          console.info(`[PreferencesControl] 存储用户首选项成功 key: ${key}, value: ${value}`);
+          // console.info(`[PreferencesControl] 存储用户首选项成功 key: ${key}, value: ${value}`);
       });
     } catch (e) {
       console.error(`[PreferencesControl] 获取用户首选项 getPreferences (${key}) 失败：${e}`);

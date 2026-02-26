@@ -1,7 +1,9 @@
-import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys, ColorsPageInit } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
+import { NavLoadingParm } from './Loading';
+import { NavHomeParm } from './Home';
 
 const lightModeIndex: number = 0;
 const darkModeIndex: number = 1;
@@ -39,6 +41,9 @@ struct Colors {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
   @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
+  @Local private systemTransition: NavigationSystemTransitionType = NavigationSystemTransitionType.DEFAULT;
+  private isLoadDown: boolean = false;
+  @Local private onTotalCount: number = 50;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -89,6 +94,7 @@ struct Colors {
         .width(100)
     }
     .padding({ top: 8, bottom: 8, left: 16, right: 16 })
+    .width('auto')
     // .margin({ left: 16, right: 16 })
   }
 
@@ -131,10 +137,6 @@ struct Colors {
 
   }
 
-  aboutToAppear(): void {
-    const useColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this), this.useAppInfo);
-    useColorsPageInit.init();
-  }
 
   build() {
 
@@ -146,7 +148,7 @@ struct Colors {
               ListItemGroup() {
                 Repeat(ColorSysResourse)
                   .virtualScroll({
-                    totalCount: ColorSysResourse.length
+                    onTotalCount: () => this.onTotalCount
                   })
                   .each((obj) => {
                     this.ListItemColorChunk(100, '100%', obj.item, String(obj.index), ColorSysString[obj.index],
@@ -169,6 +171,12 @@ struct Colors {
               scrollForward: NestedScrollMode.PARENT_FIRST,
               scrollBackward: NestedScrollMode.SELF_FIRST
             })
+            .onReachEnd(() => {
+              if (this.onTotalCount < ColorSysResourse.length) {
+                this.onTotalCount += 50;
+              }
+            })
+            .cachedCount(4)
           }
         }
       }
@@ -181,6 +189,25 @@ struct Colors {
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((ctx) => {
       this.mainNavPathStack = ctx.pathStack;
+      // const parm = ctx.pathInfo.param as NavHomeParm;
+      // parm.systemTransition && (this.systemTransition = parm.systemTransition);
+    })
+    .onShown(() => {
+      if (!this.isLoadDown) {
+        setTimeout(() => {
+          this.mainNavPathStack.pushPath({
+            name: 'Loading',
+            param: { isColors: true } as NavHomeParm,
+            onPop: (popInfo: PopInfo) => {
+              if (popInfo.result) {
+                const param = popInfo.result as NavLoadingParm;
+                param.isLoadDown && (this.isLoadDown = true);
+                console.info('[Colors] 初始化完成')
+              }
+            }
+          }, false)
+        }, 0)
+      }
     })
     .bindToScrollable([this.mainScroller])
     .title('颜色', {
@@ -188,6 +215,11 @@ struct Colors {
       barStyle: BarStyle.STACK
     })
     .menus(this.SwitchColorMode())
+    // .systemTransition(this.systemTransition)
+    // .onBackPressed(() => {
+    //   this.mainNavPathStack.popToIndex(0);
+    //   return true;
+    // })
   }
 
 }

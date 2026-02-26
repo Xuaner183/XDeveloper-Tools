@@ -1,6 +1,10 @@
 import { Initialize } from '../common/Index';
 import { common } from '@kit.AbilityKit';
 
+export interface NavHomeParm {
+  isColors?: boolean;
+  systemTransition?: NavigationSystemTransitionType;
+}
 
 @ComponentV2
 export struct Home {
@@ -24,8 +28,12 @@ export struct Home {
       Column() {
         Button('Color', { type: ButtonType.Normal })
           .onClick(() => {
+            const param: NavHomeParm = {
+              isColors: true
+            }
             this.mainNavPathStack.pushPath({
-              name: 'Colors'
+              name: 'Colors',
+              param: param
             })
           })
       }

@@ -1,11 +1,12 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { UIAbilityContext, type common } from './UIAbilityContext';
 import { resourceManager } from '@kit.LocalizationKit';
-import { type AppInfo } from './AppInfo';
+import { AppInfo } from './AppInfo';
 import { ResourceManager as RM } from './ResourceManager';
 import { multiConvertDecimalColorToHex, ColorSysString } from './ColorArray';
 import { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
 import { PreferencesControl } from './PreferencesManager';
+import { AppStorageV2 } from '@kit.ArkUI';
 
 export class ColorsCommon extends UIAbilityContext {
 
@@ -43,17 +44,17 @@ export class ColorsCommon extends UIAbilityContext {
 }
 
 export class ColorsPageInit extends UIAbilityContext {
-  private useAppInfo: AppInfo;
+  private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.uiContext))!;
   private useRM: RM = new RM(this.uiContext);
   private usePreferencesControl: PreferencesControl = new PreferencesControl(this.uiContext);
 
-  public async init() {
+  public async init(): Promise<boolean> {
     const sysColorResHexStringPref = await this.usePreferencesControl.prefGet(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.SYS_RESOURCE_HEX_STRING, []);
     if (Array.isArray(sysColorResHexStringPref) && sysColorResHexStringPref.length >= 10 &&
     (sysColorResHexStringPref as Array<string | number | boolean | Object>)
       .every((item) => (typeof item === 'string'))) {
       this.useAppInfo.SYS_RESOURCE_HEX_STRING = sysColorResHexStringPref as string[];
-      return;
+      return true;
     }
     let colorDecimal: number[] | null = null;
     try {
@@ -61,7 +62,7 @@ export class ColorsPageInit extends UIAbilityContext {
     } catch (e) {
       console.error(e);
     } finally {
-      if (!colorDecimal) { console.error('[Colors] 初始化失败'); return }
+      if (!colorDecimal) { return false }
       const colorHexString: string[] | null = multiConvertDecimalColorToHex(colorDecimal);
       if (colorHexString) {
         this.useAppInfo.SYS_RESOURCE_HEX_STRING = colorHexString;
@@ -69,12 +70,13 @@ export class ColorsPageInit extends UIAbilityContext {
         // colorHexString.forEach((v: string, index: number) => {
           // console.log(`[ColorsPageInit] ${index}: ${v}`);
         // })
+        return true;
       }
+      return false;
     }
   }
 
-  constructor(uiContext: common.UIAbilityContext, AppInfo: AppInfo) {
+  constructor(uiContext: common.UIAbilityContext) {
     super(uiContext);
-    this.useAppInfo = AppInfo;
   }
 }

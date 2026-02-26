@@ -4,6 +4,11 @@
       "name": "Colors",
       "pageSourceFile": "src/main/ets/pages/Colors.ets",
       "buildFunction": "ColorsBuilder"
+    },
+    {
+      "name": "Loading",
+      "pageSourceFile": "src/main/ets/pages/Loading.ets",
+      "buildFunction": "LoadingBuilder"
     }
   ]
 }
