@@ -1,7 +1,6 @@
 import { UIAbilityContext } from './UIAbilityContext';
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { resourceManager } from '@kit.LocalizationKit';
-import map from '@hms.core.map.map';
 
 /**
    // AppStorageV2————应用全局UI状态存储
@@ -14,7 +13,7 @@ export class AppInfo extends UIAbilityContext {
   // Colors 页的列表局部颜色模式
   @Trace public colorModeLocalInColorsPage: number = 0;
   // 应用自定义颜色模式
-  @Trace public colorModeLocalInApp: ConfigurationConstant.ColorMode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
+  @Trace public colorModeLocalInApp: ConfigurationConstant.ColorMode | undefined;
   // 系统的颜色模式
   @Trace public colorModeLocalInSys: resourceManager.ColorMode = resourceManager.ColorMode.LIGHT;
   // 系统颜色资源的HEX字符串版

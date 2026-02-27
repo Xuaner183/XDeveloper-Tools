@@ -2,6 +2,8 @@ import { AbilityConstant, ConfigurationConstant, UIAbility, Want, Configuration 
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { emitter } from '@kit.BasicServicesKit';
+import { AppStorageV2 } from '@kit.ArkUI';
+import { AppInfo } from '../common/Index';
 
 const DOMAIN = 0x0000;
 
@@ -64,5 +66,7 @@ export default class EntryAbility extends UIAbility {
 
     // 或者通过AppStorage保存当前主题状态
     // AppStorage.setOrCreate('colorMode', currentMode);
+    const useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.context))!;
+    useAppInfo.colorModeLocalInApp = currentMode;
   }
 }

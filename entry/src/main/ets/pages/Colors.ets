@@ -3,7 +3,7 @@ import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGl
   getResourceColorRgb
 } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
-import { common } from '@kit.AbilityKit';
+import { common, ConfigurationConstant } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { NavLoadingParm } from './Loading';
 import { NavHomeParm } from './Home';
@@ -61,6 +61,10 @@ struct Colors {
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
+  }
+
+  private init() {
+
   }
 
   @Builder
@@ -213,10 +217,11 @@ struct Colors {
         index
       ),
       {
-        onWillDisappear: () => {
-          this.useAppInfo.modalOpen[index] = false;
-          console.info(`[Colors] 关闭 ${index}: ${this.useAppInfo.modalOpen[index]}`)
-        }
+        dragBar: true,
+        // onWillDisappear: () => {
+        //   this.useAppInfo.modalOpen[index] = false;
+        //   console.info(`[Colors] 关闭 ${index}: ${this.useAppInfo.modalOpen[index]}`)
+        // }
       }
     )
 

@@ -77,8 +77,8 @@ struct ColorsDetail {
   @Local colorRgba: string = '';
   @Local colorHex: string = '';
   @Local isColorError: boolean = false;
-  private colorLightModeValue?: ColorValue;
-  private colorDarkModeValue?: ColorValue;
+  @Local private colorLightModeValue?: ColorValue;
+  @Local private colorDarkModeValue?: ColorValue;
 
   private init() {
     const colorObj: ColorMetrics | null = getColor(this.resourceColorName);
@@ -145,8 +145,13 @@ struct ColorsDetail {
     }
   }
 
-  aboutToReuse(): void {
+  aboutToAppear(): void {
+    console.info(`[ColorsDetail] 当前APP颜色模式：${String(this.useAppInfo.colorModeLocalInApp)}}`)
     this.init();
+  }
+
+  aboutToDisappear(): void {
+    this.useAppInfo.modalOpen[this.resourceIndexNumber] = false;
   }
 
   @Builder
@@ -186,7 +191,7 @@ struct ColorsDetail {
             case darkModeIndex:
               this.detailColorMode = ThemeColorMode.DARK;
               this.useAppInfo.colorModeLocalInColorsPage = darkModeIndex;
-              this.useColorModeSwitch.setLight();
+              this.useColorModeSwitch.setDark();
               this.init();
               console.info('[Colors] 点击了深色模式！')
               // this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, darkModeIndex);
