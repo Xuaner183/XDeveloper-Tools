@@ -9,10 +9,29 @@ export enum SwitchColorModeIndex {
   Light,
   Dark
 }
+enum RGBA {
+  red,
+  green,
+  blue,
+  alpha
+}
+
+interface ColorValue {
+  colorRgba: Array<RGBA>;
+  colorHex: string;
+  colorHSL: string;
+}
+
+interface AllColorArray {
+  colorRgbaArray: Array<Array<RGBA>>;
+  colorHexArray: Array<string>;
+  color10Array: Array<string>;
+}
 
 /**
    // AppStorageV2————应用全局UI状态存储
    // 使用方法：
+   import { AppStorageV2 } from '@kit.ArkUI';
    private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.uiContext))!;
  */
 
@@ -26,8 +45,21 @@ export class AppInfo extends UIAbilityContext {
   @Trace public colorModeLocalInApp: ConfigurationConstant.ColorMode | undefined;
   // 系统颜色资源的HEX字符串版
   public SYS_RESOURCE_HEX_STRING?: Array<string>;
-
+  // 用于绑定每个色块的模态窗口状态
   @Trace public modalOpen: boolean[] = [];
+  // 浅色模式真实颜色值RGBA
+  @Trace public LIGHT_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
+  // 深色模式真实颜色值RGBA
+  @Trace public DARK_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
+  // 存储各种类型颜色Map
+  @Trace public ALL_COLORS: Array<AllColorArray> = [];
+
+  @Trace public LIGHT_MODE_RGBA_ARRAY: Array<string> = [];
+  @Trace public DARK_MODE_RGBA_ARRAY: Array<string> = [];
+  // 判断颜色数组是否存在，避免重复循环
+  public isLightColorFull = false;
+  public isDarkColorFull = false;
+
 
   /**
    * 切换颜色模式条的控制器
@@ -65,9 +97,10 @@ export class AppInfo extends UIAbilityContext {
   }
 
   /**
-   * 监听应用颜色变化（防止跟随系统颜色模式，但应用不知道）
+   * 监听应用颜色变化
+   * 只有ColorMode的COLOR_MODE_LIGHT和COLOR_MODE_DARK两种值，不会返回COLOR_MODE_NOT_SET
    */
-  public listenAppColorModeChange() {
+  public listenAppColorModeChange(callback: (data: CurrentModeData) => void = () => {}) {
     const event: emitter.InnerEvent = {
       eventId: 1001, // 深浅色变化事件
     };
@@ -76,7 +109,23 @@ export class AppInfo extends UIAbilityContext {
       console.info(`[Colors] 接收颜色模式事件: ${JSON.stringify(data)}`);
       if (data) {
         this.colorModeLocalInApp = (data as CurrentModeData).themeMode;
+        callback(data as CurrentModeData);
       }
     })
+  }
+
+  /**
+   * 检测颜色数组是否满
+   */
+  public isFull(isDark: boolean) {
+    if (isDark && this.DARK_MODE_COLORS_ARRAY.length > 1 ||
+      this.DARK_MODE_RGBA_ARRAY.length > 1) {
+      return true;
+    } else if (!isDark && this.LIGHT_MODE_COLORS_ARRAY.length > 1 ||
+      this.LIGHT_MODE_RGBA_ARRAY.length > 1) {
+      return true
+    } else {
+      return false;
+    }
   }
 }

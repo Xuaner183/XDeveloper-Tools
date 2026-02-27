@@ -1,6 +1,8 @@
 import { AbilityStage, Configuration, ConfigurationConstant } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { emitter } from '@kit.BasicServicesKit';
+import { AppStorageV2 } from '@kit.ArkUI';
+import { OnListen } from '../common/OnListen'
 
 const TAG: string = '[MyAbilityStage]';
 const DOMAIN_NUMBER: number = 0xFF00;
@@ -12,11 +14,18 @@ export interface CurrentModeData {
 
 export default class EnvAbilityStage extends AbilityStage {
   onCreate(): void {
-
   }
 
   onConfigurationUpdate(newConfig: Configuration): void {
     hilog.info(DOMAIN_NUMBER, TAG, `系统环境初始化, 颜色模式: ${newConfig.colorMode}`);
+
+    // 判断是否是深色模式
+    const useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
+    if (newConfig.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
+      useOnListen.isDarkMode = true;
+    } else {
+      useOnListen.isDarkMode = false;
+    }
 
     super.onConfigurationUpdate(newConfig);
     // 获取当前主题模式

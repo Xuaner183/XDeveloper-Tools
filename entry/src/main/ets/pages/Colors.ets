@@ -1,4 +1,4 @@
-import { ColorSysResourse, ColorSysString, AppInfo } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorsPageInit } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
@@ -40,6 +40,7 @@ export function ColorsBuilder() {
 @ComponentV2
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
+  private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
   // private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
   // private useColorModeSwitch: ColorModeSwitch = new ColorModeSwitch(this.getContext());
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
@@ -55,6 +56,7 @@ struct Colors {
   @Local private onTotalCount: number = 50;
   private isOnReachEnd: boolean = true;
   @Local private isListLoading: boolean = true;
+  private isDataReady: boolean = false;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -62,7 +64,7 @@ struct Colors {
 
   private init() {
     // 启动监听
-    this.useAppInfo.listenAppColorModeChange();
+    // this.useAppInfo.listenAppColorModeChange();
   }
 
 
@@ -142,7 +144,14 @@ struct Colors {
       TabSegmentButtonV2({
         items: this.symbolItems,
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
-        onItemClicked: (index: number) => { this.useAppInfo.switchColorModeIndexManager(index) }
+        onItemClicked: (index: number) => {
+          this.useAppInfo.switchColorModeIndexManager(index);
+          // 如果某数组没满则再循环获取
+          if (!this.useAppInfo.isFull(this.useOnListen.isDarkMode)) {
+            const useColorsPageInit: ColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
+            useColorsPageInit.init()
+          }
+        }
       })
         .width(200)
     }
