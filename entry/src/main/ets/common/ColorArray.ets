@@ -1212,3 +1212,15 @@ export function getResourceColorRgb(colorString: string) {
     return (e as BusinessError).message;
   }
 }
+/**
+ * 获取resourceColor对象
+ */
+export function getColor(colorString: string): ColorMetrics | null {
+  const resourceColor: Resource = $r(`sys.color.${colorString}`);
+  try {
+    const color = ColorMetrics.resourceColor(resourceColor);
+    return color;
+  } catch (e) {
+    return null;
+  }
+}

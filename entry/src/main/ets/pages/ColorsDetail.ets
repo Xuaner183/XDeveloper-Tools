@@ -1,13 +1,31 @@
 import { TabSegmentButtonV2, SegmentButtonV2Items, ColorMetrics } from '@kit.ArkUI';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
-import { ResourceManager, AppInfo, getResourceColorRgb, convertDecimalColorToHex, ColorModeSwitch } from '../common/Index';
+import { ResourceManager, AppInfo, getResourceColorRgb, convertDecimalColorToHex, ColorModeSwitch, getColor } from '../common/Index';
+import colorsea from 'colorsea';
 
 
 const lightModeIndex: number = 0;
 const darkModeIndex: number = 1;
 
-const nullString: string = 'null';
+const errorText: string = '您当前系统不存在';
+
+interface ColorValue {
+  colorRgba: Array<RGBA>;
+  colorHex: string
+}
+
+enum RGBA {
+  red,
+  green,
+  blue,
+  alpha
+}
+
+enum ColorType {
+  rgba,
+  hex
+}
 
 @Extend(Text)
 function TextStyle() {
@@ -27,7 +45,7 @@ function TextStyle() {
   resourceIndexString: string | Resource,
   resourceColorName: string,
   colorHex: string,
-  DetailColorMode: ThemeColorMode,
+  detailColorMode: ThemeColorMode,
   resourceIndexNumber: number
 ) {
   ColorsDetail({
@@ -35,7 +53,7 @@ function TextStyle() {
     resourceIndexString: resourceIndexString,
     resourceColorName: resourceColorName,
     // colorHex: colorHex,
-    DetailColorMode: DetailColorMode,
+    detailColorMode: detailColorMode,
     resourceIndexNumber: resourceIndexNumber
   });
 }
@@ -48,7 +66,7 @@ struct ColorsDetail {
   @Require @Param public resourceIndexString: string | Resource = '-1';
   @Require @Param public resourceColorName: string = 'null';
   // @Require @Param public colorHex?: string = undefined;
-  @Once @Param DetailColorMode: ThemeColorMode = 0;
+  @Once @Param detailColorMode: ThemeColorMode = 0;
   @Param public resourceIndexNumber: number = -1;
 
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
@@ -56,9 +74,80 @@ struct ColorsDetail {
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
 
-  @Local colorRgba: string = nullString;
-  @Local colorHex: string = nullString;
+  @Local colorRgba: string = '';
+  @Local colorHex: string = '';
+  @Local isColorError: boolean = false;
+  private colorLightModeValue?: ColorValue;
+  private colorDarkModeValue?: ColorValue;
 
+  private init() {
+    const colorObj: ColorMetrics | null = getColor(this.resourceColorName);
+    if (colorObj) {
+      const colorAlpha = Math.round((colorObj.alpha / 255) * 100 * 10) / 10;
+      const colorManager = colorsea([colorObj.red, colorObj.green, colorObj.red], colorAlpha , {
+        thowParseError: true
+      })
+      const colorHex = colorManager.hex();
+      const colorValue: ColorValue = {
+        colorRgba: [colorObj.red, colorObj.green, colorObj.red, colorAlpha],
+        colorHex: colorHex
+      }
+
+      if (this.detailColorMode === ThemeColorMode.LIGHT) {
+        this.colorLightModeValue = colorValue;
+      } else if (this.detailColorMode === ThemeColorMode.DARK) {
+        this.colorDarkModeValue = colorValue;
+      }
+
+      return this.isColorError = false;
+    } else {
+      return this.isColorError = true;
+    }
+  }
+
+  private lightModeTextManager(type: ColorType): string {
+    if (this.isColorError) {
+      return errorText;
+    }
+    if (!this.colorLightModeValue) {
+      return '失败'
+    }
+    switch (type) {
+      case ColorType.rgba:
+        const rgba = this.colorLightModeValue.colorRgba;
+        return `rgba (${rgba[RGBA.red]}, ${rgba[RGBA.green]}, ${rgba[RGBA.blue]}, ${rgba[RGBA.alpha]})`;
+      case  ColorType.hex:
+        return this.colorLightModeValue.colorHex
+    }
+  }
+
+  private darkModeTextManager(type: ColorType): string {
+    if (this.isColorError) {
+      return errorText;
+    }
+    if (!this.colorDarkModeValue) {
+      return '失败'
+    }
+    switch (type) {
+      case ColorType.rgba:
+        const rgba = this.colorDarkModeValue.colorRgba;
+        return `rgba (${rgba[RGBA.red]}, ${rgba[RGBA.green]}, ${rgba[RGBA.blue]}, ${rgba[RGBA.alpha]})`;
+      case  ColorType.hex:
+        return this.colorDarkModeValue.colorHex
+    }
+  }
+
+  private colorModeTextManager(type: ColorType): string {
+    if (this.detailColorMode === ThemeColorMode.DARK) {
+      return this.darkModeTextManager(type);
+    } else {
+      return this.lightModeTextManager(type);
+    }
+  }
+
+  aboutToReuse(): void {
+    this.init();
+  }
 
   @Builder
   TextOverlay(
@@ -66,22 +155,6 @@ struct ColorsDetail {
     resourceName: string | Resource | undefined = undefined
   ) {
     Column() {
-      // Column() {
-      //   Row() {
-      //     Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
-      //       .backgroundColor('#fffd2872')
-      //       .constraintSize({ minWidth: 30, minHeight: 30 })
-      //       .fontWeight(FontWeight.Bold)
-      //       .shadow(ShadowStyle.OUTER_DEFAULT_XS)
-      //   }
-      //   // .borderRadius(16)
-      //   .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
-      //   .alignSelf(ItemAlign.Start)
-      //   Blank()
-      //     .flexGrow(1)
-      //     .flexShrink(8)
-      // }
-      // .width('100%')
       Column() {
         Text(resourceName)
           .TextStyle()
@@ -99,22 +172,22 @@ struct ColorsDetail {
     Flex({ direction: FlexDirection.RowReverse }) {
       TabSegmentButtonV2({
         items: this.symbolItems,
-        selectedIndex: this.DetailColorMode!!,
+        selectedIndex: this.detailColorMode!!,
         onItemClicked: (index: number) => {
           switch (index) {
             case lightModeIndex:
-              this.DetailColorMode = ThemeColorMode.LIGHT;
+              this.detailColorMode = ThemeColorMode.LIGHT;
               this.useAppInfo.colorModeLocalInColorsPage = lightModeIndex;
               this.useColorModeSwitch.setLight();
-              this.getColor();
+              this.init();
               // this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, lightModeIndex);
               console.info('[Colors] 点击了浅色模式！')
               break;
             case darkModeIndex:
-              this.DetailColorMode = ThemeColorMode.DARK;
+              this.detailColorMode = ThemeColorMode.DARK;
               this.useAppInfo.colorModeLocalInColorsPage = darkModeIndex;
               this.useColorModeSwitch.setLight();
-              this.getColor();
+              this.init();
               console.info('[Colors] 点击了深色模式！')
               // this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, darkModeIndex);
               break;
@@ -126,14 +199,6 @@ struct ColorsDetail {
     .padding({ top: 8, bottom: 8, left: 16, right: 16 })
     .width('auto')
     // .margin({ left: 16, right: 16 })
-  }
-
-  private getColor() {
-    this.colorRgba = getResourceColorRgb(this.resourceColorName);
-  }
-
-  aboutToAppear(): void {
-    this.getColor();
   }
 
   build() {
@@ -163,11 +228,11 @@ struct ColorsDetail {
             Column() {
               Row() {
                 Text('HEX:')
-                Text(this.colorHex !== 'null' ? this.colorHex : '您的系统不存在该值')
+                Text(this.colorModeTextManager(ColorType.hex))
               }
               Row() {
                 Text('rgba: ')
-                Text(this.colorRgba)
+                Text(this.colorModeTextManager(ColorType.rgba))
               }
             }
             .justifyContent(FlexAlign.Start)

@@ -21,6 +21,7 @@ export class AppInfo extends UIAbilityContext {
   public SYS_RESOURCE_HEX_STRING?: Array<string>;
 
   @Trace public modalOpen: boolean[] = [];
+  // @Trace public colorRGB: string[] = [];
 
   // public setModalBoolean(index: number) {
   //   this.modalOpen[index] = false;

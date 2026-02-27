@@ -1,5 +1,6 @@
 import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys,
-  ColorModeSwitch
+  ColorModeSwitch,
+  getResourceColorRgb
 } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
@@ -65,7 +66,8 @@ struct Colors {
   @Builder
   TextOverlay(
     indexText: string | Resource | undefined = undefined,
-    resourceName: string | Resource | undefined = undefined
+    resourceName: string | undefined = undefined,
+    index: number
   ) {
     Column() {
       Column() {
@@ -189,7 +191,7 @@ struct Colors {
         .backgroundImagePosition(Alignment.Center)
         .borderRadius(16)
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-        .overlay(this.TextOverlay(resourceIndexString, resourceColorName))
+        .overlay(this.TextOverlay(resourceIndexString, resourceColorName, index))
       // }
     }
     .width('100%')
