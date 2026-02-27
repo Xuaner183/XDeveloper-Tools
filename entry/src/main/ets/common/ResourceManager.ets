@@ -89,8 +89,8 @@ export class ResourceManager extends UIAbilityContext {
    */
   public async getResourceColorSys(resName: string): Promise<number> {
     try {
-      const rM = resourceManager.getSysResourceManager();
-      const colorResource = await rM.getColorByName(resName);
+      const sysRM = resourceManager.getSysResourceManager();
+      const colorResource = await sysRM.getColorByName(resName);
       return colorResource;
     } catch (e) {
       console.error(`[ResourceManager] 获取颜色资源失败 ${(e as BusinessError).message}`)
@@ -121,9 +121,9 @@ export class ResourceManager extends UIAbilityContext {
     const realResult: number[] = [];
     try {
       let resPromise: Promise<number>[] = [];
-      const rM = resourceManager.getSysResourceManager();
+      const sysRM = resourceManager.getSysResourceManager();
       for (let i = 0; i < resId.length; i++) {
-        resPromise.push(rM.getColorByName(resId[i]));
+        resPromise.push(sysRM.getColorByName(resId[i]));
       }
       const colorResult: PromiseSettledResult<number>[] = await Promise.allSettled(resPromise);
       colorResult.forEach((v, index) => {
@@ -144,6 +144,13 @@ export class ResourceManager extends UIAbilityContext {
     } finally {
       return realResult;
     }
+  }
+
+  public getResourceColorMode(): resourceManager.ColorMode {
+    const rM = this.uiContext.resourceManager;
+    const configuration: resourceManager.Configuration = rM.getConfigurationSync();
+    const colorMode: resourceManager.ColorMode = configuration.colorMode;
+    return colorMode;
   }
 
   /**

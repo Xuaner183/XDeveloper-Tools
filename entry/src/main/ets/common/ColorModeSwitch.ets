@@ -1,4 +1,4 @@
-import { ConfigurationConstant, UIAbility } from '@kit.AbilityKit';
+import { ConfigurationConstant } from '@kit.AbilityKit';
 import { UIAbilityContext } from './UIAbilityContext';
 
 export class ColorModeSwitch extends UIAbilityContext {

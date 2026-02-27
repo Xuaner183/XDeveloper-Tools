@@ -13,6 +13,7 @@
     "installationFree": false,
     "pages": "$profile:main_pages",
     "routerMap": "$profile:router_map",
+    "srcEntry": "./ets/myabilitystage/MyAbilityStage.ets",
     "abilities": [
       {
         "name": "EntryAbility",

@@ -4,5 +4,6 @@ export * from './PreferencesManager';
 export { ResourceManager } from './ResourceManager';
 export { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
 export { Initialize } from './Initialize';
-export { AppInfo } from './AppInfo';
+export { AppInfo, SwitchColorModeIndex } from './AppInfo';
 export { ColorModeSwitch } from './ColorModeSwitch';
+export { CurrentModeData } from '../myabilitystage/MyAbilityStage';

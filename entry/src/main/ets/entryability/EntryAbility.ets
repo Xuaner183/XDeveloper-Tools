@@ -22,13 +22,16 @@ export default class EntryAbility extends UIAbility {
 
     if (!appColorMode || appColorMode === ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET) {
       setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+      console.info(`[EntryAbility] 根据首选项设置颜色模式：跟随系统`);
     } else {
       switch (appColorMode) {
         case ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT:
           setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT);
+          console.info(`[EntryAbility] 根据首选项设置颜色模式：浅色模式`);
           break;
         case ConfigurationConstant.ColorMode.COLOR_MODE_DARK:
           setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
+          console.info(`[EntryAbility] 根据首选项设置颜色模式：深色模式`);
           break;
         default:
           setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);

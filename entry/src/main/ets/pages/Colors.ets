@@ -1,16 +1,12 @@
-import { ColorSysResourse, ColorSysString, AppInfo, PreferencesControl, ClientGlobalPrefKeys,
-  ColorModeSwitch,
-  getResourceColorRgb
-} from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
-import { common, ConfigurationConstant } from '@kit.AbilityKit';
+import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { NavLoadingParm } from './Loading';
 import { NavHomeParm } from './Home';
 import { ColorsDetailBuilder } from './ColorsDetail';
-
-const lightModeIndex: number = 0;
-const darkModeIndex: number = 1;
+import { emitter } from '@kit.BasicServicesKit';
+import { CurrentModeData } from './Index';
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -44,16 +40,17 @@ export function ColorsBuilder() {
 @ComponentV2
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
-  private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
-  private useColorModeSwitch: ColorModeSwitch = new ColorModeSwitch(this.getContext());
+  // private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
+  // private useColorModeSwitch: ColorModeSwitch = new ColorModeSwitch(this.getContext());
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+    { icon: $r('app.media.routine') },
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
-  @Local symbolSelectedIndex: number = this.useAppInfo.colorModeLocalInColorsPage === ThemeColorMode.DARK ? 1 : 0;
+  // @Local symbolSelectedIndex: number = this.useAppInfo.colorModeLocalInColorsPage === ThemeColorMode.DARK ? 1 : 0;
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
-  @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
+  // @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
   private isLoadDown: boolean = false;
   @Local private onTotalCount: number = 50;
   private isOnReachEnd: boolean = true;
@@ -64,7 +61,13 @@ struct Colors {
   }
 
   private init() {
+    // 启动监听
+    this.useAppInfo.listenAppColorModeChange();
+  }
 
+
+  aboutToAppear(): void {
+    this.init();
   }
 
   @Builder
@@ -138,27 +141,10 @@ struct Colors {
     Flex({ direction: FlexDirection.RowReverse }) {
       TabSegmentButtonV2({
         items: this.symbolItems,
-        selectedIndex: this.useAppInfo.colorModeLocalInColorsPage!!,
-        onItemClicked: (index: number) => {
-          switch (index) {
-            case lightModeIndex:
-              this.colorModeLocal = ThemeColorMode.LIGHT;
-              this.useAppInfo.colorModeLocalInColorsPage = lightModeIndex;
-              this.useColorModeSwitch.setLight();
-              this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, lightModeIndex);
-              console.info('[Colors] 点击了浅色模式！')
-              break;
-            case darkModeIndex:
-              this.colorModeLocal = ThemeColorMode.DARK;
-              this.useAppInfo.colorModeLocalInColorsPage = darkModeIndex;
-              this.useColorModeSwitch.setDark();
-              console.info('[Colors] 点击了深色模式！')
-              this.usePreferencesControl.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_COLORS_PAGE, darkModeIndex);
-              break;
-          }
-        }
+        selectedIndex: this.useAppInfo.switchColorModeIndex!!,
+        onItemClicked: (index: number) => { this.useAppInfo.switchColorModeIndexManager(index) }
       })
-        .width(100)
+        .width(200)
     }
     .padding({ top: 8, bottom: 8, left: 16, right: 16 })
     .width('auto')
@@ -204,7 +190,7 @@ struct Colors {
     .padding({ top: 8, bottom: 8 })
     .onClick(() => {
       this.useAppInfo.modalOpen[index] = true;
-      console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
+      // console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
     })
     .bindSheet(
       this.useAppInfo.modalOpen[index]!!,
@@ -212,8 +198,6 @@ struct Colors {
         chunkColor,
         resourceIndexString,
         resourceColorName ? resourceColorName : '' ,
-        this.useAppInfo.SYS_RESOURCE_HEX_STRING ? this.useAppInfo.SYS_RESOURCE_HEX_STRING[index] : '',
-        this.colorModeLocal,
         index
       ),
       {
