@@ -1,19 +1,40 @@
-import { AbilityConstant, ConfigurationConstant, UIAbility, Want, Configuration } from '@kit.AbilityKit';
+import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { emitter } from '@kit.BasicServicesKit';
-import { AppStorageV2 } from '@kit.ArkUI';
-import { AppInfo } from '../common/Index';
+import { PreferencesControl as PC, ClientGlobalPrefKeys } from '../common/Index';
 
 const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    try {
-      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-    } catch (err) {
-      hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
+    const usePC: PC = new PC(this.context);
+    const appColorMode = usePC.prefGetSync(
+      ClientGlobalPrefKeys.PREF_NAME,
+      ClientGlobalPrefKeys.COLOR_MODE_LOCAL_IN_APP,
+      ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    const setColorMode = (codeMode: ConfigurationConstant.ColorMode) => {
+      try {
+        this.context.getApplicationContext().setColorMode(codeMode);
+      } catch (err) {
+        hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
+      }
     }
+
+    if (!appColorMode || appColorMode === ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET) {
+      setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } else {
+      switch (appColorMode) {
+        case ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT:
+          setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT);
+          break;
+        case ConfigurationConstant.ColorMode.COLOR_MODE_DARK:
+          setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
+          break;
+        default:
+          setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+      }
+    }
+
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
   }
 
@@ -47,26 +68,5 @@ export default class EntryAbility extends UIAbility {
   onBackground(): void {
     // Ability has back to background
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onBackground');
-  }
-
-  // 监听系统配置更新（包括主题模式切换）
-  onConfigurationUpdate(newConfig: Configuration): void {
-    super.onConfigurationUpdate(newConfig);
-
-    // 获取当前主题模式
-    const currentMode: ConfigurationConstant.ColorMode | undefined = newConfig.colorMode;
-
-    // 通过事件总线通知所有页面
-    const event: emitter.InnerEvent = {
-      eventId: 1001, // 自定义事件ID
-    };
-    emitter.emit(event, { data: {
-      themeMode: currentMode
-    }});
-
-    // 或者通过AppStorage保存当前主题状态
-    // AppStorage.setOrCreate('colorMode', currentMode);
-    const useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.context))!;
-    useAppInfo.colorModeLocalInApp = currentMode;
   }
 }
