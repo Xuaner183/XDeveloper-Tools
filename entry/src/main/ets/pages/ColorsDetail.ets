@@ -1,30 +1,10 @@
-import { TabSegmentButtonV2, SegmentButtonV2Items, ColorMetrics } from '@kit.ArkUI';
+import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
 import { ResourceManager as RS,
-  AppInfo, getColor, SwitchColorModeIndex, OnListen, ColorsPageInit } from '../common/Index';
-import colorsea from 'colorsea';
-import { ConfigurationConstant } from '@kit.AbilityKit';
-import { resourceManager } from '@kit.LocalizationKit';
+  AppInfo, OnListen, ColorsPageInit, ColorArray, RGBA, ColorType } from '../common/Index';
 
 const errorText: string = '您当前系统不存在';
-
-interface ColorValue {
-  colorRgba: Array<RGBA>;
-  colorHex: string
-}
-
-enum RGBA {
-  red,
-  green,
-  blue,
-  alpha
-}
-
-enum ColorType {
-  rgba,
-  hex
-}
 
 @Extend(Text)
 function TextStyle() {
@@ -56,9 +36,7 @@ function TextStyle() {
 struct ColorsDetail {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
-  private useRS: RS = new RS(RS.getContext(this));
   private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
-  private useColorsPageInit: ColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
   // 色块预览的颜色
   @Require @Param public chunkColor: ResourceColor = '#fff';
   // 资源数组的Index+1过的字符串
@@ -69,172 +47,40 @@ struct ColorsDetail {
   @Param public resourceIndexNumber: number = -1;
   // @Local private isDarkOrLight: boolean = false;
 
-  @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+  @Local private symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { icon: $r('app.media.routine') },
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
 
-  @Local colorRgba: string = '';
-  @Local colorHex: string = '';
-  @Local isColorError: boolean = false;
-  @Local private colorLightModeValue?: ColorValue;
-  @Local private colorDarkModeValue?: ColorValue;
-  @Local private hexString: string = '';
-  @Local private rgbaString: string = '';
-
-  /**
-   * 初始化
-   * @returns
-   */
-  // private init() {
-  //   // 获取真实颜色值
-  //   const colorObj: ColorMetrics | null = getColor(this.resourceColorName);
-  //   if (colorObj) {
-  //     // 原版Alpha会有很多小数点，这里加工到四舍五入到只有一个小数
-  //     const colorAlpha = Math.round((colorObj.alpha / 255) * 100 * 10) / 10;
-  //     // 创建颜色转换程序
-  //     const colorManager = colorsea([colorObj.red, colorObj.green, colorObj.red], colorAlpha , {
-  //       thowParseError: true
-  //     })
-  //     // 转换成HEX
-  //     const colorHex = colorManager.hex();
-  //     const colorValue: ColorValue = {
-  //       // 直接从原版RGB输出，以及加工过的Alpha
-  //       colorRgba: [colorObj.red, colorObj.green, colorObj.red, colorAlpha],
-  //       // HEX输出
-  //       colorHex: colorHex
-  //     }
-  //
-  //     console.info(`[CorlosDetail] 获取颜色colorValue：${JSON.stringify(colorValue)}`);
-  //
-  //     switch (this.useAppInfo.switchColorModeIndex) {
-  //       // 如果跟随系统时获取真实颜色模式
-  //       case SwitchColorModeIndex.Auto:
-  //         const colorMode = this.useRS.getResourceColorMode();
-  //         if (colorMode === resourceManager.ColorMode.DARK) {
-  //           this.colorDarkModeValue = colorValue;
-  //           console.info(`[ColorsDetail] 判断颜色是跟随系统的深色模式`)
-  //         } else {
-  //           this.colorLightModeValue = colorValue;
-  //           console.info(`[ColorsDetail] 判断颜色是跟随系统的浅色模式`)
-  //         }
-  //         break;
-  //       // 如果浅色就把颜色传给浅色数组
-  //       case SwitchColorModeIndex.Light:
-  //         console.info(`[ColorsDetail] 判断颜色是浅色模式`)
-  //         this.colorLightModeValue = colorValue;
-  //         break;
-  //       // 如果深色就把颜色传给深色数组
-  //       case SwitchColorModeIndex.Dark:
-  //         console.info(`[ColorsDetail] 判断颜色是深色模式`)
-  //         this.colorLightModeValue = colorValue;
-  //         break;
-  //     }
-  //
-  //     return this.isColorError = false;
-  //   } else {
-  //     return this.isColorError = true;
-  //   }
-  // }
-
-  private lightModeTextManager(type: ColorType): string {
-    if (this.isColorError) {
-      return errorText;
+  // TODO: HSL和HSV第一位会返回NaN bug
+  private outDarkOrLightString(isDark: boolean, colorType: ColorArray): string {
+    const darkColor = this.useAppInfo.COLOR_VALUE[1];
+    const lightColor = this.useAppInfo.COLOR_VALUE[0];
+    const darkOrLight: (colorType: ColorArray) => ColorType.RGBA | string= (colorType: ColorArray) => {
+      return isDark ? darkColor[colorType][this.resourceIndexNumber] : lightColor[colorType][this.resourceIndexNumber];
     }
-    if (!this.colorLightModeValue) {
-      return '失败'
+    switch (colorType) {
+      case ColorArray.RgbaTuple:
+        const rgbaDarkOrLight: ColorType.RGBA = darkOrLight(ColorArray.RgbaTuple) as ColorType.RGBA;
+        const r: RGBA = rgbaDarkOrLight[RGBA.red] || 0;
+        const g: RGBA = rgbaDarkOrLight[RGBA.green] || 0;
+        const b: RGBA = rgbaDarkOrLight[RGBA.blue] || 0;
+        const a: RGBA = rgbaDarkOrLight[RGBA.alpha] || 0;
+        return `rgba(${r}, ${g}, ${b}, ${a}%)`;
+      case ColorArray.HexArray:
+        return darkOrLight(ColorArray.HexArray) as string;
+      case ColorArray.readableHexArray:
+        return darkOrLight(ColorArray.readableHexArray) as string;
+      case ColorArray.CmykArray:
+        return darkOrLight(ColorArray.CmykArray) as string;
+      case ColorArray.HslArray:
+        return darkOrLight(ColorArray.HslArray) as string;
+      case ColorArray.HsvArray:
+        return darkOrLight(ColorArray.HsvArray) as string;
+      default:
+        return '未知';
     }
-    switch (type) {
-      case ColorType.rgba:
-        const rgba = this.colorLightModeValue.colorRgba;
-        return `rgba (${rgba[RGBA.red]}, ${rgba[RGBA.green]}, ${rgba[RGBA.blue]}, ${rgba[RGBA.alpha]})`;
-      case  ColorType.hex:
-        return this.colorLightModeValue.colorHex
-    }
-  }
-
-  private darkModeTextManager(type: ColorType): string {
-    if (this.isColorError) {
-      return errorText;
-    }
-    if (!this.colorDarkModeValue) {
-      return '失败'
-    }
-    switch (type) {
-      case ColorType.rgba:
-        const rgba = this.colorDarkModeValue.colorRgba;
-        return `rgba (${rgba[RGBA.red]}, ${rgba[RGBA.green]}, ${rgba[RGBA.blue]}, ${rgba[RGBA.alpha]})`;
-      case ColorType.hex:
-        return this.colorDarkModeValue.colorHex
-    }
-  }
-
-  /**
-   * 判断Text应显示哪种颜色模式的值；
-   * @param type
-   * @returns
-   */
-  private colorModeTextManager(type: ColorType) {
-    switch (this.useAppInfo.switchColorModeIndex) {
-      // 如果是跟随系统则判断真实颜色模式
-      case SwitchColorModeIndex.Auto:
-        const colorMode = this.useRS.getResourceColorMode();
-        if (colorMode === resourceManager.ColorMode.DARK) {
-          return this.darkModeTextManager(type);
-        } else {
-          return this.lightModeTextManager(type);
-        }
-
-      case SwitchColorModeIndex.Light:
-        return this.lightModeTextManager(type);
-
-      case SwitchColorModeIndex.Dark:
-        return this.darkModeTextManager(type);
-    }
-  }
-  // TODO: 用深色浅色两个占位符去占文本
-  private rgbaText(isDark: boolean) {
-    if (!this.useAppInfo.isFull(isDark)) { return '正在加载' }
-    try {
-      const darkColor = this.useAppInfo.DARK_MODE_COLORS_ARRAY[this.resourceIndexNumber];
-      const lightColor = this.useAppInfo.LIGHT_MODE_COLORS_ARRAY[this.resourceIndexNumber];
-      const DarkOrLight = isDark ? darkColor : lightColor;
-      const r: RGBA = DarkOrLight[RGBA.red];
-      const g: RGBA = DarkOrLight[RGBA.green];
-      const b: RGBA = DarkOrLight[RGBA.blue];
-      const a: RGBA = DarkOrLight[RGBA.alpha];
-      const rgbaString = `rgba(${r}, ${g}, ${b}, ${a})`;
-      return this.rgbaString = rgbaString;
-    } catch (e) {
-      console.error(`[ColorDetail] rgbaText错谁：${JSON.stringify(e)}}`)
-      return '正在加载';
-    }
-  }
-
-  private rgbaText2(isDark: boolean) {
-    if (!this.useAppInfo.isFull(isDark)) { return '正在加载' }
-    try {
-      const lightColor = this.useAppInfo.LIGHT_MODE_RGBA_ARRAY[this.resourceIndexNumber];
-      const darkColor = this.useAppInfo.DARK_MODE_RGBA_ARRAY[this.resourceIndexNumber];
-      const DarkOrLight = isDark ? darkColor : lightColor;
-      const rgbaString = DarkOrLight[this.resourceIndexNumber];
-      return this.hexString = rgbaString.toString();
-    } catch (e) {
-      console.error(`[ColorDetail] rgbaText2错误：${JSON.stringify(e)}}`)
-      return '正在加载';
-    }
-  }
-
-  private darkOrLightRgbaString(isDark: boolean): string {
-    const darkColor = this.useAppInfo.DARK_MODE_COLORS_ARRAY[this.resourceIndexNumber];
-    const lightColor = this.useAppInfo.LIGHT_MODE_COLORS_ARRAY[this.resourceIndexNumber];
-    const DarkOrLight = isDark ? darkColor : lightColor;
-    const r: RGBA = DarkOrLight[RGBA.red] || 0;
-    const g: RGBA = DarkOrLight[RGBA.green] || 0;
-    const b: RGBA = DarkOrLight[RGBA.blue] || 0;
-    const a: RGBA = DarkOrLight[RGBA.alpha] || 0;
-    return `rgba(${r}, ${g}, ${b}, ${a}%)`;
   }
 
 
@@ -257,15 +103,33 @@ struct ColorsDetail {
   ) {
     Column() {
       Column() {
+        Row() {
+          Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
+            .backgroundColor('#fffd2872')
+            .constraintSize({ minWidth: 30, minHeight: 30 })
+            .fontWeight(FontWeight.Bold)
+            .shadow(ShadowStyle.OUTER_DEFAULT_XS)
+        }
+        .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
+        .alignSelf(ItemAlign.Start)
+        Blank()
+          .flexGrow(1)
+          .flexShrink(8)
+      }
+      .width('100%')
+      Column() {
         Text(resourceName)
           .TextStyle()
           .zIndex(8)
       }
+      .width('100%')
+      Column()
+        .width('100%').height(4)
     }
     .padding(4)
     .width('100%').height('100%')
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
+    .justifyContent(FlexAlign.SpaceBetween)
+    // .alignItems(HorizontalAlign.Center)
   }
 
   @Builder
@@ -305,21 +169,36 @@ struct ColorsDetail {
             .backgroundImagePosition(Alignment.Center)
             .overlay(this.TextOverlay(this.resourceIndexString, this.resourceColorName))
             .width('100%')
-            .height(100)
-
+            .height(200)
+          Column().height(24)
           Column() {
             this.SwitchColorMode()
+            Column().height(16)
             Column() {
               Row() {
-                Text('HEX:')
-                Text(this.useOnListen.isDarkMode ?
-                  this.useAppInfo.DARK_MODE_RGBA_ARRAY[this.resourceIndexNumber] :
-                  this.useAppInfo.LIGHT_MODE_RGBA_ARRAY[this.resourceIndexNumber])
-              }
+                Text('RGBA:')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaTuple))
+              }.justifyContent(FlexAlign.Start)
               Row() {
-                Text('rgba: ')
-                Text(this.darkOrLightRgbaString(this.useOnListen.isDarkMode))
-              }
+                Text('可读HEX: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
+              }.justifyContent(FlexAlign.Start)
+              Row() {
+                Text('HEX: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
+              }.justifyContent(FlexAlign.Start)
+              Row() {
+                Text('CMYK: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
+              }.justifyContent(FlexAlign.Start)
+              Row() {
+                Text('HSL: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
+              }.justifyContent(FlexAlign.Start)
+              Row() {
+                Text('HSV: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
+              }.justifyContent(FlexAlign.Start)
             }
             .justifyContent(FlexAlign.Start)
           }
@@ -335,7 +214,7 @@ struct ColorsDetail {
     .titleMode(HdsNavigationTitleMode.MODAL)
     .titleBar({
       content: {
-        title: { mainTitle: this.resourceIndexString }
+        title: { mainTitle: '颜色详细' }
       }
     })
   }

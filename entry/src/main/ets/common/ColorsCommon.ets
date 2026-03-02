@@ -2,20 +2,10 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 import { UIAbilityContext, type common } from './UIAbilityContext';
 import { resourceManager } from '@kit.LocalizationKit';
 import { AppStorageV2 } from '@kit.ArkUI';
-import { ResourceManager as RS, ColorModeSwitch, AppInfo, OnListen, ColorSysString, getColor } from './Index';
+import { ResourceManager as RS, ColorModeSwitch, AppInfo, OnListen, ColorSysString, getColor, rgbaToHex, HEX,
+readableHEX, CMYK, HSL, HSV, RGBA, ColorArray} from './Index';
 import colorsea from 'colorsea';
 import { emitter } from '@kit.BasicServicesKit';
-enum RGBA {
-  red,
-  green,
-  blue,
-  alpha
-}
-
-interface ColorValue {
-  colorRgba: Array<RGBA>;
-  colorHex: string
-}
 
 export class ColorsCommon extends UIAbilityContext {
 
@@ -66,30 +56,52 @@ export class ColorsPageInit extends UIAbilityContext {
     const useColorModeSwitch = new ColorModeSwitch(this.uiContext);
 
     // const colorRGBAs: Array<Array<RGBA>> = [];
-    // const color10: Array<string> = [];
+    // const colorHex: Array<string> = [];
     // 只记录一次是否是深色模式
     let isOneDark: boolean = false;
     // 定义结果函数不执行
     const forResult = () => {
-      const colorRGBAs: Array<Array<RGBA>> = [];
-      const color10: Array<string> = [];
+      // 建立元组
+      const colorValue: [RGBA[][], HEX[], readableHEX[], CMYK[], HSL[], HSV[]] = [[], [], [], [], [], []];
       // 定义循环执行的函数
       const forColor = (resColorName: string) => {
         // 获取 ColorMetrics 对象
         const colorObj: ColorMetrics | null = getColor(resColorName);
         if (colorObj) {
           // 原版Alpha会有很多小数点，这里加工到四舍五入到只有一个小数
-          const colorAlpha = Math.round((colorObj.alpha / 255) * 100 * 10) / 10;
+          const colorAlpha: number = Math.round((colorObj.alpha / 255) * 100 * 10) / 10;
           // RGBA结果
-          const colorRgbaResult: Array<RGBA> = [colorObj.red, colorObj.green, colorObj.red, colorAlpha];
-          // 十进制结果
-          const color10aResult: string = colorObj.color;
+          const colorRgbaResult: Array<RGBA> = [colorObj.red, colorObj.green, colorObj.blue, colorAlpha];
+          // 将RGBA结果转换成十六进制HEX
+          const colorHEX: HEX = rgbaToHex(colorObj.red, colorObj.green, colorObj.blue, colorAlpha);
+          // 通过RBA结果转换更多颜色类型
+          const colorManager = colorsea([colorObj.red, colorObj.green, colorObj.blue],
+            colorAlpha, { thowParseError: true });
+          // 转换可读HEX
+          const colorReadableHEXResult: readableHEX = colorManager.hex();
+          // 处理CMYK
+          const colorCMYKArray = colorManager.cmyk();
+          const colorCMYK: CMYK =
+            `C: ${colorCMYKArray[0]}, M: ${colorCMYKArray[1]}, Y: ${colorCMYKArray[2]}, K: ${colorCMYKArray[3]}`;
+          // 处理HSL
+          const colorHSLArray = colorManager.hsl();
+          const colorHSL: HSL =
+            `HSL (${colorHSLArray[0]}, ${colorHSLArray[1]}, ${colorHSLArray[2]})`;
+          // 处理HSV
+          const colorHSVArray = colorManager.hsv();
+          const colorHSV =
+            `HSV (${colorHSVArray[0]}, ${colorHSVArray[1]}, ${colorHSVArray[2]})`;
           // 存储到数组中
-          color10.push(color10aResult);
-          colorRGBAs.push(colorRgbaResult);
+          colorValue[ColorArray.RgbaTuple].push(colorRgbaResult);
+          colorValue[ColorArray.HexArray].push(colorHEX);
+          colorValue[ColorArray.readableHexArray].push(colorReadableHEXResult);
+          colorValue[ColorArray.CmykArray].push(colorCMYK);
+          colorValue[ColorArray.HslArray].push(colorHSL);
+          colorValue[ColorArray.HsvArray].push(colorHSV);
           // console.info(`[ColorsInit] 获取成功: color10aResult = ${color10aResult}, colorRgbaResult = ${colorRgbaResult}`)
           return true;
         } else { return false; }
+
       }
 
       for (let i = 0; i < ColorSysString.length; i++) {
@@ -97,22 +109,7 @@ export class ColorsPageInit extends UIAbilityContext {
           console.error(`[ColorsInit] 获取失败: index: ${i}, string: ${ColorSysString[i]}`);
         }
       }
-      const result: [RGBA[][], string[]] = [colorRGBAs, color10];
-      return result;
-    }
-
-    const darkResult = (colorRgb: Array<Array<RGBA>>, color10: string[]) => {
-      console.info(`[ColorsInit] 判断颜色是深色模式，存储到 DARK_MODE_COLORS_ARRAY`);
-      this.useAppInfo.DARK_MODE_COLORS_ARRAY = colorRgb;
-      this.useAppInfo.DARK_MODE_RGBA_ARRAY = color10;
-      console.info(`[ColorsInit] 深色模式数组 ${colorRgb}\n${color10}`);
-    }
-
-    const lightResult = (colorRgb: Array<Array<RGBA>>, color10: string[]) => {
-      console.info(`[ColorsInit] 判断颜色是浅色模式，存储到 LIGHT_MODE_COLORS_ARRAY`);
-      this.useAppInfo.LIGHT_MODE_COLORS_ARRAY = colorRgb;
-      this.useAppInfo.LIGHT_MODE_RGBA_ARRAY = color10;
-      console.info(`[ColorsInit] 浅色模式数组 ${colorRgb}\n${color10}`);
+      return colorValue;
     }
 
     const set = () => {
@@ -124,7 +121,7 @@ export class ColorsPageInit extends UIAbilityContext {
         console.info(`[ColorsCommon] 当前颜色切换条索引值： ${this.useAppInfo.switchColorModeIndex}`);
         useColorModeSwitch.setDark();
         const result = forResult();
-        darkResult(result[0], result[1]);
+        this.useAppInfo.COLOR_VALUE[1] = result;
         isOneDark = true;
         this.useAppInfo.isDarkColorFull = true;
       } else if (!this.useOnListen.isDarkMode && !this.useAppInfo.isLightColorFull) {
@@ -134,7 +131,7 @@ export class ColorsPageInit extends UIAbilityContext {
         console.info(`[ColorsCommon] 当前颜色切换条索引值： ${this.useAppInfo.switchColorModeIndex}`);
         useColorModeSwitch.setLight();
         const result = forResult();
-        lightResult(result[0], result[1]);
+        this.useAppInfo.COLOR_VALUE[0] = result;
         isOneDark = false;
         this.useAppInfo.isLightColorFull = true;
       }

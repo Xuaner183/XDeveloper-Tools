@@ -74,20 +74,19 @@ struct Colors {
 
   @Builder
   TextOverlay(
-    indexText: string | Resource | undefined = undefined,
+    resourceIndexString: string | Resource | undefined = undefined,
     resourceName: string | undefined = undefined,
     index: number
   ) {
     Column() {
       Column() {
         Row() {
-          Button(indexText, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
+          Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
             .backgroundColor('#fffd2872')
             .constraintSize({ minWidth: 30, minHeight: 30 })
             .fontWeight(FontWeight.Bold)
             .shadow(ShadowStyle.OUTER_DEFAULT_XS)
         }
-        // .borderRadius(16)
         .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
         .alignSelf(ItemAlign.Start)
         Blank()

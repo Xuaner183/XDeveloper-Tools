@@ -9,24 +9,39 @@ export enum SwitchColorModeIndex {
   Light,
   Dark
 }
-enum RGBA {
+export enum RGBA {
   red,
   green,
   blue,
   alpha
 }
 
-interface ColorValue {
-  colorRgba: Array<RGBA>;
-  colorHex: string;
-  colorHSL: string;
+export enum ColorArray {
+  RgbaTuple,
+  HexArray,
+  readableHexArray,
+  CmykArray,
+  HslArray,
+  HsvArray
 }
 
-interface AllColorArray {
-  colorRgbaArray: Array<Array<RGBA>>;
-  colorHexArray: Array<string>;
-  color10Array: Array<string>;
+type readableHEX = string;
+type HEX  = string;
+type CMYK = string;
+type HSL  = string;
+type HSV  = string;
+namespace ColorType {
+  export type RGBA = Array<number>
+  export type readableHEX = string;
+  export type HEX  = string;
+  export type CMYK = string;
+  export type HSL  = string;
+  export type HSV  = string;
 }
+type DARK   = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type LIGHT  = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+
+export {readableHEX, HEX, CMYK, HSL, HSV, DARK, LIGHT, ColorType}
 
 /**
    // AppStorageV2————应用全局UI状态存储
@@ -47,20 +62,22 @@ export class AppInfo extends UIAbilityContext {
   public SYS_RESOURCE_HEX_STRING?: Array<string>;
   // 用于绑定每个色块的模态窗口状态
   @Trace public modalOpen: boolean[] = [];
-  // 浅色模式真实颜色值RGBA
-  @Trace public LIGHT_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
-  // 深色模式真实颜色值RGBA
-  @Trace public DARK_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
-  // 存储各种类型颜色Map
-  @Trace public ALL_COLORS: Array<AllColorArray> = [];
-
-  @Trace public LIGHT_MODE_RGBA_ARRAY: Array<string> = [];
-  @Trace public DARK_MODE_RGBA_ARRAY: Array<string> = [];
+  // // 浅色模式真实颜色值RGBA
+  // @Trace public LIGHT_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
+  // // 深色模式真实颜色值RGBA
+  // @Trace public DARK_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
+  // // 存储各种类型颜色Map
+  // @Trace public ALL_COLORS: Array<AllColorArray> = [];
+  //
+  // @Trace public LIGHT_MODE_RGBA_ARRAY: Array<string> = [];
+  // @Trace public DARK_MODE_RGBA_ARRAY: Array<string> = [];
   // 判断颜色数组是否存在，避免重复循环
   public isLightColorFull = false;
   public isDarkColorFull = false;
   // 判断Colors页是否需要初始化
   public isLoadDown = false;
+
+  public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], []], [[], [], [], [], [], []]];
 
 
   /**
@@ -111,18 +128,4 @@ export class AppInfo extends UIAbilityContext {
     })
   }
 
-  /**
-   * 检测颜色数组是否满
-   */
-  public isFull(isDark: boolean) {
-    if (isDark && this.DARK_MODE_COLORS_ARRAY.length > 1 ||
-      this.DARK_MODE_RGBA_ARRAY.length > 1) {
-      return true;
-    } else if (!isDark && this.LIGHT_MODE_COLORS_ARRAY.length > 1 ||
-      this.LIGHT_MODE_RGBA_ARRAY.length > 1) {
-      return true
-    } else {
-      return false;
-    }
-  }
 }

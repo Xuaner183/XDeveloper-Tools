@@ -1224,3 +1224,36 @@ export function getColor(colorString: string): ColorMetrics | null {
     return null;
   }
 }
+
+/**
+ * 将RGBA值转换为十六进制颜色字符串
+ * @param r 红色值，范围0-255
+ * @param g 绿色值，范围0-255
+ * @param b 蓝色值，范围0-255
+ * @param a 透明度值，范围0-100（百分比）
+ * @param format 输出格式，可选 'rgb' 或 'argb'，默认为 'argb'
+ * @returns 以0x开头的十六进制字符串，如0xFF0000FF（argb格式）或0xFF0000（rgb格式）
+ */
+export function rgbaToHex(r: number, g: number, b: number, a: number, format: 'rgb' | 'argb' = 'argb'): string {
+  // 确保RGB值在0-255范围内并取整
+  r = Math.max(0, Math.min(255, Math.round(r)));
+  g = Math.max(0, Math.min(255, Math.round(g)));
+  b = Math.max(0, Math.min(255, Math.round(b)));
+
+  // 确保Alpha值在0-100范围内，并映射到0-255
+  a = Math.max(0, Math.min(100, a));
+  const a255 = Math.round(a * 255 / 100);
+
+  // 将各组件转换为两位十六进制字符串
+  const rHex = r.toString(16).padStart(2, '0');
+  const gHex = g.toString(16).padStart(2, '0');
+  const bHex = b.toString(16).padStart(2, '0');
+  const aHex = a255.toString(16).padStart(2, '0');
+
+  // 根据格式返回结果
+  if (format === 'rgb') {
+    return `0x${rHex}${gHex}${bHex}`;
+  } else { // 'argb'
+    return `0x${aHex}${rHex}${gHex}${bHex}`;
+  }
+}
