@@ -34,7 +34,7 @@ export struct Home {
             this.mainNavPathStack.pushPath({
               name: 'Loading',
               param: param
-            })
+            }, true)
           })
       }
       .width('100%')
