@@ -178,29 +178,29 @@ struct ColorsDetail {
               Row() {
                 Text('RGBA:')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaTuple))
-              }.justifyContent(FlexAlign.Start)
+              }
               Row() {
                 Text('可读HEX: ')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
-              }.justifyContent(FlexAlign.Start)
+              }
               Row() {
                 Text('HEX: ')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
-              }.justifyContent(FlexAlign.Start)
+              }
               Row() {
                 Text('CMYK: ')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
-              }.justifyContent(FlexAlign.Start)
+              }
               Row() {
                 Text('HSL: ')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
-              }.justifyContent(FlexAlign.Start)
+              }
               Row() {
                 Text('HSV: ')
                 Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
-              }.justifyContent(FlexAlign.Start)
+              }
             }
-            .justifyContent(FlexAlign.Start)
+            .alignItems(HorizontalAlign.Start)
           }
           .justifyContent(FlexAlign.Center)
           .width('100%')
