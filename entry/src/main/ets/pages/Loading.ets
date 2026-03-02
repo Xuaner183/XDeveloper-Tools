@@ -1,5 +1,6 @@
-import { ColorsPageInit } from '../common/Index';
+import { AppInfo, ColorsPageInit } from '../common/Index';
 import { NavHomeParm } from './Home';
+import { AppStorageV2 } from '@kit.ArkUI';
 
 export interface NavLoadingParm {
   isLoadDown: boolean;
@@ -13,6 +14,7 @@ export interface NavLoadingParm {
 @ComponentV2
 export struct Loading {
   private mainNavPathStack: NavPathStack = new NavPathStack();
+  private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
   private jianBianStyleColorsPage: LinearGradientOptions = {
     angle: 180,
     colors: [[$r('app.color.background_linearGradient_color1'), 0.0],
@@ -23,16 +25,31 @@ export struct Loading {
   private isColors: boolean = false;
 
   private async Init() {
-    const useColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
-    const isSucceed = await useColorsPageInit.init();
-    if (isSucceed) {
-      const param: NavLoadingParm = {
-        isLoadDown: true,
-        // systemTransition: NavigationSystemTransitionType.DEFAULT
+    const param: NavLoadingParm = {
+      isLoadDown: true,
+      // systemTransition: NavigationSystemTransitionType.DEFAULT
+    }
+    if (!this.useAppInfo.isLoadDown) {
+      const useColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
+      const isSucceed = await useColorsPageInit.init();
+      if (isSucceed) {
+        setTimeout(() => {
+          console.info(`[Loading] 加载成功, ${param.isLoadDown}`)
+          this.mainNavPathStack.replacePath({
+            name: 'Colors',
+            param: param
+          }, false);
+        }, 1000)
+        this.useAppInfo.isLoadDown = true;
+      } else {
+        this.tipText = '加载失败';
+        console.info('[Loading] 加载失败')
       }
-      this.mainNavPathStack.pop(param);
     } else {
-      this.tipText = '加载失败';
+      this.mainNavPathStack.replacePath({
+        name: 'Colors',
+        param: param
+      }, true);
     }
   }
 
@@ -42,10 +59,13 @@ export struct Loading {
         Column() {
           LoadingProgress()
             .enableLoading(true)
+            .color('#fff')
         }
         .width(100).height(100)
-        Column(){
+
+        Column() {
           Text(this.tipText)
+            .fontColor('#ffefefef')
         }
         .width('100%')
       }
@@ -54,9 +74,15 @@ export struct Loading {
       // .linearGradient(this.jianBianStyleColorsPage)
       .alignItems(HorizontalAlign.Center)
       .justifyContent(FlexAlign.Center)
+      .backgroundColor('#ff343434')
     }
     .onReady((ctx) => {
       this.mainNavPathStack = ctx.pathStack;
+      if (this.useAppInfo.isLoadDown) {
+        this.mainNavPathStack.replacePath({
+          name: 'Colors',
+        }, true);
+      }
       if (ctx.pathInfo.param) {
         const param = ctx.pathInfo.param as NavHomeParm;
         if (param.isColors) {
@@ -71,11 +97,13 @@ export struct Loading {
     })
     .systemTransition(NavigationSystemTransitionType.FADE)
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
-    .mode(NavDestinationMode.DIALOG)
+    // .mode(NavDestinationMode.DIALOG)
     .onBackPressed(() => {
       this.mainNavPathStack.clear(true);
       // this.mainNavPathStack.popToIndex(0);
       return true;
     })
+    .hideTitleBar(true)
+    .hideToolBar(true)
   }
 }

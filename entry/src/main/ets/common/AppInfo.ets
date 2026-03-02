@@ -59,6 +59,8 @@ export class AppInfo extends UIAbilityContext {
   // 判断颜色数组是否存在，避免重复循环
   public isLightColorFull = false;
   public isDarkColorFull = false;
+  // 判断Colors页是否需要初始化
+  public isLoadDown = false;
 
 
   /**
@@ -73,11 +75,6 @@ export class AppInfo extends UIAbilityContext {
       );
     }
     switch (index) {
-      // 跟随系统
-      case SwitchColorModeIndex.Auto:
-        this.useColorModeSwitch.setFollowSystem();
-        prefPutManager(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-        return this.colorModeLocalInApp = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
       // 设置浅色
       case SwitchColorModeIndex.Light:
         this.useColorModeSwitch.setLight();
@@ -88,10 +85,10 @@ export class AppInfo extends UIAbilityContext {
         this.useColorModeSwitch.setDark();
         prefPutManager(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
         return this.colorModeLocalInApp = ConfigurationConstant.ColorMode.COLOR_MODE_DARK;
-      // 兜底
+      // 跟随系统
       default:
         this.useColorModeSwitch.setFollowSystem();
-        prefPutManager(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET)
+        prefPutManager(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
         return this.colorModeLocalInApp = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
     }
   }

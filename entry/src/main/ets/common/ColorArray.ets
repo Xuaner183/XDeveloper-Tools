@@ -1176,7 +1176,7 @@ export const ColorSysResourseId: number[] =
     return value.id;
   })
 /**
- * 单个转换十进制颜色值为HEX字符串
+ * 单个转换十进制颜色值为HEX字符串 (废弃)
  */
 export function convertDecimalColorToHex(decimalColorValue: number): string {
   if (decimalColorValue < 0 || decimalColorValue > 0xFFFFFFFF) {
@@ -1187,7 +1187,7 @@ export function convertDecimalColorToHex(decimalColorValue: number): string {
   return '#' + paddedHexColor.slice(-6);
 }
 /**
- * 批量转换十进制颜色值为HEX字符串
+ * 批量转换十进制颜色值为HEX字符串 (废弃)
  */
 export function multiConvertDecimalColorToHex(decimalColorValue: Array<number>): Array<string> {
   let result: Array<string> = [];

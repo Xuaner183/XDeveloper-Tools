@@ -9,19 +9,19 @@ export interface NavHomeParm {
 @ComponentV2
 export struct Home {
   private mainNavPathStack: NavPathStack = new NavPathStack();
-  private useInitialize: Initialize = new Initialize(Initialize.getContext(this));
+  // private useInitialize: Initialize = new Initialize(Initialize.getContext(this));
 
-  private getContext(): common.UIAbilityContext {
-    return this.getUIContext().getHostContext() as common.UIAbilityContext
-  }
+  // private getContext(): common.UIAbilityContext {
+  //   return this.getUIContext().getHostContext() as common.UIAbilityContext
+  // }
 
-  aboutToAppear(): void {
-    try {
-      this.useInitialize.Init();
-    } catch (_) {
-      console.error('[Home] 初始化失败！')
-    }
-  }
+  // aboutToAppear(): void {
+    // try {
+    //   this.useInitialize.Init();
+    // } catch (_) {
+    //   console.error('[Home] 初始化失败！')
+    // }
+  // }
 
   build() {
     Navigation(this.mainNavPathStack){
@@ -32,7 +32,7 @@ export struct Home {
               isColors: true
             }
             this.mainNavPathStack.pushPath({
-              name: 'Colors',
+              name: 'Loading',
               param: param
             })
           })

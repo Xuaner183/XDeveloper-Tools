@@ -17,7 +17,7 @@ export default class EnvAbilityStage extends AbilityStage {
   }
 
   onConfigurationUpdate(newConfig: Configuration): void {
-    hilog.info(DOMAIN_NUMBER, TAG, `系统环境初始化, 颜色模式: ${newConfig.colorMode}`);
+    hilog.info(DOMAIN_NUMBER, TAG, `onConfigurationUpdate回调, 颜色模式: ${newConfig.colorMode}`);
 
     // 判断是否是深色模式
     const useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;

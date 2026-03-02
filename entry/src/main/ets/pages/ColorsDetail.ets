@@ -226,6 +226,16 @@ struct ColorsDetail {
     }
   }
 
+  private darkOrLightRgbaString(isDark: boolean): string {
+    const darkColor = this.useAppInfo.DARK_MODE_COLORS_ARRAY[this.resourceIndexNumber];
+    const lightColor = this.useAppInfo.LIGHT_MODE_COLORS_ARRAY[this.resourceIndexNumber];
+    const DarkOrLight = isDark ? darkColor : lightColor;
+    const r: RGBA = DarkOrLight[RGBA.red] || 0;
+    const g: RGBA = DarkOrLight[RGBA.green] || 0;
+    const b: RGBA = DarkOrLight[RGBA.blue] || 0;
+    const a: RGBA = DarkOrLight[RGBA.alpha] || 0;
+    return `rgba(${r}, ${g}, ${b}, ${a}%)`;
+  }
 
 
   aboutToAppear(): void {
@@ -265,15 +275,7 @@ struct ColorsDetail {
         items: this.symbolItems,
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
         onItemClicked: async (index: number) => {
-          // this.init();
           this.useAppInfo.switchColorModeIndexManager(index);
-          // 如果某数组没满则再循环获取
-          if (!this.useAppInfo.isFull(this.useOnListen.isDarkMode)) {
-            const useColorsPageInit: ColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
-            await useColorsPageInit.init();
-            this.rgbaText(this.useOnListen.isDarkMode);
-            this.rgbaText2(this.useOnListen.isDarkMode);
-          }
         }
       })
         .width(200)
@@ -310,11 +312,13 @@ struct ColorsDetail {
             Column() {
               Row() {
                 Text('HEX:')
-                Text(this.rgbaText2(this.useOnListen.isDarkMode))
+                Text(this.useOnListen.isDarkMode ?
+                  this.useAppInfo.DARK_MODE_RGBA_ARRAY[this.resourceIndexNumber] :
+                  this.useAppInfo.LIGHT_MODE_RGBA_ARRAY[this.resourceIndexNumber])
               }
               Row() {
                 Text('rgba: ')
-                Text(this.rgbaText(this.useOnListen.isDarkMode))
+                Text(this.darkOrLightRgbaString(this.useOnListen.isDarkMode))
               }
             }
             .justifyContent(FlexAlign.Start)

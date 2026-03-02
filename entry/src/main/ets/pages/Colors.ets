@@ -69,7 +69,7 @@ struct Colors {
 
 
   aboutToAppear(): void {
-    this.init();
+    // this.init();
   }
 
   @Builder
@@ -146,11 +146,6 @@ struct Colors {
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
         onItemClicked: (index: number) => {
           this.useAppInfo.switchColorModeIndexManager(index);
-          // 如果某数组没满则再循环获取
-          if (!this.useAppInfo.isFull(this.useOnListen.isDarkMode)) {
-            const useColorsPageInit: ColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
-            useColorsPageInit.init()
-          }
         }
       })
         .width(200)
@@ -297,19 +292,6 @@ struct Colors {
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((ctx) => {
       this.mainNavPathStack = ctx.pathStack;
-      if (!this.isLoadDown) {
-        this.mainNavPathStack.pushPath({
-          name: 'Loading',
-          param: { isColors: true } as NavHomeParm,
-          onPop: (popInfo: PopInfo) => {
-            if (popInfo.result) {
-              const param = popInfo.result as NavLoadingParm;
-              param.isLoadDown && (this.isLoadDown = true);
-              console.info('[Colors] 初始化完成')
-            }
-          }
-        })
-      }
     })
     .onShown(() => {
     })
@@ -319,6 +301,7 @@ struct Colors {
       barStyle: BarStyle.STACK
     })
     .menus(this.SwitchColorMode())
+    .systemTransition(NavigationSystemTransitionType.SLIDE_RIGHT)
   }
 
 }
