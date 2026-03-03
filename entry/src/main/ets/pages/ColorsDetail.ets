@@ -1,10 +1,10 @@
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { AppStorageV2 } from '@kit.ArkUI';
-import { HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
-import { ResourceManager as RS,
-  AppInfo, OnListen, ColorsPageInit, ColorArray, ColorType } from '../common/Index';
+import {
+  AppInfo, OnListen, ColorArray, ColorType, PasteboardUtil } from '../common/Index';
+import { CustomListItemCardWithTitle2AndSub } from '../components/CustomListItemCardWithTitle2AndSub';
 
-const errorText: string = '您当前系统不存在';
+// const errorText: string = '您当前系统不存在';
 
 @Extend(Text)
 function TextStyle() {
@@ -77,6 +77,10 @@ struct ColorsDetail {
     }
   }
 
+  private copy(text: string) {
+    PasteboardUtil.copy(text, this.getUIContext());
+  }
+
 
   aboutToAppear(): void {
     console.info(`[ColorsDetail] 当前APP颜色模式：${String(this.useAppInfo.colorModeLocalInApp)}`);
@@ -147,12 +151,12 @@ struct ColorsDetail {
   }
 
   build() {
-    HdsNavigation(this.mainNavPathStack) {
+    Navigation(this.mainNavPathStack) {
       Scroll() {
 
         Column() {
           Column()
-            .height(80)
+            .height(40)
             Column() {
               Rect({ width: '100%', height: '100%' })
                 .fill(this.chunkColor)
@@ -172,30 +176,69 @@ struct ColorsDetail {
             this.SwitchColorMode()
             Column().height(16)
             Column() {
-              Row() {
-                Text('RGBA: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray))
+              List() {
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray),
+                  sub: 'RGBA',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray)) }
+                })
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray),
+                  sub: '可读HEX',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray)) }
+                })
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray),
+                  sub: 'HEX',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray)) }
+                })
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray),
+                  sub: 'CMYK',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray)) }
+                })
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray),
+                  sub: 'HSL',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray)) }
+                })
+                CustomListItemCardWithTitle2AndSub({
+                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray),
+                  sub: 'HSV',
+                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray)) }
+                })
+                ListItem()
+                  .height(140)
               }
-              Row() {
-                Text('可读HEX: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
-              }
-              Row() {
-                Text('HEX: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
-              }
-              Row() {
-                Text('CMYK: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
-              }
-              Row() {
-                Text('HSL: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
-              }
-              Row() {
-                Text('HSV: ')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
-              }
+              .width('100%').height('auto')
+              .nestedScroll({
+                scrollForward: NestedScrollMode.PARENT_FIRST,
+                scrollBackward: NestedScrollMode.PARENT_FIRST
+              })
+              // Row() {
+              //   Text('RGBA: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray))
+              // }
+              // Row() {
+              //   Text('可读HEX: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
+              // }
+              // Row() {
+              //   Text('HEX: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
+              // }
+              // Row() {
+              //   Text('CMYK: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
+              // }
+              // Row() {
+              //   Text('HSL: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
+              // }
+              // Row() {
+              //   Text('HSV: ')
+              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
+              // }
             }
             .alignItems(HorizontalAlign.Start)
           }
@@ -207,13 +250,15 @@ struct ColorsDetail {
       .padding({ left: 24, right: 24 })
       .width('100%')
       .height('auto')
+      .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
     }
-    .titleMode(HdsNavigationTitleMode.MODAL)
-    .titleBar({
-      content: {
-        title: { mainTitle: '颜色详细' }
-      }
-    })
+    // .titleMode(HdsNavigationTitleMode.MODAL)
+    // .titleBar({
+    //   content: {
+    //     title: { mainTitle: '颜色详细' }
+    //   }
+    // })
+    .hideTitleBar(true)
   }
 
 }

@@ -200,11 +200,11 @@ struct Colors {
         index
       ),
       {
+        title: { title: '颜色详细' },
         dragBar: true,
-        // onWillDisappear: () => {
-        //   this.useAppInfo.modalOpen[index] = false;
-        //   console.info(`[Colors] 关闭 ${index}: ${this.useAppInfo.modalOpen[index]}`)
-        // }
+        height: SheetSize.MEDIUM,
+        detents: [SheetSize.MEDIUM, SheetSize.LARGE],
+        enableOutsideInteractive: false
       }
     )
 
@@ -292,11 +292,10 @@ struct Colors {
     })
     .bindToScrollable([this.mainScroller])
     .title('颜色', {
-      backgroundBlurStyle: BlurStyle.Thin,
+      backgroundBlurStyle: BlurStyle.Regular,
       barStyle: BarStyle.STACK
     })
     .menus(this.SwitchColorMode())
-    .systemTransition(NavigationSystemTransitionType.SLIDE_RIGHT)
   }
 
 }

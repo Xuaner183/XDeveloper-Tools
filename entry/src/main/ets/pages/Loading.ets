@@ -36,6 +36,7 @@ export struct Loading {
           }, false);
         }, 1000)
         this.useAppInfo.isLoadDown = true;
+        console.info(`[Loading] isLoadDown = ${this.useAppInfo.isLoadDown}`)
       } else {
         this.tipText = '加载失败';
         console.info('[Loading] 加载失败')
