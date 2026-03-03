@@ -1,6 +1,6 @@
 import { AppInfo } from '../common/Index'
 import App from '@system.app';
-import { AppStorageV2 } from '@kit.ArkUI';
+import { AppStorageV2, SymbolGlyphModifier } from '@kit.ArkUI';
 
 export interface NavHomeParm {
   isColors?: boolean;
@@ -11,74 +11,144 @@ export interface NavHomeParm {
 export struct Home {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
+  private moreIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.dot_grid_2x2'));
+  private settingIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.gearshape'));
+  private giveLikeIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.hand_thumbsup_fill'));
+  @Local private isMiniMode: boolean = false;
+  @Local private isMoreMenuShow: boolean = false;
+
+  @Builder MoreMenu() {
+    Menu() {
+      MenuItem({
+        symbolStartIcon: this.giveLikeIcon,
+        content: '赞助'
+      })
+      MenuItem({
+        symbolStartIcon: this.settingIcon,
+        content: '设置'
+      })
+    }
+  }
 
   build() {
     Navigation(this.mainNavPathStack){
-      List() {
-        ListItem()
-          .height(16)
-        ListItemGroup({ style: ListItemGroupStyle.CARD }) {
-          ListItem({ style: ListItemStyle.CARD }) {
-            Column() {
+      Column() {
+        List() {
+          ListItem()
+            .height(180)
+          ListItemGroup({ style: ListItemGroupStyle.CARD }) {
+            ListItem({ style: ListItemStyle.CARD }) {
               Column() {
-                Image($r('app.media.color2'))
-                  .objectFit(ImageFit.Cover)
-                  .draggable(false)
-              }
-              .height(200)
-              .width('100%')
+                Column() {
+                  Image($r('app.media.color2'))
+                    .objectFit(ImageFit.Cover)
+                    .draggable(false)
+                }
+                .height(200)
+                .width('100%')
 
-              Row() {
-                Text('颜色')
-                  .fontSize(20)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor($r('sys.color.ohos_id_color_foreground'))
-                Blank()
-                SymbolGlyph($r('sys.symbol.chevron_right'))
-                  .padding({ left: 8, right: 8 })
-                  .fontSize(20)
-                  .fontColor([$r('sys.color.ohos_id_color_secondary')])
+                Row() {
+                  Text('颜色')
+                    .fontSize(20)
+                    .fontWeight(FontWeight.Bold)
+                    .fontColor($r('sys.color.ohos_id_color_foreground'))
+                  Blank()
+                  SymbolGlyph($r('sys.symbol.chevron_right'))
+                    .padding({ left: 8, right: 8 })
+                    .fontSize(20)
+                    .fontColor([$r('sys.color.ohos_id_color_secondary')])
+                }
+                .justifyContent(FlexAlign.Start)
+                .height('auto').width('100%')
+                .padding({
+                  left: 16,
+                  right: 16,
+                  top: 30,
+                  bottom: 30
+                })
               }
-              .justifyContent(FlexAlign.Start)
               .height('auto').width('100%')
-              .padding({left: 16, right: 16, top: 30, bottom: 30})
             }
-            .height('auto').width('100%')
+            .onClick(() => {
+              const param: NavHomeParm = {
+                isColors: true
+              }
+              if (!this.useAppInfo.isLoadDown) {
+                console.info('[Home] 跳转到Loading isLoadDown' + this.useAppInfo.isLoadDown)
+                this.mainNavPathStack.pushPath({
+                  name: 'Loading',
+                  param: param
+                }, true);
+              } else {
+                console.info('[Home] 跳转到Colors isLoadDown' + this.useAppInfo.isLoadDown)
+                this.mainNavPathStack.pushPath({
+                  name: 'Colors',
+                  param: param
+                }, true);
+              }
+            })
+            .height('auto')
+            .width('100%')
+            .padding(0)
+            .clip(true)
+            .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+            .backgroundColor($r('sys.color.ohos_id_color_card_bg'))
           }
-          .onClick(() => {
-            const param: NavHomeParm = {
-              isColors: true
-            }
-            if (!this.useAppInfo.isLoadDown) {
-              console.info('[Home] 跳转到Loading isLoadDown' + this.useAppInfo.isLoadDown)
-              this.mainNavPathStack.pushPath({
-                name: 'Loading',
-                param: param
-              }, true);
-            } else {
-              console.info('[Home] 跳转到Colors isLoadDown' + this.useAppInfo.isLoadDown)
-              this.mainNavPathStack.pushPath({
-                name: 'Colors',
-                param: param
-              }, true);
-            }
-          })
           .height('auto').width('100%')
           .padding(0)
-          .clip(true)
-        }
-        .height('auto').width('100%')
-        .padding(0)
 
+          ListItem() {
+            Column() {
+              Text('—— 尽请期待 ——')
+                .fontSize(14)
+                .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+            }
+            .width('100%')
+            .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
+          }
+          .width('100%')
+          .margin({ top: 24 })
+
+          ListItem()
+            .height(200)
+
+        }
+        .width('100%')
+        .height('auto')
+        .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
       }
-      .width('100%')
-      .height('100%')
-      .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+      .width('100%').height('100%')
+      .backgroundColor($r('app.color.background_linearGradient_color1'))
+
     }
     .width('100%')
     .height('100%')
-    .title('主页')
+    .title('主页', {
+      backgroundBlurStyle: this.isMiniMode ? BlurStyle.Thin : BlurStyle.NONE,
+      barStyle: BarStyle.STACK,
+      backgroundColor: Color.Transparent
+    })
     .ignoreLayoutSafeArea()
     .mode(NavigationMode.Stack)
+    .menus([{
+      value: '赞助',
+      symbolIcon: this.giveLikeIcon,
+      action: () => {}
+    }, {
+      value: '设置',
+      symbolIcon: this.settingIcon,
+      action: () => {
+        this.mainNavPathStack.pushPath({
+          name: 'Setting'
+        })
+      }
+    }])
+    .onTitleModeChange((type) => {
+      if (type === NavigationTitleMode.Mini) {
+        this.isMiniMode = true;
+      } else {
+        this.isMiniMode = false;
+      }
+    })
   }
 }

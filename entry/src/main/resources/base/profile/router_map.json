@@ -9,6 +9,11 @@
       "name": "Loading",
       "pageSourceFile": "src/main/ets/pages/Loading.ets",
       "buildFunction": "LoadingBuilder"
+    },
+    {
+      "name": "Setting",
+      "pageSourceFile": "src/main/ets/pages/Setting.ets",
+      "buildFunction": "SettingBuilder"
     }
   ]
 }
