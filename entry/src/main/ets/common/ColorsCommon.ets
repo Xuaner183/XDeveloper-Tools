@@ -70,7 +70,8 @@ export class ColorsPageInit extends UIAbilityContext {
         // 获取 ColorMetrics 对象
         const colorObj: ColorMetrics | null = getColor(resColorName);
         if (colorObj) {
-          const colorAlpha: string = colorObj.alpha.toFixed(2);
+          // 将Alpha的[0-255]转换成[0-1]
+          const colorAlpha: string = ColorUtils.alpha255To01(colorObj.alpha);
           // RGBA结果
           const colorRgbaResult: ColorType.RGBA = `rgba(${colorObj.red.toString()}, ${colorObj.green.toString()}, ${colorObj.blue.toString()}, ${colorAlpha})`;
           // 将RGBA结果转换成十六进制HEX
