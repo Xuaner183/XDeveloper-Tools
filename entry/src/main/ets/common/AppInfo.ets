@@ -9,15 +9,15 @@ export enum SwitchColorModeIndex {
   Light,
   Dark
 }
-export enum RGBA {
-  red,
-  green,
-  blue,
-  alpha
-}
+// export enum RGBA {
+//   red,
+//   green,
+//   blue,
+//   alpha
+// }
 
 export enum ColorArray {
-  RgbaTuple,
+  RgbaArray,
   HexArray,
   readableHexArray,
   CmykArray,
@@ -25,13 +25,8 @@ export enum ColorArray {
   HsvArray
 }
 
-type readableHEX = string;
-type HEX  = string;
-type CMYK = string;
-type HSL  = string;
-type HSV  = string;
 namespace ColorType {
-  export type RGBA = Array<number>
+  export type RGBA = string
   export type readableHEX = string;
   export type HEX  = string;
   export type CMYK = string;
@@ -41,7 +36,7 @@ namespace ColorType {
 type DARK   = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
 type LIGHT  = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
 
-export {readableHEX, HEX, CMYK, HSL, HSV, DARK, LIGHT, ColorType}
+export { DARK, LIGHT, ColorType }
 
 /**
    // AppStorageV2————应用全局UI状态存储

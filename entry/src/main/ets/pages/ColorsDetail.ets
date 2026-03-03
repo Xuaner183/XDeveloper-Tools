@@ -2,7 +2,7 @@ import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
 import { ResourceManager as RS,
-  AppInfo, OnListen, ColorsPageInit, ColorArray, RGBA, ColorType } from '../common/Index';
+  AppInfo, OnListen, ColorsPageInit, ColorArray, ColorType } from '../common/Index';
 
 const errorText: string = '您当前系统不存在';
 
@@ -53,7 +53,6 @@ struct ColorsDetail {
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
 
-  // TODO: HSL和HSV第一位会返回NaN bug
   private outDarkOrLightString(isDark: boolean, colorType: ColorArray): string {
     const darkColor = this.useAppInfo.COLOR_VALUE[1];
     const lightColor = this.useAppInfo.COLOR_VALUE[0];
@@ -61,13 +60,8 @@ struct ColorsDetail {
       return isDark ? darkColor[colorType][this.resourceIndexNumber] : lightColor[colorType][this.resourceIndexNumber];
     }
     switch (colorType) {
-      case ColorArray.RgbaTuple:
-        const rgbaDarkOrLight: ColorType.RGBA = darkOrLight(ColorArray.RgbaTuple) as ColorType.RGBA;
-        const r: RGBA = rgbaDarkOrLight[RGBA.red] || 0;
-        const g: RGBA = rgbaDarkOrLight[RGBA.green] || 0;
-        const b: RGBA = rgbaDarkOrLight[RGBA.blue] || 0;
-        const a: RGBA = rgbaDarkOrLight[RGBA.alpha] || 0;
-        return `rgba(${r}, ${g}, ${b}, ${a}%)`;
+      case ColorArray.RgbaArray:
+        return darkOrLight(ColorArray.RgbaArray) as string;
       case ColorArray.HexArray:
         return darkOrLight(ColorArray.HexArray) as string;
       case ColorArray.readableHexArray:
@@ -101,7 +95,7 @@ struct ColorsDetail {
     resourceIndexString: string | Resource | undefined = undefined,
     resourceName: string | Resource | undefined = undefined
   ) {
-    Column() {
+    Stack() {
       Column() {
         Row() {
           Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
@@ -123,13 +117,16 @@ struct ColorsDetail {
           .zIndex(8)
       }
       .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
       Column()
         .width('100%').height(4)
     }
     .padding(4)
     .width('100%').height('100%')
-    .justifyContent(FlexAlign.SpaceBetween)
+    // .justifyContent(FlexAlign.SpaceBetween)
     // .alignItems(HorizontalAlign.Center)
+    .alignContent(Alignment.Start)
   }
 
   @Builder
@@ -169,15 +166,15 @@ struct ColorsDetail {
             .backgroundImagePosition(Alignment.Center)
             .overlay(this.TextOverlay(this.resourceIndexString, this.resourceColorName))
             .width('100%')
-            .height(200)
+            .height(120)
           Column().height(24)
           Column() {
             this.SwitchColorMode()
             Column().height(16)
             Column() {
               Row() {
-                Text('RGBA:')
-                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaTuple))
+                Text('RGBA: ')
+                Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray))
               }
               Row() {
                 Text('可读HEX: ')

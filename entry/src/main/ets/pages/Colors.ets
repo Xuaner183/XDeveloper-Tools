@@ -1,12 +1,8 @@
-import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorsPageInit } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, OnListen } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
-import { NavLoadingParm } from './Loading';
-import { NavHomeParm } from './Home';
 import { ColorsDetailBuilder } from './ColorsDetail';
-import { emitter } from '@kit.BasicServicesKit';
-import { CurrentModeData } from './Index';
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;

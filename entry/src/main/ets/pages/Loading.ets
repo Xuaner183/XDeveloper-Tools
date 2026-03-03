@@ -15,13 +15,8 @@ export interface NavLoadingParm {
 export struct Loading {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
-  private jianBianStyleColorsPage: LinearGradientOptions = {
-    angle: 180,
-    colors: [[$r('app.color.background_linearGradient_color1'), 0.0],
-      [$r('app.color.background_linearGradient_color2'), 1]]
-  }
   @Local private tipText: string = '加载中';
-  private mainNavPathInfo?: NavPathInfo;
+  // private mainNavPathInfo?: NavPathInfo;
   private isColors: boolean = false;
 
   private async Init() {
