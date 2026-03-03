@@ -84,6 +84,14 @@ export class ColorUtils {
      主转换静态方法
      --------------------------- */
 
+  public static alpha255To01(a: number): string {
+    if (typeof a !== 'number' || isNaN(a)) return '0';
+    const clamped = Math.min(255, Math.max(0, a));
+    const normalized = clamped / 255;
+    // 四舍五入到小数点后两位并返回 number
+    return (Math.round(normalized * 100) / 100).toString();
+  }
+
   /**
    * rgba -> 0xRRGGBBAA 格式字符串（始终包含 alpha，两位）
    * - alpha 先四舍五入到小数点后两位，再乘 255 并四舍五入为整数用于 hex
