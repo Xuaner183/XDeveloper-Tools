@@ -1,6 +1,6 @@
 import { AppInfo } from '../common/Index'
-import App from '@system.app';
 import { AppStorageV2, SymbolGlyphModifier } from '@kit.ArkUI';
+import { bundleManager } from '@kit.AbilityKit';
 
 export interface NavHomeParm {
   isColors?: boolean;
@@ -28,6 +28,33 @@ export struct Home {
         content: '设置'
       })
     }
+  }
+
+  /**获取APP名称**/
+  public async getAppName(): Promise<string> {
+    const repositoryUrl: Promise<string | void> = AppInfo.getContext(this).resourceManager.getStringValue($r('app.string.app_name').id)
+      .catch((e: BusinessError) => { console.error(`[DeviceClientInfo] 获取APP名称失败: ${e.message}`) });
+    const appNameValue: string | void = await repositoryUrl;
+    return appNameValue || '';
+  }
+
+  /**获取版本号**/
+  public async getAppVersion(): Promise<string> {
+    const bundleFlags: number = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+    const bundleInfo: bundleManager.BundleInfo = await bundleManager.getBundleInfoForSelf(bundleFlags);
+    return bundleInfo.versionName;
+  }
+
+  private async init() {
+    // 获取版本号和软件名称
+    await Promise.all([this.getAppName(), this.getAppVersion()]).then((result) => {
+      this.useAppInfo.appName = result[0];
+      this.useAppInfo.appVersion = result[1];
+    })
+  }
+
+  aboutToAppear(): void {
+    this.init();
   }
 
   build() {

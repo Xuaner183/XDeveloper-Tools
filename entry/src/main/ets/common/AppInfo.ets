@@ -27,8 +27,8 @@ export enum ColorArray {
 
 namespace ColorType {
   export type RGBA = string
-  export type readableHEX = string;
   export type HEX  = string;
+  export type readableHEX = string;
   export type CMYK = string;
   export type HSL  = string;
   export type HSV  = string;
@@ -57,22 +57,15 @@ export class AppInfo extends UIAbilityContext {
   public SYS_RESOURCE_HEX_STRING?: Array<string>;
   // 用于绑定每个色块的模态窗口状态
   @Trace public modalOpen: boolean[] = [];
-  // // 浅色模式真实颜色值RGBA
-  // @Trace public LIGHT_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
-  // // 深色模式真实颜色值RGBA
-  // @Trace public DARK_MODE_COLORS_ARRAY: Array<Array<RGBA>> = [];
-  // // 存储各种类型颜色Map
-  // @Trace public ALL_COLORS: Array<AllColorArray> = [];
-  //
-  // @Trace public LIGHT_MODE_RGBA_ARRAY: Array<string> = [];
-  // @Trace public DARK_MODE_RGBA_ARRAY: Array<string> = [];
   // 判断颜色数组是否存在，避免重复循环
   public isLightColorFull = false;
   public isDarkColorFull = false;
   // 判断Colors页是否需要初始化
   public isLoadDown = false;
-
+  // 所有颜色值字符串数组
   public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], []], [[], [], [], [], [], []]];
+  public appName: string = 'unknown';
+  public appVersion: string = 'unknown';
 
 
   /**

@@ -1,8 +1,10 @@
-import { ColorSysResourse, ColorSysString, AppInfo, OnListen } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { ColorsDetailBuilder } from './ColorsDetail';
+import { picker } from '@kit.CoreFileKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -11,6 +13,15 @@ export interface ColorsDetailRouterParam {
   resourceIndexNumber: number;
   DetailColorMode: ThemeColorMode;
   colorHex?: string;
+}
+
+interface ColorTypeObj {
+  RGBA: ColorType.RGBA;
+  readableHEX: ColorType.readableHEX;
+  HEX: ColorType.HEX;
+  CMYK: ColorType.CMYK;
+  HSL: ColorType.HSL;
+  HSV: ColorType.HSV;
 }
 
 @Extend(Text)
@@ -37,36 +48,83 @@ export function ColorsBuilder() {
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
   private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
-  // private usePreferencesControl: PreferencesControl = new PreferencesControl(this.getContext());
-  // private useColorModeSwitch: ColorModeSwitch = new ColorModeSwitch(this.getContext());
   @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { icon: $r('app.media.routine') },
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
-  // @Local symbolSelectedIndex: number = this.useAppInfo.colorModeLocalInColorsPage === ThemeColorMode.DARK ? 1 : 0;
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
-  // @Local colorModeLocal: ThemeColorMode = this.useAppInfo.colorModeLocalInColorsPage;
-  private isLoadDown: boolean = false;
   @Local private onTotalCount: number = 50;
   private isOnReachEnd: boolean = true;
   @Local private isListLoading: boolean = true;
-  private isDataReady: boolean = false;
+  @Local private isInfoDetailShow: boolean = false;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 
-  private init() {
-    // 启动监听
-    // this.useAppInfo.listenAppColorModeChange();
+  private async saveColorJson() {
+    const docPicker = new picker.DocumentViewPicker(AppInfo.getContext(this));
+    const saveUrl: string[] = await docPicker.save({
+      defaultFilePathUri: 'file://docs/storage/Users/currentUser/Documents',
+      newFileNames: ['All_Color'],
+      fileSuffixChoices: ['.json', '.txt']
+    });
+
+    // 输出某颜色模式的各个颜色名字，对应的各个颜色类型，对应值的Obj
+    const outColorNameAndColorTypeObj = (isDarkMode: boolean) => {
+      // 输出某个颜色名字，对应的各个颜色类型，对应值的Obj
+      const outColorTypeArray = (isDarkMode: boolean) => {
+        const colorTypeArray: Array<ColorTypeObj> = []
+        const darkOrLight = isDarkMode ? this.useAppInfo.COLOR_VALUE[1] : this.useAppInfo.COLOR_VALUE[0];
+        for(let i = 0; i < ColorSysString.length; i++) {
+          const colorType: ColorTypeObj = {
+            RGBA: darkOrLight[0][i],
+            HEX: darkOrLight[1][i],
+            readableHEX: darkOrLight[2][i],
+            CMYK: darkOrLight[3][i],
+            HSL: darkOrLight[4][i],
+            HSV: darkOrLight[5][i]
+          }
+          colorTypeArray.push(colorType);
+        }
+        return colorTypeArray;
+      }
+
+      const colorTypeArray: ColorTypeObj[] = outColorTypeArray(isDarkMode);
+      const someModeColorObj: Record<string, ColorTypeObj> = {};
+      for(let i = 0; i < ColorSysString.length; i++) {
+        someModeColorObj[ColorSysString[i]] = colorTypeArray[i];
+      }
+      return someModeColorObj;
+    }
+
+    const outAllModeColorObj = () => {
+      const lightModeObj = outColorNameAndColorTypeObj(false);
+      const darkModeObj = outColorNameAndColorTypeObj(true);
+      const allModeColorObj: Record<string, Record<string, ColorTypeObj>> = {};
+      for(let i = 0; i < ColorSysString.length; i++) {
+        allModeColorObj['Light'] = lightModeObj;
+        allModeColorObj['Dark'] = darkModeObj;
+      }
+      return allModeColorObj;
+    }
+
+    try {
+      const openFile = await fs.open(saveUrl[0], 0o1);
+      fs.write(openFile.fd, JSON.stringify(outAllModeColorObj(), null, '\t')).then((result) => {
+        console.info(`light: 写入了 ${result} 字节`);
+      });
+      // const openFile2 = await fs.open(saveUrl[1], 0o1);
+      // fs.write(openFile2.fd, JSON.stringify(this.useAppInfo.COLOR_VALUE[1], null, '\t')).then((result) => {
+      //   console.info(`dark: 写入了 ${result} 字节`);
+      // });
+    } catch (e) {
+      this.getUIContext().getPromptAction().showToast({ message: `失败：${(e as BusinessError).message}` })
+    }
   }
 
-
-  aboutToAppear(): void {
-    // this.init();
-  }
 
   @Builder
   TextOverlay(
@@ -210,14 +268,67 @@ struct Colors {
 
   }
 
+  @Builder myOverlay() {
+    Row() {
+      Button('󰊖', { type: ButtonType.Circle })
+        .onClick(() => {
+          this.isInfoDetailShow = true;
+        })
+        .fontSize(40)
+        .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+        .width(60)
+        .height(60)
+        .bindSheet(
+          this.isInfoDetailShow!!,
+          this.InfoDetail,
+          {
+            title: { title: '信息' },
+            dragBar: true,
+            height: SheetSize.MEDIUM,
+            detents: [SheetSize.MEDIUM, SheetSize.LARGE],
+            enableOutsideInteractive: false,
+            onDisappear: () => {
+              this.isInfoDetailShow = false;
+            }
+          }
+        )
+    }
+    .height('100%')
+    .width('100%')
+    .hitTestBehavior(HitTestMode.None)
+    .justifyContent(FlexAlign.End)
+    .alignItems(VerticalAlign.Bottom)
+    .padding(24)
+  }
+
+  @Builder InfoDetail() {
+    Column() {
+      Button('保存', { buttonStyle: ButtonStyleMode.NORMAL })
+        .onClick(async () => {
+          await this.saveColorJson();
+        })
+      // Scroll() {
+      //
+      //     Text(JSON.stringify(this.useAppInfo.COLOR_VALUE, null, '\t'))
+      //       .copyOption(CopyOptions.LocalDevice)
+      //
+      // }
+      // .width('100%')
+      // .height('auto')
+      // .flexGrow(2)
+    }
+    .height('100%')
+    .width('100%')
+  }
+
 
   build() {
 
     NavDestination() {
-      Column() {
-        Scroll(this.mainScroller) {
+      Stack() {
+
           Column() {
-            List() {
+            List({ scroller: this.mainScroller }) {
               ListItemGroup() {
                 // 批量加载 ListItem
                 Repeat(ColorSysResourse)
@@ -257,7 +368,7 @@ struct Colors {
                 console.info(`[Colors] 开始加载 isListLoading = ${this.isOnReachEnd}`)
                 this.onTotalCount += 4;
                 const promise: Promise<void>[] = [];
-                for (let i = 0; i < 40; i++) {
+                for (let i = 0; i < 30; i++) {
                   promise.push(
                     new Promise(resolve => {
                       setTimeout(() => {
@@ -276,7 +387,30 @@ struct Colors {
             })
             .cachedCount(4)
           }
-        }
+          .overlay(this.myOverlay())
+
+        // Column() {
+        //   Blank()
+        //   Row() {
+        //     Blank()
+        //     Button('󰊖', { type: ButtonType.Circle })
+        //       .onClick(() => {
+        //       })
+        //       .fontSize(24)
+        //       .shadow(ShadowStyle.OUTER_DEFAULT_LG)
+        //       .width(50)
+        //       .height(50)
+        //   }
+        //   .width('100%')
+        // }
+        // .hitTestBehavior(HitTestMode.None)
+        // .width('100%')
+        // .height('100%')
+        // .padding(14)
+
+
+
+
       }
       .linearGradient({
         angle: 180,
@@ -289,6 +423,7 @@ struct Colors {
       this.mainNavPathStack = ctx.pathStack;
     })
     .onShown(() => {
+      console.log(JSON.stringify(this.useAppInfo.COLOR_VALUE));
     })
     .bindToScrollable([this.mainScroller])
     .title('颜色', {

@@ -1,29 +1,12 @@
 import { AppStorageV2, SegmentButtonV2Items, TabSegmentButtonV2 } from '@kit.ArkUI';
 import { AppInfo } from '../common/Index';
+import { HdsNavDestination } from '@kit.UIDesignKit';
+import lazy { AboutBuilder } from './About';
 
 @Builder export function SettingBuilder() {
   Setting();
 }
 
-/**
- * 列表组卡片样式
- */
-@Extend(ListItemGroup)
-function listItemGroupCard() {
-  .margin({
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 12
-  })
-  .padding(4)
-  .divider({
-    strokeWidth: 1,
-    color: $r('sys.color.ohos_id_color_subheading_separator'),
-    startMargin: 12,
-    endMargin: 12
-  })
-}
 
 /**
  * 列表样式
@@ -47,34 +30,6 @@ function listItemText2() {
   .fontSize($r('sys.float.ohos_id_text_size_body2'))
 }
 
-@Builder
-function ListItemTitle1(title: string | Resource) {
-  ListItemGroup({ style: ListItemGroupStyle.CARD }) {
-    ListItem({ style: ListItemStyle.CARD }) {
-      Column() {
-        Text(title)
-          .fontSize($r('sys.float.ohos_id_text_size_over_line'))
-          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-      }
-      .width('100%')
-      .margin({
-        left: 4,
-        right: 4,
-        top: 18,
-        bottom: 18
-      })
-      .alignItems(HorizontalAlign.Start)
-    }
-    .backgroundColor(Color.Transparent)
-    .selected(false)
-    .enabled(false)
-  }
-  .backgroundColor(Color.Transparent)
-  .margin({ bottom: 0, top: 0 })
-  .padding({ bottom: 0, top: 0 })
-  .enabled(false)
-  .offset({ y: 4 })
-}
 
 
 @ComponentV2
@@ -86,6 +41,7 @@ export struct Setting {
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
+  @Local private isModalShow: boolean = false;
 
   @Builder
   SwitchColorMode() {
@@ -99,64 +55,53 @@ export struct Setting {
       })
         .width(200)
     }
-    .padding({ top: 8, bottom: 8, left: 16, right: 16 })
     .width('auto')
-    // .margin({ left: 16, right: 16 })
   }
 
-  @Builder Title1(text: string | Resource = '') {
-    Row() {
-      Text(text)
-        .fontSize($r('sys.float.ohos_id_text_size_body2'))
-        .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-        .fontWeight(FontWeight.Regular)
-        .fontFamily('HarmonyHeiTi')
-        .lineHeight(19)
-        .width('100%')
-    }
-    .margin({
-      left: 12,
-      right: 12,
-      top: 19.5,
-      bottom: 9.5
-    })
+  @Styles ListItemStyle() {
+    .padding({ left: 8, right: 8 })
+    .align(Alignment.Start)
+    .height('auto')
+    .width('100%')
+    .constraintSize({ maxWidth: 608 })
   }
+
+  @Builder Title1(text: string | Resource) {
+    ListItem() {
+      Column() {
+        Text(text)
+          .fontSize($r('sys.float.ohos_id_text_size_over_line'))
+          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .padding({ left: 10, right: 10 })
+    .height('auto')
+    .constraintSize({ maxWidth: 608 })
+    .margin({ left: 14, right: 14, top: 10, bottom: 10 })
+  }
+
+
 
   build() {
-    NavDestination() {
+    HdsNavDestination() {
       Column() {
         List() {
           // 顶部间距
           ListItem()
-          .height($r('sys.float.titlebar_default_height'))
-          .margin({ top: $r('sys.float.ohos_id_elements_margin_vertical_m') })
+          .height(80)
 
-          ListItemGroup() {
-            ListItem() {
-              Column() {
-                Text('颜色')
-                  .fontSize($r('sys.float.ohos_id_text_size_over_line'))
-                  .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-              }
-              .width('100%')
-              .margin({
-                left: 4,
-                right: 4,
-                top: 18,
-                bottom: 18
-              })
-              .alignItems(HorizontalAlign.Start)
-            }
-          }
-
+          this.Title1('颜色')
           ListItemGroup({ style: ListItemGroupStyle.CARD }) {
             ListItem({ style: ListItemStyle.CARD }) {
               Row() {
-                Column({ space: $r('sys.float.ohos_id_text_margin_vertical') }) {
+                Column() {
                   Text('颜色模式')
                     .listItemText1()
                 }
                 .alignItems(HorizontalAlign.Start)
+                .padding({ top: 16, bottom: 16 })
 
                 Blank()
                 this.SwitchColorMode()
@@ -164,35 +109,68 @@ export struct Setting {
               .width('100%')
               .alignItems(VerticalAlign.Center)
             }
-            .padding({
-              left: 8,
-              right: 8,
-              top: 16,
-              bottom: 16
-            })
-            .align(Alignment.Start)
-            .height('auto')
+            .ListItemStyle()
           }
-          .listItemGroupCard
+
+          this.Title1('应用')
+          ListItemGroup({ style: ListItemGroupStyle.CARD }) {
+            ListItem({ style: ListItemStyle.CARD }) {
+              Row() {
+                Column() {
+                  Text('关于')
+                    .listItemText1()
+                }
+                .alignItems(HorizontalAlign.Start)
+                .padding({ top: 16, bottom: 16 })
+                Blank()
+                Row() {
+                  SymbolGlyph($r('sys.symbol.chevron_right'))
+                    .fontColor([$r('sys.color.ohos_id_color_fourth')])
+                    .fontSize(24)
+                    .margin({ left: 4, right: 2 })
+                }
+              }
+              .width('100%')
+              .alignItems(VerticalAlign.Center)
+            }
+            .onClick(() => { this.isModalShow = true })
+            .bindSheet(
+              this.isModalShow!!,
+              AboutBuilder,
+              {
+                title: { title: '关于' },
+                onDisappear: () => { this.isModalShow = false },
+                enableOutsideInteractive: false
+              }
+            )
+            .ListItemStyle()
+          }
+
 
           ListItem().height(120)
 
         }
-        .margin({ left: 14, right: 14 })
         .alignListItem(ListItemAlign.Start)
-        .width('auto')
-        .height('100%')
+        .width('100%')
+        .height('auto')
         .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
-        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+        .flexGrow(8)
       }
       .width('100%').height('100%')
     }
-    .title('设置', {
-      backgroundBlurStyle: BlurStyle.Thin,
-      barStyle: BarStyle.STACK
+    // .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.BOTTOM])
+    // .title('设置', {
+    //   backgroundBlurStyle: BlurStyle.Thin,
+    //   barStyle: BarStyle.STACK
+    // })
+    .titleBar({
+      content: {
+        title: { mainTitle: '设置' }
+      }
     })
     .onReady((ctx: NavDestinationContext) => {
       this.mainNavPathStack = ctx.pathStack
     })
+    .backgroundColor($r('sys.color.background_secondary'))
   }
 }
