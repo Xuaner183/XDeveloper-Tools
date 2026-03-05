@@ -11,6 +11,10 @@
     {
       "name": "background_linearGradient_color2",
       "value": "#FFFAFAFA"
+    },
+    {
+      "name": "modal_card_background",
+      "value": "#fff"
     }
   ]
 }

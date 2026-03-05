@@ -108,7 +108,7 @@ struct About {
                       }
                       .align(Alignment.Start)
                       .height('auto')
-                      .backgroundColor('#37383a')
+                      .backgroundColor($r('app.color.modal_card_background'))
 
                       ListItem({ style: ListItemStyle.CARD }) {
                         Row({ space:4 }) {
@@ -142,14 +142,14 @@ struct About {
                       }
                       .align(Alignment.Start)
                       .height('auto')
-                      .backgroundColor('#37383a')
+                      .backgroundColor($r('app.color.modal_card_background'))
                       .onClick(() => {
                         this.getContext().openLink(this.REPOSITORY_URL)
                       })
 
                     }
                     .borderRadius($r('sys.float.ohos_id_corner_radius_card'))
-                    .backgroundColor('#37383a')
+                    .backgroundColor($r('app.color.modal_card_background'))
                     .margin({ left: 0, right: 0, top: 0 })
                     .padding(4)
                     .divider({
