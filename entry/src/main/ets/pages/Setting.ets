@@ -112,6 +112,9 @@ export struct Setting {
             .ListItemStyle()
           }
 
+          ListItem()
+            .height(16)
+
           this.Title1('应用')
           ListItemGroup({ style: ListItemGroupStyle.CARD }) {
             ListItem({ style: ListItemStyle.CARD }) {
