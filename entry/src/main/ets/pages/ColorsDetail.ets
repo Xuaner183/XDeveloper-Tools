@@ -143,11 +143,26 @@ struct ColorsDetail {
           this.useAppInfo.switchColorModeIndexManager(index);
         }
       })
-        .width(200)
     }
-    .padding({ top: 8, bottom: 8, left: 16, right: 16 })
+    .padding({ top: 8, bottom: 8, left: 12, right: 12 })
     .width('auto')
     // .margin({ left: 16, right: 16 })
+  }
+
+  @Builder Title1(text: string | Resource) {
+    ListItem() {
+      Column() {
+        Text(text)
+          .fontSize($r('sys.float.ohos_id_text_size_over_line'))
+          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .padding({ left: 10, right: 10 })
+    .height('auto')
+    .constraintSize({ maxWidth: 608 })
+    .margin({ left: 14, right: 14, top: 10, bottom: 10 })
   }
 
   build() {
@@ -155,8 +170,11 @@ struct ColorsDetail {
       Scroll() {
 
         Column() {
+
           Column()
             .height(40)
+
+          Column() {
             Column() {
               Rect({ width: '100%', height: '100%' })
                 .fill(this.chunkColor)
@@ -171,42 +189,66 @@ struct ColorsDetail {
             .overlay(this.TextOverlay(this.resourceIndexString, this.resourceColorName))
             .width('100%')
             .height(120)
+          }
+          .padding({ left: 12, right: 12 })
+
           Column().height(24)
+
           Column() {
             this.SwitchColorMode()
+
             Column().height(16)
+
             Column() {
               List() {
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray),
-                  sub: 'RGBA',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray)) }
-                })
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray),
-                  sub: '可读HEX',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray)) }
-                })
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray),
-                  sub: 'HEX',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray)) }
-                })
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray),
-                  sub: 'CMYK',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray)) }
-                })
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray),
-                  sub: 'HSL',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray)) }
-                })
-                CustomListItemCardWithTitle2AndSub({
-                  title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray),
-                  sub: 'HSV',
-                  onClickList: () => { this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray)) }
-                })
+
+                this.Title1('点击可复制')
+                ListItemGroup({ style: ListItemGroupStyle.CARD }) {
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray),
+                    sub: 'RGBA',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray),
+                    sub: '可读HEX',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray),
+                    sub: 'HEX',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray),
+                    sub: 'CMYK',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray),
+                    sub: 'HSL',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray),
+                    sub: 'HSV',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
+                    }
+                  })
+                }
+                .backgroundColor($r('app.color.modal_card_background'))
+
                 ListItem()
                   .height(140)
               }
@@ -215,30 +257,6 @@ struct ColorsDetail {
                 scrollForward: NestedScrollMode.PARENT_FIRST,
                 scrollBackward: NestedScrollMode.PARENT_FIRST
               })
-              // Row() {
-              //   Text('RGBA: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RgbaArray))
-              // }
-              // Row() {
-              //   Text('可读HEX: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
-              // }
-              // Row() {
-              //   Text('HEX: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HexArray))
-              // }
-              // Row() {
-              //   Text('CMYK: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.CmykArray))
-              // }
-              // Row() {
-              //   Text('HSL: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HslArray))
-              // }
-              // Row() {
-              //   Text('HSV: ')
-              //   Text(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.HsvArray))
-              // }
             }
             .alignItems(HorizontalAlign.Start)
           }
@@ -247,7 +265,7 @@ struct ColorsDetail {
 
         }
       }
-      .padding({ left: 24, right: 24 })
+      // .padding({ left: 24, right: 24 })
       .width('100%')
       .height('auto')
       .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })

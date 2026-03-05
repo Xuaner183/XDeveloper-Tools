@@ -79,7 +79,7 @@ export struct CustomListItemCardWithTitle2AndSub {
     .padding({ left: 8, right: 8, top: 16, bottom: 16 })
     .align(Alignment.Start)
     .height('auto')
-    .backgroundColor($r('sys.color.ohos_id_list_background_color'))
+    .backgroundColor($r('app.color.modal_card_background'))
     .onClick(this.onClickList)
   }
 }

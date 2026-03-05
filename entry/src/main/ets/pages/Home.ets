@@ -30,6 +30,22 @@ export struct Home {
     }
   }
 
+  @Builder Title1(text: string | Resource) {
+    ListItem() {
+      Column() {
+        Text(text)
+          .fontSize($r('sys.float.ohos_id_text_size_over_line'))
+          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .padding({ left: 10, right: 10 })
+    .height('auto')
+    .constraintSize({ maxWidth: 608 })
+    .margin({ left: 14, right: 14, top: 10, bottom: 10 })
+  }
+
   /**获取APP名称**/
   public async getAppName(): Promise<string> {
     const repositoryUrl: Promise<string | void> = AppInfo.getContext(this).resourceManager.getStringValue($r('app.string.app_name').id)
@@ -63,6 +79,8 @@ export struct Home {
         List() {
           ListItem()
             .height(180)
+
+          this.Title1('系统变量')
           ListItemGroup({ style: ListItemGroupStyle.CARD }) {
             ListItem({ style: ListItemStyle.CARD }) {
               Column() {
