@@ -115,12 +115,8 @@ struct Colors {
     try {
       const openFile = await fs.open(saveUrl[0], 0o1);
       fs.write(openFile.fd, JSON.stringify(outAllModeColorObj(), null, '\t')).then((result) => {
-        console.info(`light: 写入了 ${result} 字节`);
+        // console.info(` 写入了 ${result} 字节`);
       });
-      // const openFile2 = await fs.open(saveUrl[1], 0o1);
-      // fs.write(openFile2.fd, JSON.stringify(this.useAppInfo.COLOR_VALUE[1], null, '\t')).then((result) => {
-      //   console.info(`dark: 写入了 ${result} 字节`);
-      // });
     } catch (e) {
       this.getUIContext().getPromptAction().showToast({ message: `失败：${(e as BusinessError).message}` })
     }
@@ -178,7 +174,7 @@ struct Colors {
   @Builder IsEnd() {
     ListItem() {
       Row() {
-        Text('到底了')
+        Text('——到底了——')
       }
       .width('100%')
       .height(100)
@@ -302,27 +298,6 @@ struct Colors {
     .padding({ right: 24, bottom: 80 })
   }
 
-  // @Builder InfoDetail() {
-  //   Column() {
-  //     Button('保存', { buttonStyle: ButtonStyleMode.NORMAL })
-  //       .onClick(async () => {
-  //         await this.saveColorJson();
-  //       })
-  //     // Scroll() {
-  //     //
-  //     //     Text(JSON.stringify(this.useAppInfo.COLOR_VALUE, null, '\t'))
-  //     //       .copyOption(CopyOptions.LocalDevice)
-  //     //
-  //     // }
-  //     // .width('100%')
-  //     // .height('auto')
-  //     // .flexGrow(2)
-  //   }
-  //   .height('100%')
-  //   .width('100%')
-  // }
-
-
   build() {
 
     NavDestination() {
@@ -330,22 +305,16 @@ struct Colors {
 
           Column() {
             List({ scroller: this.mainScroller }) {
-              ListItemGroup() {
+              ListItemGroup({ footer: this.IsEnd() }) {
                 // 批量加载 ListItem
                 Repeat(ColorSysResourse)
-                  .virtualScroll({
-                    onTotalCount: () => this.onTotalCount
-                  })
+                  // .virtualScroll({
+                  //   onTotalCount: () => ColorSysResourse.length
+                  // })
                   .each((obj) => {
                     this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
                       obj.index, obj.index)
                   })
-                // 加载时显示无进度动画，加载完显示到底了
-                if (this.isListLoading) {
-                  this.IsLoading();
-                } else {
-                  this.IsEnd();
-                }
               }
               .padding({
                 right: 16,
@@ -363,54 +332,9 @@ struct Colors {
               scrollForward: NestedScrollMode.PARENT_FIRST,
               scrollBackward: NestedScrollMode.SELF_FIRST
             })
-            .onReachEnd(async () => {
-              if (this.isOnReachEnd && this.onTotalCount < ColorSysResourse.length) {
-                this.isOnReachEnd = false;
-                console.info(`[Colors] 开始加载 isListLoading = ${this.isOnReachEnd}`)
-                this.onTotalCount += 4;
-                const promise: Promise<void>[] = [];
-                for (let i = 0; i < 30; i++) {
-                  promise.push(
-                    new Promise(resolve => {
-                      setTimeout(() => {
-                        this.onTotalCount += 4;
-                        resolve();
-                      }, i * 150);
-                    })
-                  );
-                }
-                await Promise.all([promise]);
-                this.isOnReachEnd = true;
-                console.info(`[Colors] 结束加载 isListLoading = ${this.isOnReachEnd}`)
-              } else {
-                this.isListLoading = false;
-              }
-            })
-            .cachedCount(4)
+
           }
           .overlay(this.myOverlay())
-
-        // Column() {
-        //   Blank()
-        //   Row() {
-        //     Blank()
-        //     Button('󰊖', { type: ButtonType.Circle })
-        //       .onClick(() => {
-        //       })
-        //       .fontSize(24)
-        //       .shadow(ShadowStyle.OUTER_DEFAULT_LG)
-        //       .width(50)
-        //       .height(50)
-        //   }
-        //   .width('100%')
-        // }
-        // .hitTestBehavior(HitTestMode.None)
-        // .width('100%')
-        // .height('100%')
-        // .padding(14)
-
-
-
 
       }
       .linearGradient({
@@ -424,7 +348,6 @@ struct Colors {
       this.mainNavPathStack = ctx.pathStack;
     })
     .onShown(() => {
-      console.log(JSON.stringify(this.useAppInfo.COLOR_VALUE));
     })
     .bindToScrollable([this.mainScroller])
     .title('颜色', {
