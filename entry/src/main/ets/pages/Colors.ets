@@ -1,5 +1,5 @@
 import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
-import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
+import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2 } from '@kit.ArkUI';
 import { ColorsDetailBuilder } from './ColorsDetail';
@@ -59,12 +59,13 @@ struct Colors {
   private isOnReachEnd: boolean = true;
   @Local private isListLoading: boolean = true;
   @Local private isInfoDetailShow: boolean = false;
+  private saveIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.save'));
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 
-  private async saveColorJson() {
+  private async outColorJson() {
     const docPicker = new picker.DocumentViewPicker(AppInfo.getContext(this));
     const saveUrl: string[] = await docPicker.save({
       defaultFilePathUri: 'file://docs/storage/Users/currentUser/Documents',
@@ -268,9 +269,21 @@ struct Colors {
 
   }
 
+  @Builder MoreMenu() {
+    Menu() {
+      MenuItem({
+        symbolStartIcon: this.saveIcon,
+        content: '导出为JSON',
+      })
+        .onClick(() => {
+          this.outColorJson();
+        })
+    }
+  }
+
   @Builder myOverlay() {
     Row() {
-      Button('󰊖', { type: ButtonType.Circle })
+      Button('󰁡', { type: ButtonType.Circle })
         .onClick(() => {
           this.isInfoDetailShow = true;
         })
@@ -278,48 +291,36 @@ struct Colors {
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
         .width(60)
         .height(60)
-        .bindSheet(
-          this.isInfoDetailShow!!,
-          this.InfoDetail,
-          {
-            title: { title: '信息' },
-            dragBar: true,
-            height: SheetSize.MEDIUM,
-            detents: [SheetSize.MEDIUM, SheetSize.LARGE],
-            enableOutsideInteractive: false,
-            onDisappear: () => {
-              this.isInfoDetailShow = false;
-            }
-          }
-        )
+        .bindMenu(this.MoreMenu())
+        .backgroundColor('#ff2d38e5')
     }
     .height('100%')
     .width('100%')
     .hitTestBehavior(HitTestMode.None)
     .justifyContent(FlexAlign.End)
     .alignItems(VerticalAlign.Bottom)
-    .padding(24)
+    .padding({ right: 24, bottom: 80 })
   }
 
-  @Builder InfoDetail() {
-    Column() {
-      Button('保存', { buttonStyle: ButtonStyleMode.NORMAL })
-        .onClick(async () => {
-          await this.saveColorJson();
-        })
-      // Scroll() {
-      //
-      //     Text(JSON.stringify(this.useAppInfo.COLOR_VALUE, null, '\t'))
-      //       .copyOption(CopyOptions.LocalDevice)
-      //
-      // }
-      // .width('100%')
-      // .height('auto')
-      // .flexGrow(2)
-    }
-    .height('100%')
-    .width('100%')
-  }
+  // @Builder InfoDetail() {
+  //   Column() {
+  //     Button('保存', { buttonStyle: ButtonStyleMode.NORMAL })
+  //       .onClick(async () => {
+  //         await this.saveColorJson();
+  //       })
+  //     // Scroll() {
+  //     //
+  //     //     Text(JSON.stringify(this.useAppInfo.COLOR_VALUE, null, '\t'))
+  //     //       .copyOption(CopyOptions.LocalDevice)
+  //     //
+  //     // }
+  //     // .width('100%')
+  //     // .height('auto')
+  //     // .flexGrow(2)
+  //   }
+  //   .height('100%')
+  //   .width('100%')
+  // }
 
 
   build() {
