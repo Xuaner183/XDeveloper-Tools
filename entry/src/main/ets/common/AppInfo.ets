@@ -66,6 +66,7 @@ export class AppInfo extends UIAbilityContext {
   public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], []], [[], [], [], [], [], []]];
   public appName: string = 'unknown';
   public appVersion: string = 'unknown';
+  public pushColorsPageTimeId: number = 0;
 
 
   /**

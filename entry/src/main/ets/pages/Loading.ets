@@ -18,8 +18,14 @@ export struct Loading {
   @Local private tipText: string = '加载中';
   // private mainNavPathInfo?: NavPathInfo;
   private isColors: boolean = false;
+  private isPush: boolean = true;
 
   private async Init() {
+    // 清除已有计时器
+    if (this.useAppInfo.pushColorsPageTimeId) {
+      clearTimeout(this.useAppInfo.pushColorsPageTimeId);
+      this.isPush = true;
+    }
     const param: NavLoadingParm = {
       isLoadDown: true,
       // systemTransition: NavigationSystemTransitionType.DEFAULT
@@ -28,12 +34,14 @@ export struct Loading {
       const useColorsPageInit = new ColorsPageInit(ColorsPageInit.getContext(this));
       const isSucceed = await useColorsPageInit.init();
       if (isSucceed) {
-        setTimeout(() => {
-          console.info(`[Loading] 加载成功, ${param.isLoadDown}`)
-          this.mainNavPathStack.replacePath({
-            name: 'Colors',
-            param: param
-          }, false);
+        this.useAppInfo.pushColorsPageTimeId = setTimeout(() => {
+          if (this.isPush) {
+            console.info(`[Loading] 加载成功, ${param.isLoadDown}`)
+            this.mainNavPathStack.replacePath({
+              name: 'Colors',
+              param: param
+            }, false);
+          }
         }, 1000)
         this.useAppInfo.isLoadDown = true;
         console.info(`[Loading] isLoadDown = ${this.useAppInfo.isLoadDown}`)
@@ -96,7 +104,9 @@ export struct Loading {
     // .mode(NavDestinationMode.DIALOG)
     .onBackPressed(() => {
       this.mainNavPathStack.clear(true);
-      // this.mainNavPathStack.popToIndex(0);
+      // 打断跳转Colors页计时器
+      this.isPush = false;
+      clearTimeout(this.useAppInfo.pushColorsPageTimeId);
       return true;
     })
     .hideTitleBar(true)
