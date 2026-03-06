@@ -5,13 +5,26 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "certpath": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.cer",
+          "certpath": "C:/Users/zhang/.ohos/config/default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.cer",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B87AC3BBE6CAFCBFDB042C38A22AAA9F7F903BF0515B05AE22AEB355057B327D16FDA20B0B197C3",
-          "profile": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p7b",
+          "keyPassword": "0000001B537E227955F3B548B7E786254102CEAD433CCF76AD948093A6EF9ABB270A6625702EAB73AA18A7",
+          "profile": "C:/Users/zhang/.ohos/config/default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\zhang\\.ohos\\config\\default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p12",
-          "storePassword": "0000001BE99B3E6F59F3A7B9840CC316496AFF65AFD101A025C0C88B5FE0AE5D25B6E4A86E8ABD4D773993"
+          "storeFile": "C:/Users/zhang/.ohos/config/default_XDeveloper-Tools_y2JLZPpa4Lk44MqYhoqbVlzwTqeIc5W-Ab04XbhGb2k=.p12",
+          "storePassword": "0000001B874746B790E24A0618B81DA63230FF370F4FC1836434A45E88AAE483311898FFD1888394C40A6F"
+        }
+      },
+      {
+        "name": "release",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "C:/Users/zhang/key/xdeveloper-tools/xdeveloper-tools.p12",
+          "storePassword": "0000001F3185EBB2A8CA58A6720BECAAE1155A343114525182D251E487394680EEB0425B2CAA0A4CA4DDB98278037E",
+          "keyAlias": "xdeveloper-tools",
+          "keyPassword": "0000001F5C5FC3AEAA071A3A8EE1C0E44F82CBB0F2A112E0D5A54E7E42CE90ED4112D3B37FB96C8E8D9221650BC481",
+          "signAlg": "SHA256withECDSA",
+          "profile": "C:/Users/zhang/key/xdeveloper-tools/xdeveloper-toolsRelease.p7b",
+          "certpath": "C:/Users/zhang/key/xdeveloper-tools/xdeveloper-tools.cer"
         }
       }
     ],
@@ -19,6 +32,19 @@
       {
         "name": "default",
         "signingConfig": "default",
+        "targetSdkVersion": "6.0.2(22)",
+        "compatibleSdkVersion": "6.0.0(20)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      {
+        "name": "release",
+        "signingConfig": "release",
         "targetSdkVersion": "6.0.2(22)",
         "compatibleSdkVersion": "6.0.0(20)",
         "runtimeOS": "HarmonyOS",
@@ -48,6 +74,12 @@
           "name": "default",
           "applyToProducts": [
             "default"
+          ]
+        },
+        {
+          "name": "release",
+          "applyToProducts": [
+            "release"
           ]
         }
       ]
