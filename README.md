@@ -1,4 +1,6 @@
 # XDeveloper-Tools
+## 隐私政策
+[PRIVACY.md](https://github.com/Xuaner183/XDeveloper-Tools/blob/main/PRIVACY.md)
 ## 功能
 为ArkTs开发者提供便捷工具
 * 预览系统级资源真实颜色
