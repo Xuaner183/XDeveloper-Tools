@@ -1,6 +1,7 @@
 import { AppInfo } from '../common/Index'
 import { AppStorageV2, SymbolGlyphModifier } from '@kit.ArkUI';
 import { bundleManager } from '@kit.AbilityKit';
+import lazy { LikeBuilder } from './Like';
 
 export interface NavHomeParm {
   isColors?: boolean;
@@ -15,20 +16,8 @@ export struct Home {
   private settingIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.gearshape'));
   private giveLikeIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.hand_thumbsup_fill'));
   @Local private isMiniMode: boolean = false;
-  @Local private isMoreMenuShow: boolean = false;
+  @Local private isModalShow: boolean = false;
 
-  @Builder MoreMenu() {
-    Menu() {
-      MenuItem({
-        symbolStartIcon: this.giveLikeIcon,
-        content: '赞助'
-      })
-      MenuItem({
-        symbolStartIcon: this.settingIcon,
-        content: '设置'
-      })
-    }
-  }
 
   @Builder Title1(text: string | Resource) {
     ListItem() {
@@ -178,7 +167,7 @@ export struct Home {
     .menus([{
       value: '赞助',
       symbolIcon: this.giveLikeIcon,
-      action: () => {}
+      action: () => { this.isModalShow = !this.isModalShow }
     }, {
       value: '设置',
       symbolIcon: this.settingIcon,
@@ -195,5 +184,16 @@ export struct Home {
         this.isMiniMode = false;
       }
     })
+    .bindSheet(
+      this.isModalShow!!,
+      LikeBuilder,
+      {
+        title: { title: '赞助' },
+        onDisappear: () => { this.isModalShow = false },
+        dragBar: true,
+        height: SheetSize.MEDIUM,
+        detents: [SheetSize.MEDIUM, SheetSize.LARGE],
+      }
+    )
   }
 }
