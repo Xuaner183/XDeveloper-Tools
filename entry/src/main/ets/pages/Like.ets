@@ -85,7 +85,7 @@ export struct Like {
             ListItem() {
               Column() {
                 Column() {
-                  Text('如果这个项目对你有帮助，可以扫码赞助支持开发。')
+                  Text('本项目完全开源，如果这个项目对你有帮助，可以扫码赞助支持开发。')
                     .fontSize(16)
                     .fontWeight(FontWeight.Bold)
                     .fontColor($r('sys.color.ohos_id_color_text_primary'))
