@@ -131,6 +131,9 @@ struct ColorsDetail {
     // .justifyContent(FlexAlign.SpaceBetween)
     // .alignItems(HorizontalAlign.Center)
     .alignContent(Alignment.Start)
+    .onClick(() => {
+      resourceName && this.copy(resourceName.toString())
+    })
   }
 
   @Builder
@@ -163,6 +166,7 @@ struct ColorsDetail {
     .height('auto')
     .constraintSize({ maxWidth: 608 })
     .margin({ left: 14, right: 14, top: 10, bottom: 10 })
+    .constraintSize({ maxWidth: 608 })
   }
 
   build() {
@@ -248,6 +252,7 @@ struct ColorsDetail {
                   })
                 }
                 .backgroundColor($r('app.color.modal_card_background'))
+                .constraintSize({ maxWidth: 608 })
 
                 ListItem()
                   .height(140)
@@ -257,6 +262,7 @@ struct ColorsDetail {
                 scrollForward: NestedScrollMode.PARENT_FIRST,
                 scrollBackward: NestedScrollMode.PARENT_FIRST
               })
+              .alignListItem(ListItemAlign.Center)
             }
             .alignItems(HorizontalAlign.Start)
           }
@@ -264,6 +270,7 @@ struct ColorsDetail {
           .width('100%')
 
         }
+        .padding({ left: 8, right: 8 })
       }
       // .padding({ left: 24, right: 24 })
       .width('100%')
