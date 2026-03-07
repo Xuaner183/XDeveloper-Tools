@@ -5,6 +5,7 @@ import lazy { LikeBuilder } from './Like';
 import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
 import { common } from "@kit.AbilityKit";
 import { ListTitle1, ListBox } from './Setting';
+import { HdsNavigation, HdsNavigationTitleBarOptions } from '@hms.hds.hdsBaseComponent';
 
 export interface NavHomeParm {
   isColors?: boolean;
@@ -94,6 +95,34 @@ export struct Home {
     console.info(`[Home] 执行了agreePrivacyPolicyDialog`);
   }
 
+  private hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
+    content: {
+      title: { mainTitle: '主页' },
+      menu: {
+        value: [
+          {
+            content: {
+              icon: $r('sys.symbol.hand_thumbsup'),
+              label: '支持',
+              action: () => { this.isModalShow = !this.isMiniMode }
+            }
+          },
+          {
+            content: {
+              icon: $r('sys.symbol.gearshape'),
+              label: '设置',
+              action: () => {
+                this.mainNavPathStack.pushPath({
+                  name: 'Setting'
+                })
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+
 
   private async init() {
     // 获取版本号和软件名称
@@ -117,7 +146,7 @@ export struct Home {
   }
 
   build() {
-    Navigation(this.mainNavPathStack){
+    HdsNavigation(this.mainNavPathStack){
       Column() {
         List() {
 
@@ -203,33 +232,9 @@ export struct Home {
     }
     .width('100%')
     .height('100%')
-    .title('主页', {
-      backgroundBlurStyle: this.isMiniMode ? BlurStyle.Thin : BlurStyle.NONE,
-      barStyle: BarStyle.STACK,
-      backgroundColor: Color.Transparent
-    })
     .ignoreLayoutSafeArea()
     .mode(NavigationMode.Stack)
-    .menus([{
-      value: '赞助',
-      symbolIcon: this.giveLikeIcon,
-      action: () => { this.isModalShow = !this.isModalShow }
-    }, {
-      value: '设置',
-      symbolIcon: this.settingIcon,
-      action: () => {
-        this.mainNavPathStack.pushPath({
-          name: 'Setting'
-        })
-      }
-    }])
-    .onTitleModeChange((type) => {
-      if (type === NavigationTitleMode.Mini) {
-        this.isMiniMode = true;
-      } else {
-        this.isMiniMode = false;
-      }
-    })
+    .titleBar(this.hdsNavigationTitleBarOptions)
     .bindSheet(
       this.isModalShow!!,
       LikeBuilder,
