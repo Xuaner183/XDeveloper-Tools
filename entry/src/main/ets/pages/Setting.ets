@@ -56,8 +56,24 @@ function listItemText2() {
   })
 }
 
+@Builder export function ListTitle1(text: string | Resource) {
+  ListItem() {
+    Column() {
+      Text(text)
+        .fontSize($r('sys.float.ohos_id_text_size_over_line'))
+        .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+  }
+  .padding({ left: 10, right: 10 })
+  .height('auto')
+  .constraintSize({ maxWidth: 640 })
+  .margin({ left: 14, right: 14, top: 10, bottom: 10 })
+}
+
 @ComponentV2
-struct ListBox {
+export struct ListBox {
 
   @Builder someListItem() {}
   @BuilderParam myListItem: () => void = this.someListItem;
@@ -72,6 +88,7 @@ struct ListBox {
     .padding({ left: 8, right: 8 })
     .borderRadius(13)
     .HighLightStyle()
+    .clip(true)
   }
 }
 
@@ -101,23 +118,6 @@ export struct Setting {
     .width('auto')
   }
 
-  @Builder Title1(text: string | Resource) {
-    ListItem() {
-      Column() {
-        Text(text)
-          .fontSize($r('sys.float.ohos_id_text_size_over_line'))
-          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-      }
-      .width('100%')
-      .alignItems(HorizontalAlign.Start)
-    }
-    .padding({ left: 10, right: 10 })
-    .height('auto')
-    .constraintSize({ maxWidth: 640 })
-    .margin({ left: 14, right: 14, top: 10, bottom: 10 })
-  }
-
-
 
   build() {
     HdsNavDestination() {
@@ -127,7 +127,7 @@ export struct Setting {
           ListItem()
           .height(80)
 
-          this.Title1('颜色')
+          ListTitle1('颜色')
 
           ListItem() {
             ListBox() {
@@ -155,39 +155,7 @@ export struct Setting {
           ListItem()
             .height(16)
 
-          this.Title1('应用')
-          // ListItemGroup() {
-          //   ListItem({ style: ListItemStyle.CARD }) {
-          //     Row() {
-          //       Column() {
-          //         Text('关于')
-          //           .listItemText1()
-          //       }
-          //       .alignItems(HorizontalAlign.Start)
-          //       .padding({ top: 16, bottom: 16 })
-          //       Blank()
-          //       Row() {
-          //         SymbolGlyph($r('sys.symbol.chevron_right'))
-          //           .fontColor([$r('sys.color.ohos_id_color_fourth')])
-          //           .fontSize(24)
-          //           .margin({ left: 4, right: 2 })
-          //       }
-          //     }
-          //     .width('100%')
-          //     .alignItems(VerticalAlign.Center)
-          //   }
-          //   .onClick(() => { this.isModalShow = true })
-          //   .bindSheet(
-          //     this.isModalShow!!,
-          //     AboutBuilder,
-          //     {
-          //       title: { title: '关于' },
-          //       onDisappear: () => { this.isModalShow = false },
-          //       enableOutsideInteractive: false
-          //     }
-          //   )
-          //   .MyListItemStyle()
-          // }
+          ListTitle1('应用')
           ListItem() {
             ListBox() {
               Row() {

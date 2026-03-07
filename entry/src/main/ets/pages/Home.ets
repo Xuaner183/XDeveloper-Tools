@@ -4,10 +4,18 @@ import { bundleManager } from '@kit.AbilityKit';
 import lazy { LikeBuilder } from './Like';
 import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
 import { common } from "@kit.AbilityKit";
+import { ListTitle1, ListBox } from './Setting';
 
 export interface NavHomeParm {
   isColors?: boolean;
   systemTransition?: NavigationSystemTransitionType;
+}
+
+@Styles function MyListItemStyle2() {
+  .margin({ left: 12, right: 12 })
+  .backgroundColor($r('sys.color.ohos_fa_list_card_bg'))
+  .borderRadius(14)
+  .padding(4)
 }
 
 @ComponentV2
@@ -108,88 +116,65 @@ export struct Home {
       })
   }
 
-  // onPageShow(): void {
-  //   this.usePM.prefGet(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.PRIVACY_POLICY_AGREE, false)
-  //     .then((v) => {
-  //       switch (v) {
-  //         case true:
-  //           break;
-  //         default:
-  //           this.PrivacyPolicyDialog.open();
-  //       }
-  //     })
-  // }
-
   build() {
     Navigation(this.mainNavPathStack){
       Column() {
         List() {
+
           ListItem()
             .height(180)
 
-          this.Title1('系统变量')
-          ListItemGroup({ style: ListItemGroupStyle.CARD }) {
-            ListItem({ style: ListItemStyle.CARD }) {
+          ListTitle1('系统变量')
+          ListItem() {
+            ListBox() {
               Column() {
-                Column() {
-                  Image($r('app.media.color2'))
-                    .objectFit(ImageFit.Cover)
-                    .draggable(false)
-                }
-                .height(200)
-                .width('100%')
+                Image($r('app.media.color2'))
+                  .objectFit(ImageFit.Cover)
+                  .draggable(false)
+                  .borderRadius(12)
+              }
+              .height(200)
+              .width('100%')
+              .margin({ top: 8 })
 
-                Row() {
-                  Text('颜色')
-                    .fontSize(20)
-                    .fontWeight(FontWeight.Bold)
-                    .fontColor($r('sys.color.ohos_id_color_foreground'))
-                  Blank()
-                  SymbolGlyph($r('sys.symbol.chevron_right'))
-                    .padding({ left: 8, right: 8 })
-                    .fontSize(20)
-                    .fontColor([$r('sys.color.ohos_id_color_secondary')])
-                }
-                .justifyContent(FlexAlign.Start)
-                .height('auto').width('100%')
-                .padding({
-                  left: 16,
-                  right: 16,
-                  top: 30,
-                  bottom: 30
-                })
+              Row() {
+                Text('颜色')
+                  .fontSize(20)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor($r('sys.color.ohos_id_color_foreground'))
+                Blank()
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .padding({ left: 8, right: 8 })
+                  .fontSize(20)
+                  .fontColor([$r('sys.color.ohos_id_color_secondary')])
               }
+              .justifyContent(FlexAlign.Start)
               .height('auto').width('100%')
+              .padding({
+                top: 30,
+                bottom: 30
+              })
             }
-            .constraintSize({ maxWidth: 608 })
-            .onClick(() => {
-              const param: NavHomeParm = {
-                isColors: true
-              }
-              if (!this.useAppInfo.isLoadDown) {
-                console.info('[Home] 跳转到Loading isLoadDown' + this.useAppInfo.isLoadDown)
-                this.mainNavPathStack.pushPath({
-                  name: 'Loading',
-                  param: param
-                }, true);
-              } else {
-                console.info('[Home] 跳转到Colors isLoadDown' + this.useAppInfo.isLoadDown)
-                this.mainNavPathStack.pushPath({
-                  name: 'Colors',
-                  param: param
-                }, true);
-              }
-            })
-            .height('auto')
-            .width('100%')
-            .padding(0)
-            .clip(true)
-            .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-            .backgroundColor($r('sys.color.ohos_id_color_card_bg'))
           }
-          .height('auto').width('100%')
-          .padding(0)
-          .constraintSize({ maxWidth: 608 })
+          .MyListItemStyle2()
+          .onClick(() => {
+            const param: NavHomeParm = {
+              isColors: true
+            }
+            if (!this.useAppInfo.isLoadDown) {
+              console.info('[Home] 跳转到Loading isLoadDown' + this.useAppInfo.isLoadDown)
+              this.mainNavPathStack.pushPath({
+                name: 'Loading',
+                param: param
+              }, true);
+            } else {
+              console.info('[Home] 跳转到Colors isLoadDown' + this.useAppInfo.isLoadDown)
+              this.mainNavPathStack.pushPath({
+                name: 'Colors',
+                param: param
+              }, true);
+            }
+          })
 
           ListItem() {
             Column() {
@@ -210,6 +195,7 @@ export struct Home {
         .width('100%')
         .height('auto')
         .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+        .alignListItem(ListItemAlign.Center)
       }
       .width('100%').height('100%')
       .backgroundColor($r('app.color.background_linearGradient_color1'))
