@@ -161,6 +161,7 @@ export struct Home {
               }
               .height('auto').width('100%')
             }
+            .constraintSize({ maxWidth: 608 })
             .onClick(() => {
               const param: NavHomeParm = {
                 isColors: true
@@ -188,6 +189,7 @@ export struct Home {
           }
           .height('auto').width('100%')
           .padding(0)
+          .constraintSize({ maxWidth: 608 })
 
           ListItem() {
             Column() {

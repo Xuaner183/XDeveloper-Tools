@@ -111,12 +111,13 @@ export struct Setting {
             }
             .ListItemStyle()
           }
+          .constraintSize({ maxWidth: 608 })
 
           ListItem()
             .height(16)
 
           this.Title1('应用')
-          ListItemGroup({ style: ListItemGroupStyle.CARD }) {
+          ListItemGroup() {
             ListItem({ style: ListItemStyle.CARD }) {
               Row() {
                 Column() {
