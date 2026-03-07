@@ -143,7 +143,7 @@ export struct Home {
                 Image($r('app.media.color2'))
                   .objectFit(ImageFit.Cover)
                   .draggable(false)
-                  .borderRadius(12)
+                  .borderRadius(11)
               }
               .height(200)
               .width('100%')
