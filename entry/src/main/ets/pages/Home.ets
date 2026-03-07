@@ -1,7 +1,9 @@
-import { AppInfo } from '../common/Index'
+import { AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index'
 import { AppStorageV2, SymbolGlyphModifier } from '@kit.ArkUI';
 import { bundleManager } from '@kit.AbilityKit';
 import lazy { LikeBuilder } from './Like';
+import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
+import { common } from "@kit.AbilityKit";
 
 export interface NavHomeParm {
   isColors?: boolean;
@@ -11,12 +13,17 @@ export interface NavHomeParm {
 @ComponentV2
 export struct Home {
   private mainNavPathStack: NavPathStack = new NavPathStack();
+  private usePM = new PreferencesControl(AppInfo.getContext(this));
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
   private moreIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.dot_grid_2x2'));
   private settingIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.gearshape'));
   private giveLikeIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.hand_thumbsup_fill'));
   @Local private isMiniMode: boolean = false;
   @Local private isModalShow: boolean = false;
+
+  private getContext(): common.UIAbilityContext {
+    return this.getUIContext().getHostContext() as common.UIAbilityContext;
+  }
 
 
   @Builder Title1(text: string | Resource) {
@@ -50,6 +57,36 @@ export struct Home {
     return bundleInfo.versionName;
   }
 
+  private PrivacyPolicyDialog = new CustomDialogController({
+    builder: PrivacyPolicyDialog({
+      onAgree: async () => {
+        await this.agreePrivacyPolicyDialog();
+      },
+      onCancel: async () => {
+        await this.cancelPrivacyPolicyDialog();
+      }
+    }),
+    autoCancel: false,
+    cancel: async () => {
+      await this.cancelPrivacyPolicyDialog();
+    },
+  })
+
+  private async cancelPrivacyPolicyDialog() {
+    await this.usePM.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.PRIVACY_POLICY_AGREE, false);
+    console.info(`[Home] 执行了cancelPrivacyPolicyDialog`);
+    await this.getContext().terminateSelf()
+      .catch((e: BusinessError) => {
+        console.error(`[Home] 退出应用失败：${e.message} code: ${e.code}`)
+      });
+  }
+
+  private async agreePrivacyPolicyDialog() {
+    await this.usePM.prefPut(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.PRIVACY_POLICY_AGREE, true);
+    console.info(`[Home] 执行了agreePrivacyPolicyDialog`);
+  }
+
+
   private async init() {
     // 获取版本号和软件名称
     await Promise.all([this.getAppName(), this.getAppVersion()]).then((result) => {
@@ -60,7 +97,28 @@ export struct Home {
 
   aboutToAppear(): void {
     this.init();
+    this.usePM.prefGet(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.PRIVACY_POLICY_AGREE, false)
+      .then((v) => {
+        switch (v) {
+          case true:
+            break;
+          default:
+            this.PrivacyPolicyDialog.open();
+        }
+      })
   }
+
+  // onPageShow(): void {
+  //   this.usePM.prefGet(ClientGlobalPrefKeys.PREF_NAME, ClientGlobalPrefKeys.PRIVACY_POLICY_AGREE, false)
+  //     .then((v) => {
+  //       switch (v) {
+  //         case true:
+  //           break;
+  //         default:
+  //           this.PrivacyPolicyDialog.open();
+  //       }
+  //     })
+  // }
 
   build() {
     Navigation(this.mainNavPathStack){

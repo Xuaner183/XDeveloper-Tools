@@ -67,6 +67,7 @@ export class AppInfo extends UIAbilityContext {
   public appName: string = 'unknown';
   public appVersion: string = 'unknown';
   public pushColorsPageTimeId: number = 0;
+  public privacyPolicyUrl: string = 'https://github.com/Xuaner183/XDeveloper-Tools/blob/main/PRIVACY.md';
 
 
   /**
