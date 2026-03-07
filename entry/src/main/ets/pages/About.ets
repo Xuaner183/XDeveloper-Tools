@@ -10,7 +10,7 @@ import { AppInfo } from '../common/Index';
 @Preview
 @ComponentV2
 struct About {
-  private mainNavPathStack:NavPathStack = new NavPathStack();
+  private mainNavPathStack: NavPathStack = new NavPathStack();
 
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
   private appVersion?: string = this.useAppInfo.appVersion;

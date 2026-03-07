@@ -30,7 +30,50 @@ function listItemText2() {
   .fontSize($r('sys.float.ohos_id_text_size_body2'))
 }
 
+@Styles function MyListItemStyle() {
+  .padding({ left: 8, right: 8 })
+    .align(Alignment.Start)
+    .height('auto')
+    .width('100%')
+  // .constraintSize({ maxWidth: 608 })
+}
 
+@Styles function MyListItemStyle2() {
+  .margin({ left: 12, right: 12 })
+  .backgroundColor($r('sys.color.ohos_fa_list_card_bg'))
+  .borderRadius(14)
+  .padding(4)
+}
+
+@Styles function HighLightStyle() {
+  .stateStyles({
+    normal: { .brightness(1) },
+    focused: { .brightness(1.1) },
+    clicked: { .brightness(1.2) }
+  })
+  .animation({
+    duration: 400
+  })
+}
+
+@ComponentV2
+struct ListBox {
+
+  @Builder someListItem() {}
+  @BuilderParam myListItem: () => void = this.someListItem;
+
+  build() {
+    Column() {
+      this.myListItem()
+    }
+    .justifyContent(FlexAlign.SpaceBetween)
+    .width('100%')
+    .constraintSize({ maxWidth: 640 })
+    .padding({ left: 8, right: 8 })
+    .borderRadius(13)
+    .HighLightStyle()
+  }
+}
 
 @ComponentV2
 export struct Setting {
@@ -58,14 +101,6 @@ export struct Setting {
     .width('auto')
   }
 
-  @Styles ListItemStyle() {
-    .padding({ left: 8, right: 8 })
-    .align(Alignment.Start)
-    .height('auto')
-    .width('100%')
-    .constraintSize({ maxWidth: 608 })
-  }
-
   @Builder Title1(text: string | Resource) {
     ListItem() {
       Column() {
@@ -78,7 +113,7 @@ export struct Setting {
     }
     .padding({ left: 10, right: 10 })
     .height('auto')
-    .constraintSize({ maxWidth: 608 })
+    .constraintSize({ maxWidth: 640 })
     .margin({ left: 14, right: 14, top: 10, bottom: 10 })
   }
 
@@ -93,8 +128,9 @@ export struct Setting {
           .height(80)
 
           this.Title1('颜色')
-          ListItemGroup({ style: ListItemGroupStyle.CARD }) {
-            ListItem({ style: ListItemStyle.CARD }) {
+
+          ListItem() {
+            ListBox() {
               Row() {
                 Column() {
                   Text('颜色模式')
@@ -103,22 +139,57 @@ export struct Setting {
                 .alignItems(HorizontalAlign.Start)
                 .padding({ top: 16, bottom: 16 })
 
-                Blank()
+                Column()
+                  .flexGrow(8)
                 this.SwitchColorMode()
               }
-              .width('100%')
               .alignItems(VerticalAlign.Center)
+              .justifyContent(FlexAlign.SpaceBetween)
+              .width('100%')
             }
-            .ListItemStyle()
           }
-          .constraintSize({ maxWidth: 608 })
+          .MyListItemStyle2()
+
+
 
           ListItem()
             .height(16)
 
           this.Title1('应用')
-          ListItemGroup() {
-            ListItem({ style: ListItemStyle.CARD }) {
+          // ListItemGroup() {
+          //   ListItem({ style: ListItemStyle.CARD }) {
+          //     Row() {
+          //       Column() {
+          //         Text('关于')
+          //           .listItemText1()
+          //       }
+          //       .alignItems(HorizontalAlign.Start)
+          //       .padding({ top: 16, bottom: 16 })
+          //       Blank()
+          //       Row() {
+          //         SymbolGlyph($r('sys.symbol.chevron_right'))
+          //           .fontColor([$r('sys.color.ohos_id_color_fourth')])
+          //           .fontSize(24)
+          //           .margin({ left: 4, right: 2 })
+          //       }
+          //     }
+          //     .width('100%')
+          //     .alignItems(VerticalAlign.Center)
+          //   }
+          //   .onClick(() => { this.isModalShow = true })
+          //   .bindSheet(
+          //     this.isModalShow!!,
+          //     AboutBuilder,
+          //     {
+          //       title: { title: '关于' },
+          //       onDisappear: () => { this.isModalShow = false },
+          //       enableOutsideInteractive: false
+          //     }
+          //   )
+          //   .MyListItemStyle()
+          // }
+          ListItem() {
+            ListBox() {
               Row() {
                 Column() {
                   Text('关于')
@@ -137,24 +208,24 @@ export struct Setting {
               .width('100%')
               .alignItems(VerticalAlign.Center)
             }
-            .onClick(() => { this.isModalShow = true })
-            .bindSheet(
-              this.isModalShow!!,
-              AboutBuilder,
-              {
-                title: { title: '关于' },
-                onDisappear: () => { this.isModalShow = false },
-                enableOutsideInteractive: false
-              }
-            )
-            .ListItemStyle()
           }
+          .MyListItemStyle2()
+          .onClick(() => { this.isModalShow = true })
+          .bindSheet(
+            this.isModalShow!!,
+            AboutBuilder,
+            {
+              title: { title: '关于' },
+              onDisappear: () => { this.isModalShow = false },
+              enableOutsideInteractive: false
+            }
+          )
 
 
           ListItem().height(120)
 
         }
-        .alignListItem(ListItemAlign.Start)
+        .alignListItem(ListItemAlign.Center)
         .width('100%')
         .height('auto')
         .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
