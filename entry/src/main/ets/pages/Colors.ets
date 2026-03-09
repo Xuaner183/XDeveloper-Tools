@@ -1,7 +1,7 @@
 import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
-import { AppStorageV2 } from '@kit.ArkUI';
+import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
 import { ColorsDetailBuilder } from './ColorsDetail';
 import { picker } from '@kit.CoreFileKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
@@ -292,10 +292,31 @@ struct Colors {
     .padding({ right: 24, bottom: 80 })
   }
 
+  @Builder
+  SwitchColorMode2() {
+    Column() {
+      TabSegmentButtonV2({
+        items: this.symbolItems,
+        selectedIndex: this.useAppInfo.switchColorModeIndex!!,
+        onItemClicked: (index: number) => {
+          this.useAppInfo.switchColorModeIndexManager(index);
+        },
+      })
+    }
+    .justifyContent(FlexAlign.Center)
+    .height('auto')
+    .width('100%')
+    .padding({ left: 16, right: 16 })
+    .constraintSize({ maxWidth: 450 })
+    .flexGrow(8)
+  }
+
   private readonly hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
     content: {
       title: { mainTitle: '颜色' },
-      stackBuilder: () => this.SwitchColorMode(),
+      bottomBuilder: {
+        builder: () => this.SwitchColorMode2()
+      }
     }
   }
 
@@ -326,7 +347,7 @@ struct Colors {
               .padding({
                 right: 16,
                 left: 16,
-                top: 56*2,
+                top: 56*3,
                 bottom: 120
               })
             }
