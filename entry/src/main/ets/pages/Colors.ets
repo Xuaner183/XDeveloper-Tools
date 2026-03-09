@@ -182,25 +182,6 @@ struct Colors {
     .padding({ right: 16, left: 16 })
   }
 
-  /**
-   * 标题栏右上角切换局部深浅色开关
-   */
-  @Builder
-  SwitchColorMode() {
-    Flex({ direction: FlexDirection.RowReverse }) {
-      TabSegmentButtonV2({
-        items: this.symbolItems,
-        selectedIndex: this.useAppInfo.switchColorModeIndex!!,
-        onItemClicked: (index: number) => {
-          this.useAppInfo.switchColorModeIndexManager(index);
-        }
-      })
-        .width(200)
-    }
-    .padding({ top: 8, bottom: 8, left: 16, right: 16 })
-    .width('100%')
-    // .margin({ left: 16, right: 16 })
-  }
 
   @LocalBuilder
   ListItemColorChunk(
@@ -292,6 +273,9 @@ struct Colors {
     .padding({ right: 24, bottom: 80 })
   }
 
+  /**
+   * 标题栏右上角切换局部深浅色开关
+   */
   @Builder
   SwitchColorMode2() {
     Column() {
@@ -380,11 +364,6 @@ struct Colors {
     .bindToScrollable([this.mainScroller])
     .titleBar(this.hdsNavigationTitleBarOptions)
     .dynamicHideTitleBar(this.dynamicHideParams)
-    // .title('颜色', {
-    //   backgroundBlurStyle: BlurStyle.Regular,
-    //   barStyle: BarStyle.STACK
-    // })
-    // .menus(this.SwitchColorMode())
   }
 
 }
