@@ -1,11 +1,11 @@
 import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
-import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
+import { AppStorageV2 } from '@kit.ArkUI';
 import { ColorsDetailBuilder } from './ColorsDetail';
 import { picker } from '@kit.CoreFileKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { DynamicHideParams, HdsNavDestination, HdsNavigationTitleBarOptions, HideMode } from '@kit.UIDesignKit';
+import { DynamicHideParams, HdsNavDestination, HdsNavigationTitleBarOptions, HideMode, TextStyleMode } from '@kit.UIDesignKit';
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -300,6 +300,16 @@ struct Colors {
       title: { mainTitle: '颜色' },
       bottomBuilder: {
         builder: () => this.SwitchColorMode2()
+      },
+      menu: {
+        value: [{
+          content: {
+            icon: $r('sys.symbol.magnifyingglass'),
+            label: '󰀩',
+            action: () => {},
+            type: TextStyleMode.NORMAL
+          }
+        }]
       }
     }
   }
