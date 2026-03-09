@@ -1,5 +1,5 @@
 import { AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index'
-import { AppStorageV2, SymbolGlyphModifier } from '@kit.ArkUI';
+import { AppStorageV2 } from '@kit.ArkUI';
 import { bundleManager } from '@kit.AbilityKit';
 import lazy { LikeBuilder } from './Like';
 import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
@@ -24,9 +24,6 @@ export struct Home {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private usePM = new PreferencesControl(AppInfo.getContext(this));
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
-  private moreIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.dot_grid_2x2'));
-  private settingIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.gearshape'));
-  private giveLikeIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.hand_thumbsup_fill'));
   @Local private isMiniMode: boolean = false;
   @Local private isModalShow: boolean = false;
 
