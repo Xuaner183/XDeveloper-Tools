@@ -5,6 +5,7 @@ import { AppStorageV2 } from '@kit.ArkUI';
 import { ColorsDetailBuilder } from './ColorsDetail';
 import { picker } from '@kit.CoreFileKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
+import { DynamicHideParams, HdsNavDestination, HdsNavigationTitleBarOptions, HideMode } from '@kit.UIDesignKit';
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -55,10 +56,6 @@ struct Colors {
   ]);
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
-  @Local private onTotalCount: number = 50;
-  private isOnReachEnd: boolean = true;
-  @Local private isListLoading: boolean = true;
-  @Local private isInfoDetailShow: boolean = false;
   private saveIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.save'));
 
   private getContext(): common.UIAbilityContext {
@@ -201,7 +198,7 @@ struct Colors {
         .width(200)
     }
     .padding({ top: 8, bottom: 8, left: 16, right: 16 })
-    .width('auto')
+    .width('100%')
     // .margin({ left: 16, right: 16 })
   }
 
@@ -276,19 +273,16 @@ struct Colors {
         })
     }
   }
-
+  // 右下角折叠菜单
   @Builder myOverlay() {
     Row() {
       Button('󰁡', { type: ButtonType.Circle })
-        .onClick(() => {
-          this.isInfoDetailShow = true;
-        })
         .fontSize(40)
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
         .width(60)
         .height(60)
         .bindMenu(this.MoreMenu())
-        .backgroundColor('#ff2d38e5')
+        .backgroundColor($r('sys.color.icon_emphasize'))
     }
     .height('100%')
     .width('100%')
@@ -298,9 +292,22 @@ struct Colors {
     .padding({ right: 24, bottom: 80 })
   }
 
+  private readonly hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
+    content: {
+      title: { mainTitle: '颜色' },
+      stackBuilder: () => this.SwitchColorMode(),
+    }
+  }
+
+  private readonly dynamicHideParams: DynamicHideParams = {
+    hideTitleArea: true,
+    mode: HideMode.SCROLL_UP,
+    hideStatusBar: false
+  }
+
   build() {
 
-    NavDestination() {
+    HdsNavDestination() {
       Stack() {
 
           Column() {
@@ -319,7 +326,7 @@ struct Colors {
               .padding({
                 right: 16,
                 left: 16,
-                top: 120,
+                top: 56*2,
                 bottom: 120
               })
             }
@@ -350,11 +357,13 @@ struct Colors {
     .onShown(() => {
     })
     .bindToScrollable([this.mainScroller])
-    .title('颜色', {
-      backgroundBlurStyle: BlurStyle.Regular,
-      barStyle: BarStyle.STACK
-    })
-    .menus(this.SwitchColorMode())
+    .titleBar(this.hdsNavigationTitleBarOptions)
+    .dynamicHideTitleBar(this.dynamicHideParams)
+    // .title('颜色', {
+    //   backgroundBlurStyle: BlurStyle.Regular,
+    //   barStyle: BarStyle.STACK
+    // })
+    // .menus(this.SwitchColorMode())
   }
 
 }
