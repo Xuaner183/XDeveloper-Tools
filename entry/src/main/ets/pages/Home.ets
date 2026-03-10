@@ -184,6 +184,7 @@ export struct Home {
               }, true);
             }
           })
+          .shadow(ShadowStyle.OUTER_DEFAULT_SM)
 
           ListItem() {
             Column() {
@@ -207,9 +208,14 @@ export struct Home {
         .alignListItem(ListItemAlign.Center)
       }
       .width('100%').height('100%')
-      .backgroundColor($r('app.color.background_linearGradient_color1'))
 
     }
+    // .backgroundColor($r('sys.color.background_secondary'))
+    .linearGradient({
+      angle: 180,
+      colors: [[$r('app.color.background_linearGradient_color1'), 0.0],
+        [$r('app.color.background_linearGradient_color2'), 1]]
+    })
     .width('100%')
     .height('100%')
     .ignoreLayoutSafeArea()

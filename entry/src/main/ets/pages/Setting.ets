@@ -47,12 +47,21 @@ function listItemText2() {
 
 @Styles function HighLightStyle() {
   .stateStyles({
-    normal: { .brightness(1) },
-    focused: { .brightness(1.1) },
-    clicked: { .brightness(1.2) }
+    normal: {
+      .colorBlend(Color.Transparent)
+      .grayscale(0.0)
+    },
+    focused: {
+      .colorBlend('#16aeaeae')
+      .grayscale(0.1)
+    },
+    clicked: {
+      .colorBlend('#20aeaeae')
+      .grayscale(0.1)
+    }
   })
   .animation({
-    duration: 400
+    duration: 300
   })
 }
 
