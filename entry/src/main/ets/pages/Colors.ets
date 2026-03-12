@@ -312,7 +312,11 @@ struct Colors {
           content: {
             icon: $r('sys.symbol.magnifyingglass'),
             label: '󰀩',
-            action: () => {},
+            action: () => {
+              this.mainNavPathStack.pushPath({
+                name: 'SearchItem'
+              })
+            },
             type: TextStyleMode.NORMAL
           }
         }]
