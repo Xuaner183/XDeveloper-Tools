@@ -314,24 +314,34 @@ struct Colors {
     .flexGrow(8)
   }
 
+  @Builder TitleMenu() {
+    Row() {
+      Button('󰀩', { buttonStyle: ButtonStyleMode.NORMAL })
+        .onClick(() => {
+          this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
+            this.isSearchPageShow = true;
+          })
+        })
+        .fontSize(18)
+        .fontColor($r('sys.color.ohos_id_color_primary'))
+        .constraintSize({ minWidth: 22 })
+        .geometryTransition('search', { follow: false })
+        .transition(TransitionEffect.OPACITY)
+    }
+    .height('auto')
+    .width('100%')
+    .justifyContent(FlexAlign.End)
+    .flexGrow(5)
+    .padding({ left: this.titleBarPadding, right: this.titleBarPadding })
+  }
+
   private readonly hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
     content: {
       title: { mainTitle: '颜色' },
       bottomBuilder: {
         builder: () => this.SwitchColorMode2()
       },
-      menu: {
-        value: [{
-          content: {
-            icon: $r('sys.symbol.magnifyingglass'),
-            label: '󰀩',
-            action: () => {
-              this.isSearchPageShow = true;
-            },
-            type: TextStyleMode.NORMAL
-          }
-        }]
-      }
+      stackBuilder: () => this.TitleMenu()
     }
   }
 
@@ -399,7 +409,7 @@ struct Colors {
       this.isSearchPageShow!!,
       this.SearchPage(),
       {
-        modalTransition: ModalTransition.NONE,
+        modalTransition: ModalTransition.ALPHA,
         enableSafeArea: true
       }
     )
@@ -417,6 +427,8 @@ struct Colors {
           start: { value: this.titleBarPadding + 60, unit: LengthUnit.VP },
           end: { value: this.titleBarPadding, unit: LengthUnit.VP }
         })
+        .geometryTransition('search')
+        .transition(TransitionEffect.OPACITY)
     }
     .justifyContent(FlexAlign.End)
     .alignItems(VerticalAlign.Center)
@@ -433,7 +445,11 @@ struct Colors {
         builder: () => this.SwitchColorMode2()
       },
       backIcon: {
-        action: () => { console.info(`[SearchPage] 触发action`);this.isSearchPageShow = false }
+        action: () => {
+          this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
+            this.isSearchPageShow = false;
+          })
+        }
       }
     }
   }
@@ -482,7 +498,7 @@ struct Colors {
     .expandSafeArea()
     .ignoreLayoutSafeArea()
     .titleBar(this.searchTitleOptions)
-    .onAreaChange((oldValue: Area, newValue: Area) => {
+    .onAreaChange((_, newValue: Area) => {
       // console.info(`[SearchPage] oldValueWidth: ${oldValue.width}, newValueWidth: ${newValue.width}`);
       const newValueWidth: number = Number(newValue.width);
       // 判断标题栏内间距
