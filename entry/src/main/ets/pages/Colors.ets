@@ -1,7 +1,7 @@
 import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
-import { AppStorageV2 } from '@kit.ArkUI';
+import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
 import lazy { ColorsDetailBuilder } from './ColorsDetail';
 import { picker } from '@kit.CoreFileKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
@@ -12,6 +12,14 @@ import {
   HideMode,
   TextStyleMode
 } from '@kit.UIDesignKit';
+
+// 标题栏根据页面宽度设置左右间距
+// 单位vp
+enum TitlePadding {
+  Less = 16,
+  Greater = 32,
+  Default = 24
+}
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -54,15 +62,20 @@ export function ColorsBuilder() {
 @ComponentV2
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
-  private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
-  @Local symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+  // private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
+  private readonly symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { icon: $r('app.media.routine') },
     { symbol: $r('sys.symbol.sun_max_fill') },
     { symbol: $r('sys.symbol.moon_fill') }
   ]);
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
-  private saveIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.save'));
+  private readonly saveIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.save'));
+  @Local private isSearchPageShow: boolean = false;
+  // 搜索框内容
+  @Local private searchText: string = '';
+  // 标题栏间距
+  @Local private titleBarPadding: number = TitlePadding.Default;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -280,7 +293,7 @@ struct Colors {
   }
 
   /**
-   * 标题栏右上角切换局部深浅色开关
+   * 标题栏底部切换局部深浅色开关
    */
   @Builder
   SwitchColorMode2() {
@@ -296,7 +309,7 @@ struct Colors {
     .justifyContent(FlexAlign.Center)
     .height('auto')
     .width('100%')
-    .padding({ left: 16, right: 16 })
+    .padding({ left: this.titleBarPadding, right: this.titleBarPadding })
     .constraintSize({ maxWidth: 450 })
     .flexGrow(8)
   }
@@ -313,9 +326,7 @@ struct Colors {
             icon: $r('sys.symbol.magnifyingglass'),
             label: '󰀩',
             action: () => {
-              this.mainNavPathStack.pushPath({
-                name: 'SearchItem'
-              })
+              this.isSearchPageShow = true;
             },
             type: TextStyleMode.NORMAL
           }
@@ -333,40 +344,40 @@ struct Colors {
   build() {
 
     HdsNavDestination() {
-      Stack() {
+      Column() {
 
-          Column() {
-            List({ scroller: this.mainScroller }) {
-              ListItemGroup({ footer: this.IsEnd() }) {
-                // 批量加载 ListItem
-                Repeat(ColorSysResourse)
-                  // .virtualScroll({
-                  //   onTotalCount: () => ColorSysResourse.length
-                  // })
-                  .each((obj) => {
-                    this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
-                      obj.index, obj.index)
-                  })
-              }
-              .padding({
-                right: 16,
-                left: 16,
-                top: 56*3,
-                bottom: 120
-              })
+        Column() {
+          List({ scroller: this.mainScroller }) {
+            ListItemGroup({ footer: this.IsEnd() }) {
+              // 批量加载 ListItem
+              Repeat(ColorSysResourse)
+              // .virtualScroll({
+              //   onTotalCount: () => ColorSysResourse.length
+              // })
+                .each((obj) => {
+                  this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
+                    obj.index, obj.index)
+                })
             }
-            .width('100%')
-            .height('auto')
-            .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
-            .lanes({ minLength: 200, maxLength: 400 }, 8)
-            .alignListItem(ListItemAlign.Start)
-            .nestedScroll({
-              scrollForward: NestedScrollMode.PARENT_FIRST,
-              scrollBackward: NestedScrollMode.SELF_FIRST
+            .padding({
+              right: 16,
+              left: 16,
+              top: 56*3,
+              bottom: 120
             })
-
           }
-          .overlay(this.myOverlay())
+          .width('100%')
+          .height('auto')
+          .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+          .lanes({ minLength: 200, maxLength: 400 }, 8)
+          .alignListItem(ListItemAlign.Start)
+          .nestedScroll({
+            scrollForward: NestedScrollMode.PARENT_FIRST,
+            scrollBackward: NestedScrollMode.SELF_FIRST
+          })
+
+        }
+        .overlay(this.myOverlay())
 
       }
       .linearGradient({
@@ -384,6 +395,106 @@ struct Colors {
     .bindToScrollable([this.mainScroller])
     .titleBar(this.hdsNavigationTitleBarOptions)
     .dynamicHideTitleBar(this.dynamicHideParams)
+    .bindContentCover(
+      this.isSearchPageShow!!,
+      this.SearchPage(),
+      {
+        modalTransition: ModalTransition.NONE,
+        enableSafeArea: true
+      }
+    )
   }
+
+  @Builder SearchBox() {
+    Row() {
+      Search({
+        value: this.searchText!!,
+        placeholder: '搜索资源的名称和值'
+      })
+        .width('auto')
+        .flexGrow(8)
+        .margin({
+          start: { value: this.titleBarPadding + 60, unit: LengthUnit.VP },
+          end: { value: this.titleBarPadding, unit: LengthUnit.VP }
+        })
+    }
+    .justifyContent(FlexAlign.End)
+    .alignItems(VerticalAlign.Center)
+    .width('100%')
+    .height('auto')
+    .flexGrow(5)
+  }
+
+  private readonly searchTitleOptions: HdsNavigationTitleBarOptions = {
+    content: {
+      // title: { mainTitle: '搜索' },
+      stackBuilder: () => this.SearchBox(),
+      bottomBuilder: {
+        builder: () => this.SwitchColorMode2()
+      },
+      backIcon: {
+        action: () => { console.info(`[SearchPage] 触发action`);this.isSearchPageShow = false }
+      }
+    }
+  }
+
+  @Builder SearchPage() {
+    HdsNavDestination() {
+      Column() {
+        List() {
+          ListItemGroup() {
+            ListItem() {
+              Column() {
+                Button('点击')
+                Text('测试2')
+                  .fontColor(Color.Red)
+                  .fontSize(30)
+              }
+              .backgroundColor(Color.Yellow)
+            }
+          }
+          .padding({
+            right: 16,
+            left: 16,
+            top: 56*3,
+            bottom: 120
+          })
+        }
+        .width('100%')
+        .height('auto')
+        .flexGrow(3)
+        .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+        .lanes({ minLength: 200, maxLength: 400 }, 8)
+        .alignListItem(ListItemAlign.Start)
+        .nestedScroll({
+          scrollForward: NestedScrollMode.PARENT_FIRST,
+          scrollBackward: NestedScrollMode.SELF_FIRST
+        })
+      }
+      .width('100%')
+      .height('100%')
+      .linearGradient({
+        angle: 180,
+        colors: [[$r('app.color.background_linearGradient_color1'), 0.0],
+          [$r('app.color.background_linearGradient_color2'), 1]]
+      })
+    }
+    .expandSafeArea()
+    .ignoreLayoutSafeArea()
+    .titleBar(this.searchTitleOptions)
+    .onAreaChange((oldValue: Area, newValue: Area) => {
+      // console.info(`[SearchPage] oldValueWidth: ${oldValue.width}, newValueWidth: ${newValue.width}`);
+      const newValueWidth: number = Number(newValue.width);
+      // 判断标题栏内间距
+      if (newValueWidth < 600) {
+        this.titleBarPadding = TitlePadding.Less;
+      } else if (newValueWidth >= 800) {
+        this.titleBarPadding = TitlePadding.Greater;
+      } else {
+        this.titleBarPadding = TitlePadding.Default;
+      }
+    })
+  }
+
 
 }

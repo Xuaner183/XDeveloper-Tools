@@ -83,14 +83,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "exam",
-      "srcPath": "./ohos_agcit/agcit_huawei_driver_license_exam_search/exam"
-    },
-    {
-      "name": "search",
-      "srcPath": "./ohos_agcit/agcit_huawei_driver_license_exam_search/search"
     }
   ]
 }
