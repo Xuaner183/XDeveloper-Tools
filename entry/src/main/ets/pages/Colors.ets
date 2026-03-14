@@ -120,7 +120,7 @@ struct Colors {
     hsv: '按HSV搜索',
   }
   // 搜索筛选按钮名称
-  private readonly leiBieString: ResourceStr[] = [
+  private readonly leiBieStringArr: ResourceStr[] = [
     '资源名称',
     'RGBA',
     '#RRGGBBAA',
@@ -684,7 +684,6 @@ struct Colors {
     .height('auto')
     .flexGrow(5)
   }
-
   /**
    * 搜索筛选组件
    */
@@ -694,7 +693,7 @@ struct Colors {
         Column() {
           Text('按类别搜索')
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-            .fontSize(18)
+            .fontSize(14)
         }
         .width('100%')
         .alignItems(HorizontalAlign.Center)
@@ -706,7 +705,7 @@ struct Colors {
           justifyContent: FlexAlign.SpaceBetween,
           space: { main: LengthMetrics.vp(6), cross: LengthMetrics.vp(4) }
         }) {
-          Repeat(this.leiBieString)
+          Repeat(this.leiBieStringArr)
             .each((obj) => {
               Button(obj.item, {
                 buttonStyle: ButtonStyleMode.TEXTUAL,
@@ -717,6 +716,7 @@ struct Colors {
                 .onClick(() => {
                   this.matchingMode = obj.index;
                 })
+                .backgroundColor(this.matchingMode === obj.index ? '#12818c99' : Color.Transparent)
             })
         }
         .width('100%')
