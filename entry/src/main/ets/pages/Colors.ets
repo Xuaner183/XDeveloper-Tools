@@ -88,6 +88,8 @@ struct Colors {
   @Local private titleBarPadding: number = TitlePadding.Default;
   // 搜索结果
   @Local private searchResultIndex: number[] | undefined = undefined;
+  // 窗口宽度检测
+  @Local private windowWith: number = 320;
   // 是否需要拦截返回操作
   private isStopBackPress: boolean = false;
   // search组件控制器
@@ -154,6 +156,7 @@ struct Colors {
       this.getUIContext().getPromptAction().showToast({ message: `失败：${(e as BusinessError).message}` })
     }
   }
+
 
 
   @Builder
@@ -382,6 +385,10 @@ struct Colors {
 
         Column() {
           List({ scroller: this.mainScroller }) {
+            // 顶部间距
+            ListItemGroup()
+              .padding({ top: 56 * 3 })
+            // 内容
             ListItemGroup({ footer: this.IsEnd() }) {
               // 批量加载 ListItem
               Repeat(ColorSysResourse)
@@ -393,18 +400,16 @@ struct Colors {
                     obj.index, obj.index)
                 })
             }
-            .padding({
-              right: 16,
-              left: 16,
-              top: 56*3,
-              bottom: 120
-            })
+            // 底部间距
+            ListItemGroup()
+              .padding({ bottom: 120 })
           }
           .width('100%')
           .height('auto')
+          .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
           .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
-          .lanes({ minLength: 200, maxLength: 400 }, 8)
-          .alignListItem(ListItemAlign.Start)
+          .lanes(this.outListLanes(), 8)
+          .alignListItem(ListItemAlign.Center)
           .nestedScroll({
             scrollForward: NestedScrollMode.PARENT_FIRST,
             scrollBackward: NestedScrollMode.SELF_FIRST
@@ -445,6 +450,20 @@ struct Colors {
         transition: TransitionEffect.OPACITY.animation({ duration: 350 })
       }
     )
+    .onAreaChange((_, newValue: Area) => {
+      console.info(`[Colors] 触发主组件区域变化`);
+      const newWith = Number(newValue.width);
+      this.windowWith = newWith;
+      console.info(`[Colors] newWith = ${newWith}`);
+      // 配置标题栏左右间距
+      if (newWith < 600) {
+        this.titleBarPadding = TitlePadding.Less;
+      } else if (newWith >= 800) {
+        this.titleBarPadding = TitlePadding.Greater;
+      } else {
+        this.titleBarPadding = TitlePadding.Default;
+      }
+    })
   }
 
   private searchItemInIndex(keyWord: string, mode: MatchingMode): number[] | undefined {
@@ -496,6 +515,20 @@ struct Colors {
     const quChongResultIndex: number[] = Array.from(new Set(resultIndex));
     // console.log(`[Colors] 搜索已去重数组: ${quChongResultIndex}`);
     return quChongResultIndex;
+  }
+
+  // 判断窗口宽度决定列表列数
+  private outListLanes(): number {
+    console.info('触发列数调整')
+    // 第一个区间：宽度 <= 320，返回 1
+    if (this.windowWith <= 320) {
+      return 1;
+    }
+    // 后续区间：阈值每次增加 400，返回值每次增加 2
+    const step = 400; // 阈值步长
+    const baseThreshold = 321;  // 第一个非特殊区间的起始宽度（>320）
+    const index = Math.floor((this.windowWith - baseThreshold) / step); // 区间索引，从0开始
+    return 2 * (index + 1); // 返回值：2, 4, 6, 8, ...
   }
 
 
@@ -583,13 +616,13 @@ struct Colors {
           ListItemGroup()
             .padding({ bottom: 120 })
         }
-        .padding({ right: 16, left: 16 })
+        .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
         .width('100%')
         .height('auto')
         .flexGrow(3)
         .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
-        .lanes({ minLength: 200, maxLength: 400 }, 8)
-        .alignListItem(ListItemAlign.Start)
+        .lanes(this.outListLanes(), 8)
+        .alignListItem(ListItemAlign.Center)
         .nestedScroll({
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
@@ -606,18 +639,6 @@ struct Colors {
     .expandSafeArea()
     .ignoreLayoutSafeArea()
     .titleBar(this.searchTitleOptions)
-    .onAreaChange((_, newValue: Area) => {
-      // console.info(`[SearchPage] oldValueWidth: ${oldValue.width}, newValueWidth: ${newValue.width}`);
-      const newValueWidth: number = Number(newValue.width);
-      // 判断标题栏内间距
-      if (newValueWidth < 600) {
-        this.titleBarPadding = TitlePadding.Less;
-      } else if (newValueWidth >= 800) {
-        this.titleBarPadding = TitlePadding.Greater;
-      } else {
-        this.titleBarPadding = TitlePadding.Default;
-      }
-    })
   }
 
 
