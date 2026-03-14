@@ -1,4 +1,4 @@
-import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType, ColorArray } from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
@@ -9,8 +9,7 @@ import {
   DynamicHideParams,
   HdsNavDestination,
   HdsNavigationTitleBarOptions,
-  HideMode,
-  TextStyleMode
+  HideMode
 } from '@kit.UIDesignKit';
 
 // 标题栏根据页面宽度设置左右间距
@@ -20,6 +19,17 @@ enum TitlePadding {
   Greater = 32,
   Default = 24
 }
+
+enum MatchingMode {
+  ResourceName,
+  Rgba,
+  Hex,
+  readableHEX,
+  Cmyk,
+  Hsl,
+  Hsv
+}
+
 
 export interface ColorsDetailRouterParam {
   chunkColor: ResourceColor;
@@ -76,11 +86,18 @@ struct Colors {
   @Local private searchText: string = '';
   // 标题栏间距
   @Local private titleBarPadding: number = TitlePadding.Default;
+  // 搜索结果
+  @Local private searchResultIndex: number[] | undefined = undefined;
+  // 是否需要拦截返回操作
+  private isStopBackPress: boolean = false;
+  // search组件控制器
+  private searchController: SearchController = new SearchController();
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 
+  // 导出所有颜色为JSON文件
   private async outColorJson() {
     const docPicker = new picker.DocumentViewPicker(AppInfo.getContext(this));
     const saveUrl: string[] = await docPicker.save({
@@ -210,7 +227,8 @@ struct Colors {
     resourceIndexString: string | Resource = '-1',
     resourceColorName: string | undefined = undefined,
     zIndex: number = 1,
-    index: number
+    index: number,
+    isSearchPage: boolean = false
   ) {
     ListItem() {
       // WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
@@ -244,7 +262,7 @@ struct Colors {
       // console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
     })
     .bindSheet(
-      this.useAppInfo.modalOpen[index]!!,
+      isSearchPage ? this.useAppInfo.searchPageModalOpen[index]!! : this.useAppInfo.modalOpen[index]!!,
       ColorsDetailBuilder(
         chunkColor,
         resourceIndexString,
@@ -351,6 +369,12 @@ struct Colors {
     hideStatusBar: false
   }
 
+  private searchPageBack() {
+    this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
+      this.isSearchPageShow = false;
+    })
+  }
+
   build() {
 
     HdsNavDestination() {
@@ -409,17 +433,78 @@ struct Colors {
       this.isSearchPageShow!!,
       this.SearchPage(),
       {
-        modalTransition: ModalTransition.ALPHA,
-        enableSafeArea: true
+        modalTransition: ModalTransition.NONE,
+        enableSafeArea: true,
+        onWillDismiss: (_) => {
+          if (this.isStopBackPress) {
+            this.searchController.stopEditing();
+          } else {
+            this.searchPageBack();
+          }
+        },
+        transition: TransitionEffect.OPACITY.animation({ duration: 350 })
       }
     )
   }
+
+  private searchItemInIndex(keyWord: string, mode: MatchingMode): number[] | undefined {
+    if (!keyWord) { return }
+    const COLOR_VALUE = this.useAppInfo.COLOR_VALUE;
+    // 将关键词全转小写
+    const value: string = keyWord.toLowerCase();
+    const resultIndex: number[] = [];
+
+    const matchingResourceName = (arr: Array<string>) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (ColorSysString[i].toLowerCase().includes(value)) {
+          resultIndex.push(i);
+        }
+      }
+    }
+
+    switch (mode) {
+      case MatchingMode.ResourceName:
+        matchingResourceName(ColorSysString);
+        break;
+      case MatchingMode.Rgba:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.RgbaArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.RgbaArray]);
+        break;
+      case MatchingMode.Hex:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HexArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HexArray]);
+        break;
+      case MatchingMode.readableHEX:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.readableHexArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.readableHexArray]);
+        break;
+      case MatchingMode.Cmyk:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.CmykArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.CmykArray]);
+        break;
+      case MatchingMode.Hsl:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HslArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HslArray]);
+        break;
+      case MatchingMode.Hsv:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HsvArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HsvArray]);
+        break;
+    }
+
+    // console.log(`[Colors] 搜索未去重数组: ${resultIndex}`);
+    const quChongResultIndex: number[] = Array.from(new Set(resultIndex));
+    // console.log(`[Colors] 搜索已去重数组: ${quChongResultIndex}`);
+    return quChongResultIndex;
+  }
+
 
   @Builder SearchBox() {
     Row() {
       Search({
         value: this.searchText!!,
-        placeholder: '搜索资源的名称和值'
+        placeholder: '搜索资源的名称和值',
+        controller: this.searchController
       })
         .width('auto')
         .flexGrow(8)
@@ -429,6 +514,16 @@ struct Colors {
         })
         .geometryTransition('search')
         .transition(TransitionEffect.OPACITY)
+        .onChange((value: string, previewText: PreviewText, options: TextChangeOptions) => {
+          // TODO: 做搜索模式
+          const indexArr: number[] | undefined = this.searchItemInIndex(value, MatchingMode.ResourceName);
+          this.searchResultIndex = indexArr;
+        })
+        .keyboardAppearance(KeyboardAppearance.IMMERSIVE)
+        .onEditChange((v: boolean) => {
+          this.isStopBackPress = v;
+          console.info(`[Colors] 搜索框编辑状态：${v}`)
+        })
     }
     .justifyContent(FlexAlign.End)
     .alignItems(VerticalAlign.Center)
@@ -446,9 +541,7 @@ struct Colors {
       },
       backIcon: {
         action: () => {
-          this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
-            this.isSearchPageShow = false;
-          })
+          this.searchPageBack();
         }
       }
     }
@@ -458,24 +551,39 @@ struct Colors {
     HdsNavDestination() {
       Column() {
         List() {
-          ListItemGroup() {
-            ListItem() {
-              Column() {
-                Button('点击')
-                Text('测试2')
-                  .fontColor(Color.Red)
-                  .fontSize(30)
+          ListItemGroup()
+            .padding({ top: 56 * 3 })
+          if (this.searchResultIndex && this.searchResultIndex.length > 0) {
+            ListItemGroup() {
+
+              // 循环加载搜索结果Index
+              Repeat(this.searchResultIndex)
+                .each((obj) => {
+                  this.ListItemColorChunk(100, '100%', ColorSysResourse[obj.item], String(obj.item + 1),
+                    ColorSysString[obj.item],
+                    obj.index, obj.item, true);
+                })
+            }
+          } else {
+            ListItemGroup() {
+              ListItem() {
+                Column() {
+                  Text('搜索资源名称')
+                    .fontSize(20)
+                    .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
+                }
+                .width('100%')
+                .height(200)
+                .constraintSize({ maxWidth: 640 })
+                .justifyContent(FlexAlign.Center)
+                .backgroundColor(Color.Red)
               }
-              .backgroundColor(Color.Yellow)
             }
           }
-          .padding({
-            right: 16,
-            left: 16,
-            top: 56*3,
-            bottom: 120
-          })
+          ListItemGroup()
+            .padding({ bottom: 120 })
         }
+        .padding({ right: 16, left: 16 })
         .width('100%')
         .height('auto')
         .flexGrow(3)

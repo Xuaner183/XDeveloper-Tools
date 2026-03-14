@@ -57,6 +57,8 @@ export class AppInfo extends UIAbilityContext {
   public SYS_RESOURCE_HEX_STRING?: Array<string>;
   // 用于绑定每个色块的模态窗口状态
   @Trace public modalOpen: boolean[] = [];
+  // 绑定搜索页的色块的模态窗口状态
+  @Trace public searchPageModalOpen: boolean[] = [];
   // 判断颜色数组是否存在，避免重复循环
   public isLightColorFull = false;
   public isDarkColorFull = false;
