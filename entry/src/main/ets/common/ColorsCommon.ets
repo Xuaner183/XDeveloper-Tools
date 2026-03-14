@@ -63,8 +63,8 @@ export class ColorsPageInit extends UIAbilityContext {
     // 定义结果函数不执行
     const forResult = () => {
       // 建立元组
-      const colorValue: [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[],
-        ColorType.HSL[], ColorType.HSV[]] = [[], [], [], [], [], []];
+      const colorValue: [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[],
+        ColorType.HSL[], ColorType.HSV[]] = [[], [], [], [], [], [], []];
       // 定义循环执行的函数
       const forColor = (resColorName: string) => {
         // 获取 ColorMetrics 对象
@@ -83,8 +83,10 @@ export class ColorsPageInit extends UIAbilityContext {
             a: colorObj.alpha
           }
           const colorHEX: ColorType.HEX = ColorUtils.rgbaToHex0x(rgbaObj);
-          // 转换可读HEX
-          const colorReadableHEXResult: ColorType.readableHEX = ColorUtils.rgbaToHexHash(rgbaObj);
+          // 转换RRGGBBAA
+          const readableHexObj = ColorUtils.rgbaToReadableHex(rgbaObj);
+          const colorRrggbbaa: ColorType.RRGGBBAA = readableHexObj.rrggbbaa;
+          const colorAarrggbb: ColorType.AARRGGBB = readableHexObj.aarrggbb;
           // 处理CMYK
           const colorCMYK: ColorType.CMYK = ColorUtils.rgbaToCmyk(rgbaObj);
           // 处理HSL
@@ -93,7 +95,8 @@ export class ColorsPageInit extends UIAbilityContext {
           const colorHSV = ColorUtils.rgbaToHsv(rgbaObj);
           // 存储到数组中
           colorValue[ColorArray.RgbaArray].push(colorRgbaResult);
-          colorValue[ColorArray.readableHexArray].push(colorReadableHEXResult);
+          colorValue[ColorArray.RrggbbaaArray].push(colorRrggbbaa);
+          colorValue[ColorArray.AarrggbbArray].push(colorAarrggbb);
           colorValue[ColorArray.HexArray].push(colorHEX);
           colorValue[ColorArray.CmykArray].push(colorCMYK);
           colorValue[ColorArray.HslArray].push(colorHSL);

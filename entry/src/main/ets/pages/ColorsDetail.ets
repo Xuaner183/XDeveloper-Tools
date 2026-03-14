@@ -56,22 +56,24 @@ struct ColorsDetail {
   private outDarkOrLightString(isDark: boolean, colorType: ColorArray): string {
     const darkColor = this.useAppInfo.COLOR_VALUE[1];
     const lightColor = this.useAppInfo.COLOR_VALUE[0];
-    const darkOrLight: (colorType: ColorArray) => ColorType.RGBA | string= (colorType: ColorArray) => {
+    const darkOrLight: (colorType: ColorArray) => string = (colorType: ColorArray) => {
       return isDark ? darkColor[colorType][this.resourceIndexNumber] : lightColor[colorType][this.resourceIndexNumber];
     }
     switch (colorType) {
       case ColorArray.RgbaArray:
-        return darkOrLight(ColorArray.RgbaArray) as string;
+        return darkOrLight(ColorArray.RgbaArray);
       case ColorArray.HexArray:
-        return darkOrLight(ColorArray.HexArray) as string;
-      case ColorArray.readableHexArray:
-        return darkOrLight(ColorArray.readableHexArray) as string;
+        return darkOrLight(ColorArray.HexArray);
+      case ColorArray.RrggbbaaArray:
+        return darkOrLight(ColorArray.RrggbbaaArray);
+      case ColorArray.AarrggbbArray:
+        return darkOrLight(ColorArray.AarrggbbArray);
       case ColorArray.CmykArray:
-        return darkOrLight(ColorArray.CmykArray) as string;
+        return darkOrLight(ColorArray.CmykArray);
       case ColorArray.HslArray:
-        return darkOrLight(ColorArray.HslArray) as string;
+        return darkOrLight(ColorArray.HslArray);
       case ColorArray.HsvArray:
-        return darkOrLight(ColorArray.HsvArray) as string;
+        return darkOrLight(ColorArray.HsvArray);
       default:
         return '未知';
     }
@@ -216,10 +218,17 @@ struct ColorsDetail {
                     }
                   })
                   CustomListItemCardWithTitle2AndSub({
-                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray),
-                    sub: '可读HEX',
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RrggbbaaArray),
+                    sub: '#RRGGBBAA',
                     onClickList: () => {
-                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.readableHexArray))
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.RrggbbaaArray))
+                    }
+                  })
+                  CustomListItemCardWithTitle2AndSub({
+                    title: this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.AarrggbbArray),
+                    sub: '#AARRGGBB',
+                    onClickList: () => {
+                      this.copy(this.outDarkOrLightString(this.useOnListen.isDarkMode, ColorArray.AarrggbbArray))
                     }
                   })
                   CustomListItemCardWithTitle2AndSub({

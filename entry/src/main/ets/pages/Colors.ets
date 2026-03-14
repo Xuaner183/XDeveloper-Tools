@@ -23,7 +23,8 @@ enum TitlePadding {
 enum MatchingMode {
   ResourceName,
   Rgba,
-  readableHEX,
+  Rrggbbaa,
+  Aarrggbb,
   Hex,
   Cmyk,
   Hsl,
@@ -42,7 +43,8 @@ export interface ColorsDetailRouterParam {
 
 interface ColorTypeObj {
   RGBA: ColorType.RGBA;
-  readableHEX: ColorType.readableHEX;
+  RRGGBBAA: ColorType.RRGGBBAA;
+  AARRGGBB: ColorType.AARRGGBB;
   HEX: ColorType.HEX;
   CMYK: ColorType.CMYK;
   HSL: ColorType.HSL;
@@ -52,7 +54,8 @@ interface ColorTypeObj {
 interface PlaceholderObj {
   default: ResourceStr,
   rgba: ResourceStr,
-  readableHEX: ResourceStr,
+  rrggbbaa: ResourceStr,
+  aarrggbb: ResourceStr,
   hex: ResourceStr,
   cmyk: ResourceStr,
   hsl: ResourceStr,
@@ -109,7 +112,8 @@ struct Colors {
   private readonly placeholderObj: PlaceholderObj = {
     default: '按资源名称搜索',
     rgba: '按RGBA搜索',
-    readableHEX: '按可读HEX搜索',
+    rrggbbaa: '按#RRGGBBAA搜索',
+    aarrggbb: '按#AARRGGBB搜索',
     hex: '按HEX搜索',
     cmyk: '按CMYK搜索',
     hsl: '按HSL搜索',
@@ -119,7 +123,8 @@ struct Colors {
   private readonly leiBieString: ResourceStr[] = [
     '资源名称',
     'RGBA',
-    '可读HEX',
+    '#RRGGBBAA',
+    '#AARRGGBB',
     'HEX',
     'CMYK',
     'HSL',
@@ -167,7 +172,8 @@ struct Colors {
         for(let i = 0; i < ColorSysString.length; i++) {
           const colorType: ColorTypeObj = {
             RGBA: darkOrLight[ColorArray.RgbaArray][i],
-            readableHEX: darkOrLight[ColorArray.readableHexArray][i],
+            RRGGBBAA: darkOrLight[ColorArray.RrggbbaaArray][i],
+            AARRGGBB: darkOrLight[ColorArray.AarrggbbArray][i],
             HEX: darkOrLight[ColorArray.HexArray][i],
             CMYK: darkOrLight[ColorArray.CmykArray][i],
             HSL: darkOrLight[ColorArray.HslArray][i],
@@ -217,8 +223,10 @@ struct Colors {
         return this.placeholderObj.default;
       case MatchingMode.Rgba:
         return this.placeholderObj.rgba;
-      case MatchingMode.readableHEX:
-        return this.placeholderObj.readableHEX;
+      case MatchingMode.Rrggbbaa:
+        return this.placeholderObj.rrggbbaa;
+      case MatchingMode.Aarrggbb:
+        return this.placeholderObj.aarrggbb;
       case MatchingMode.Hex:
         return this.placeholderObj.hex;
       case MatchingMode.Cmyk:
@@ -296,10 +304,13 @@ struct Colors {
         matchingResourceName(COLOR_VALUE[0][ColorArray.HexArray]);
         matchingResourceName(COLOR_VALUE[1][ColorArray.HexArray]);
         break;
-      case MatchingMode.readableHEX:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.readableHexArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.readableHexArray]);
+      case MatchingMode.Rrggbbaa:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.RrggbbaaArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.RrggbbaaArray]);
         break;
+      case MatchingMode.Aarrggbb:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.AarrggbbArray]);
+        matchingResourceName(COLOR_VALUE[0][ColorArray.AarrggbbArray]);
       case MatchingMode.Cmyk:
         matchingResourceName(COLOR_VALUE[0][ColorArray.CmykArray]);
         matchingResourceName(COLOR_VALUE[1][ColorArray.CmykArray]);
@@ -475,7 +486,7 @@ struct Colors {
   // 右下角折叠菜单
   @Builder myOverlay() {
     Row() {
-      Button('󰁡', { type: ButtonType.Circle })
+      Button('󰀵', { type: ButtonType.Circle })
         .fontSize(40)
         .shadow(ShadowStyle.OUTER_DEFAULT_MD)
         .width(60)
@@ -652,8 +663,11 @@ struct Colors {
         .geometryTransition('search')
         .transition(TransitionEffect.OPACITY)
         .onChange((value: string, previewText: PreviewText, options: TextChangeOptions) => {
-          // TODO: 做搜索模式
           const indexArr: number[] | undefined = this.searchItemInIndex(value, this.matchingMode);
+          this.searchResultIndex = indexArr;
+        })
+        .onSubmit((text: string) => {
+          const indexArr: number[] | undefined = this.searchItemInIndex(text, this.matchingMode);
           this.searchResultIndex = indexArr;
         })
         .keyboardAppearance(KeyboardAppearance.IMMERSIVE)
@@ -678,16 +692,19 @@ struct Colors {
     Column() {
       Column() {
         Column() {
-          Text('筛选类别搜索')
+          Text('按类别搜索')
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-            .fontSize(16)
+            .fontSize(18)
         }
+        .width('100%')
+        .alignItems(HorizontalAlign.Center)
+        .padding({ bottom: 8 })
         Flex({
           direction: FlexDirection.Row,
           wrap: FlexWrap.Wrap,
           alignItems: ItemAlign.Center,
-          alignContent: FlexAlign.SpaceBetween,
-          space: { main: LengthMetrics.vp(6), cross: LengthMetrics.vp(8) }
+          justifyContent: FlexAlign.SpaceBetween,
+          space: { main: LengthMetrics.vp(6), cross: LengthMetrics.vp(4) }
         }) {
           Repeat(this.leiBieString)
             .each((obj) => {
@@ -702,11 +719,12 @@ struct Colors {
                 })
             })
         }
+        .width('100%')
       }
     }
+    .padding({ top: 56})
     .width('100%')
-    .height('100%')
-    .padding({ top: 56 * 3, bottom: 8 })
+    .height('auto')
   }
   /**
    * 搜索页主组件
@@ -720,6 +738,8 @@ struct Colors {
             .padding({ top: 56 * 3 })
           if (!this.searchResultIndex || this.searchResultIndex.length <= 0) {
             ListItemGroup({ header: this.SearchFiltration() })
+              .width('100%')
+              .height(LayoutPolicy.wrapContent)
           }
           ListItemGroup() {
             // 循环加载搜索结果Index

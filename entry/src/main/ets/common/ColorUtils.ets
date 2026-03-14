@@ -38,15 +38,20 @@ export interface HsvObj {
   v: number; // 0-100 (百分比)
 }
 
+export interface readableHexObj {
+  rrggbbaa: string;
+  aarrggbb: string
+}
+
 /* ---------------------------
    静态类实现（修改说明）
    ---------------------------
 
    - 将 rgbaToCmyk 改为仅输出百分比整数（无小数点），并以字符串形式返回：
-     格式: "cmyk(C%, M%, Y%, K%)"，C/M/Y/K 为整数百分比（0-100）
+     格式: 'cmyk(C%, M%, Y%, K%)'，C/M/Y/K 为整数百分比（0-100）
    - 将所有输出颜色相关的方法（CmykObj/HslObj/HsvObj）改为返回字符串：
-     - rgbaToHsl 返回 "hsl(H, S%, L%)"，H/S/L 保留两位小数（字符串形式）
-     - rgbaToHsv 返回 "hsv(H, S%, V%)"，H/S/V 保留两位小数（字符串形式）
+     - rgbaToHsl 返回 'hsl(H, S%, L%)'，H/S/L 保留两位小数（字符串形式）
+     - rgbaToHsv 返回 'hsv(H, S%, V%)'，H/S/V 保留两位小数（字符串形式）
    - hex 方法本来就返回字符串，保持不变。
    - 保留原有注释与 alpha 四舍五入规则。
 */
@@ -77,7 +82,7 @@ export class ColorUtils {
   private static toHex2(n: number): string {
     const v = ColorUtils.clamp(Math.round(n), 0, 255);
     const s = v.toString(16).toUpperCase();
-    return s.length === 1 ? "0" + s : s;
+    return s.length === 1 ? '0' + s : s;
   }
 
   /* ---------------------------
@@ -110,14 +115,14 @@ export class ColorUtils {
     const bHex = ColorUtils.toHex2(b);
     const aHex = ColorUtils.toHex2(aInt);
 
-    return "0x" + rHex + gHex + bHex + aHex;
+    return '0x' + rHex + gHex + bHex + aHex;
   }
 
   /**
-   * rgba -> #RRGGBBAA 格式字符串（始终包含 alpha，两位）
+   * rgba -> #RRGGBBAA 和 #AARRGGBB 格式字符串（始终包含 alpha，两位）
    * - alpha 先四舍五入到小数点后两位，再乘 255 并四舍五入为整数用于 hex
    */
-  public static rgbaToHexHash(input: RgbaObj): string {
+  public static rgbaToReadableHex(input: RgbaObj): readableHexObj {
     const r = ColorUtils.clamp(Math.round(input.r), 0, 255);
     const g = ColorUtils.clamp(Math.round(input.g), 0, 255);
     const b = ColorUtils.clamp(Math.round(input.b), 0, 255);
@@ -130,12 +135,15 @@ export class ColorUtils {
     const bHex = ColorUtils.toHex2(b);
     const aHex = ColorUtils.toHex2(aInt);
 
-    return "#" + rHex + gHex + bHex + aHex;
+    return {
+      rrggbbaa: '#' + rHex + gHex + bHex + aHex,
+      aarrggbb: '#' + aHex + rHex + gHex + bHex
+    }
   }
 
   /**
    * rgba -> CmykObj（结果为百分比 0-100，返回字符串）
-   * - 要求：只要百分比不要小数点，返回形式为 "cmyk(C%, M%, Y%, K%)"
+   * - 要求：只要百分比不要小数点，返回形式为 'cmyk(C%, M%, Y%, K%)'
    */
   public static rgbaToCmyk(input: RgbaObj): string {
     const r = ColorUtils.clamp(input.r, 0, 255) / 255;
@@ -163,21 +171,21 @@ export class ColorUtils {
     const kPctInt = Math.round(k * 100);
 
     return (
-      "cmyk(" +
+      'cmyk(' +
       cPctInt.toString() +
-        "%, " +
+        '%, ' +
       mPctInt.toString() +
-        "%, " +
+        '%, ' +
       yPctInt.toString() +
-        "%, " +
+        '%, ' +
       kPctInt.toString() +
-        "%)"
+        '%)'
     );
   }
 
   /**
    * rgba -> HslObj（h: 0-360, s/l: 0-100 百分比），返回字符串并保留两位小数
-   * 返回格式: "hsl(H, S%, L%)"（H/S/L 保留两位小数）
+   * 返回格式: 'hsl(H, S%, L%)'（H/S/L 保留两位小数）
    * 常规算法，忽略 alpha（仅使用 r/g/b）
    */
   public static rgbaToHsl(input: RgbaObj): string {
@@ -214,12 +222,12 @@ export class ColorUtils {
     const sStr = ColorUtils.roundTo(s * 100, 2).toFixed(2);
     const lStr = ColorUtils.roundTo(l * 100, 2).toFixed(2);
 
-    return "hsl(" + hStr + ", " + sStr + "%, " + lStr + "%)";
+    return 'hsl(' + hStr + ', ' + sStr + '%, ' + lStr + '%)';
   }
 
   /**
    * rgba -> HsvObj（h: 0-360, s/v: 0-100 百分比），返回字符串并保留两位小数
-   * 返回格式: "hsv(H, S%, V%)"（H/S/V 保留两位小数）
+   * 返回格式: 'hsv(H, S%, V%)'（H/S/V 保留两位小数）
    * 常规算法，忽略 alpha（仅使用 r/g/b）
    */
   public static rgbaToHsv(input: RgbaObj): string {
@@ -256,7 +264,7 @@ export class ColorUtils {
     const sStr = ColorUtils.roundTo(s * 100, 2).toFixed(2);
     const vStr = ColorUtils.roundTo(v * 100, 2).toFixed(2);
 
-    return "hsv(" + hStr + ", " + sStr + "%, " + vStr + "%)";
+    return 'hsv(' + hStr + ', ' + sStr + '%, ' + vStr + '%)';
   }
 }
 
@@ -267,9 +275,9 @@ export class ColorUtils {
 /*
 const sample: RgbaObj = { r: 34, g: 12, b: 64, a: 0.12345 };
 
-console.log(ColorUtils.rgbaToHex0x(sample));   // -> "0x220C40??" (AA 根据四舍五入后 alpha 计算)
-console.log(ColorUtils.rgbaToHexHash(sample)); // -> "#220C40AA"
-console.log(ColorUtils.rgbaToCmyk(sample));    // -> "cmyk(??%, ??%, ??%, ??%)" (整数百分比，无小数)
-console.log(ColorUtils.rgbaToHsl(sample));     // -> "hsl(HH.HH, SS.SS%, LL.LL%)"
-console.log(ColorUtils.rgbaToHsv(sample));     // -> "hsv(HH.HH, SS.SS%, VV.VV%)"
+console.log(ColorUtils.rgbaToHex0x(sample));   // -> '0x220C40??' (AA 根据四舍五入后 alpha 计算)
+console.log(ColorUtils.rgbaToHexHash(sample)); // -> '#220C40AA'
+console.log(ColorUtils.rgbaToCmyk(sample));    // -> 'cmyk(??%, ??%, ??%, ??%)' (整数百分比，无小数)
+console.log(ColorUtils.rgbaToHsl(sample));     // -> 'hsl(HH.HH, SS.SS%, LL.LL%)'
+console.log(ColorUtils.rgbaToHsv(sample));     // -> 'hsv(HH.HH, SS.SS%, VV.VV%)'
 */

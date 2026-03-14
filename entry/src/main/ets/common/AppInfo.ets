@@ -18,7 +18,8 @@ export enum SwitchColorModeIndex {
 
 export enum ColorArray {
   RgbaArray,
-  readableHexArray,
+  RrggbbaaArray,
+  AarrggbbArray,
   HexArray,
   CmykArray,
   HslArray,
@@ -27,14 +28,15 @@ export enum ColorArray {
 
 namespace ColorType {
   export type RGBA = string;
-  export type readableHEX = string;
+  export type RRGGBBAA = string;
+  export type AARRGGBB = string;
   export type HEX  = string;
   export type CMYK = string;
   export type HSL  = string;
   export type HSV  = string;
 }
-type DARK   = [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
-type LIGHT  = [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type DARK   = [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type LIGHT  = [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
 
 export { DARK, LIGHT, ColorType }
 
@@ -65,7 +67,7 @@ export class AppInfo extends UIAbilityContext {
   // 判断Colors页是否需要初始化
   public isLoadDown = false;
   // 所有颜色值字符串数组
-  public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], []], [[], [], [], [], [], []]];
+  public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], [], []], [[], [], [], [], [], [], []]];
   public appName: string = 'unknown';
   public appVersion: string = 'unknown';
   public pushColorsPageTimeId: number = 0;
