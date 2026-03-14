@@ -557,6 +557,8 @@ struct Colors {
           this.isStopBackPress = v;
           console.info(`[Colors] 搜索框编辑状态：${v}`)
         })
+        // 排除汉字
+        .inputFilter('[^\u4e00-\u9fff]')
     }
     .justifyContent(FlexAlign.End)
     .alignItems(VerticalAlign.Center)
