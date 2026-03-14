@@ -1,5 +1,5 @@
 import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType, ColorArray } from '../common/Index';
-import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
+import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier, LengthMetrics } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
 import lazy { ColorsDetailBuilder } from './ColorsDetail';
@@ -23,8 +23,8 @@ enum TitlePadding {
 enum MatchingMode {
   ResourceName,
   Rgba,
-  Hex,
   readableHEX,
+  Hex,
   Cmyk,
   Hsl,
   Hsv
@@ -49,6 +49,16 @@ interface ColorTypeObj {
   HSV: ColorType.HSV;
 }
 
+interface PlaceholderObj {
+  default: ResourceStr,
+  rgba: ResourceStr,
+  readableHEX: ResourceStr,
+  hex: ResourceStr,
+  cmyk: ResourceStr,
+  hsl: ResourceStr,
+  hsv: ResourceStr,
+}
+
 @Extend(Text)
 function TextStyle() {
   .fontColor(Color.White)
@@ -68,7 +78,6 @@ export function ColorsBuilder() {
 }
 
 
-@Preview
 @ComponentV2
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
@@ -94,12 +103,53 @@ struct Colors {
   private isStopBackPress: boolean = false;
   // search组件控制器
   private searchController: SearchController = new SearchController();
+  // 搜索筛选模式
+  @Local private matchingMode: MatchingMode = MatchingMode.ResourceName;
+  // 搜索框占位符文本
+  private readonly placeholderObj: PlaceholderObj = {
+    default: '按资源名称搜索',
+    rgba: '按RGBA搜索',
+    readableHEX: '按可读HEX搜索',
+    hex: '按HEX搜索',
+    cmyk: '按CMYK搜索',
+    hsl: '按HSL搜索',
+    hsv: '按HSV搜索',
+  }
+  // 搜索筛选按钮名称
+  private readonly leiBieString: ResourceStr[] = [
+    '资源名称',
+    'RGBA',
+    '可读HEX',
+    'HEX',
+    'CMYK',
+    'HSL',
+    'HSV'
+  ]
+  /**
+   * 搜索页路由标题栏配置
+   */
+  private readonly searchTitleOptions: HdsNavigationTitleBarOptions = {
+    content: {
+      // title: { mainTitle: '搜索' },
+      stackBuilder: () => this.SearchBox(),
+      bottomBuilder: {
+        builder: () => this.SwitchColorMode2()
+      },
+      backIcon: {
+        action: () => {
+          this.searchPageBack();
+        }
+      }
+    }
+  }
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 
-  // 导出所有颜色为JSON文件
+  /**
+   * 导出所有颜色为JSON文件
+   */
   private async outColorJson() {
     const docPicker = new picker.DocumentViewPicker(AppInfo.getContext(this));
     const saveUrl: string[] = await docPicker.save({
@@ -116,12 +166,12 @@ struct Colors {
         const darkOrLight = isDarkMode ? this.useAppInfo.COLOR_VALUE[1] : this.useAppInfo.COLOR_VALUE[0];
         for(let i = 0; i < ColorSysString.length; i++) {
           const colorType: ColorTypeObj = {
-            RGBA: darkOrLight[0][i],
-            HEX: darkOrLight[1][i],
-            readableHEX: darkOrLight[2][i],
-            CMYK: darkOrLight[3][i],
-            HSL: darkOrLight[4][i],
-            HSV: darkOrLight[5][i]
+            RGBA: darkOrLight[ColorArray.RgbaArray][i],
+            readableHEX: darkOrLight[ColorArray.readableHexArray][i],
+            HEX: darkOrLight[ColorArray.HexArray][i],
+            CMYK: darkOrLight[ColorArray.CmykArray][i],
+            HSL: darkOrLight[ColorArray.HslArray][i],
+            HSV: darkOrLight[ColorArray.HsvArray][i]
           }
           colorTypeArray.push(colorType);
         }
@@ -156,8 +206,136 @@ struct Colors {
       this.getUIContext().getPromptAction().showToast({ message: `失败：${(e as BusinessError).message}` })
     }
   }
+  /**
+   * 判断并输出搜索框占位符
+   * @param value
+   * @returns
+   */
+  private outSearchPlaceholder(value: MatchingMode): ResourceStr {
+    switch (value) {
+      case MatchingMode.ResourceName:
+        return this.placeholderObj.default;
+      case MatchingMode.Rgba:
+        return this.placeholderObj.rgba;
+      case MatchingMode.readableHEX:
+        return this.placeholderObj.readableHEX;
+      case MatchingMode.Hex:
+        return this.placeholderObj.hex;
+      case MatchingMode.Cmyk:
+        return this.placeholderObj.cmyk;
+      case MatchingMode.Hsl:
+        return this.placeholderObj.hsl;
+      case MatchingMode.Hsv:
+        return this.placeholderObj.hsv;
+    }
+  }
+  /**
+   * 搜索页返回时触发动画
+   */
+  private searchPageBack() {
+    this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
+      this.isSearchPageShow = false;
+    })
+  }
 
+  /**
+   * 颜色页标题栏配置
+   */
+  private readonly hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
+    content: {
+      title: { mainTitle: '颜色' },
+      bottomBuilder: {
+        builder: () => this.SwitchColorMode2()
+      },
+      stackBuilder: () => this.TitleMenu()
+    }
+  }
+  /**
+   * 颜色页标题栏自动隐藏配置
+   */
+  private readonly dynamicHideParams: DynamicHideParams = {
+    hideTitleArea: true,
+    mode: HideMode.SCROLL_UP,
+    hideStatusBar: false
+  }
 
+  /**
+   * 搜索页匹配input结果,输出Index
+   * @param keyWord
+   * @param mode
+   * @returns
+   */
+  private searchItemInIndex(keyWord: string, mode: MatchingMode): number[] | undefined {
+    if (!keyWord) { return }
+    console.info(`[Search] 匹配模式: ${mode}`);
+    console.info(`[Search] 匹配keyWord: ${keyWord}`)
+    const COLOR_VALUE = this.useAppInfo.COLOR_VALUE;
+    // 将关键词全转小写
+    const value: string = keyWord.toLowerCase();
+    const resultIndex: number[] = [];
+    console.info(`[Search] 小写keyWord: ${value}`)
+
+    const matchingResourceName = (arr: Array<string>) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].toLowerCase().includes(value)) {
+          console.info(`[Search] 匹配到 ${arr[i]}`)
+          resultIndex.push(i);
+        }
+      }
+    }
+
+    switch (mode) {
+      case MatchingMode.ResourceName:
+        matchingResourceName(ColorSysString);
+        break;
+      case MatchingMode.Rgba:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.RgbaArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.RgbaArray]);
+        break;
+      case MatchingMode.Hex:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HexArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HexArray]);
+        break;
+      case MatchingMode.readableHEX:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.readableHexArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.readableHexArray]);
+        break;
+      case MatchingMode.Cmyk:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.CmykArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.CmykArray]);
+        break;
+      case MatchingMode.Hsl:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HslArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HslArray]);
+        break;
+      case MatchingMode.Hsv:
+        matchingResourceName(COLOR_VALUE[0][ColorArray.HsvArray]);
+        matchingResourceName(COLOR_VALUE[1][ColorArray.HsvArray]);
+        break;
+    }
+
+    // console.log(`[Colors] 搜索未去重数组: ${resultIndex}`);
+    const quChongResultIndex: number[] = Array.from(new Set(resultIndex));
+    // console.log(`[Colors] 搜索已去重数组: ${quChongResultIndex}`);
+    return quChongResultIndex;
+  }
+
+  /**
+   * 判断窗口宽度决定列表列数
+   * @returns
+   */
+  private outListLanes(): number {
+    console.info('触发列数调整')
+    // 第一个区间：宽度 <= 320，返回 1
+    if (this.windowWith <= 320) {
+      return 1;
+    }
+    // 后续区间：阈值每次增加 400，返回值每次增加 2
+    const step = 400; // 阈值步长
+    const baseThreshold = 321;  // 第一个非特殊区间的起始宽度（>320）
+    const index = Math.floor((this.windowWith - baseThreshold) / step); // 区间索引，从0开始
+    return 2 * (index + 1); // 返回值：2, 4, 6, 8, ...
+  }
 
   @Builder
   TextOverlay(
@@ -334,7 +512,9 @@ struct Colors {
     .constraintSize({ maxWidth: 450 })
     .flexGrow(8)
   }
-
+  /**
+   * 颜色页标题栏右上角菜单
+   */
   @Builder TitleMenu() {
     Row() {
       Button('󰀩', { buttonStyle: ButtonStyleMode.NORMAL })
@@ -356,27 +536,8 @@ struct Colors {
     .padding({ left: this.titleBarPadding, right: this.titleBarPadding })
   }
 
-  private readonly hdsNavigationTitleBarOptions: HdsNavigationTitleBarOptions = {
-    content: {
-      title: { mainTitle: '颜色' },
-      bottomBuilder: {
-        builder: () => this.SwitchColorMode2()
-      },
-      stackBuilder: () => this.TitleMenu()
-    }
-  }
 
-  private readonly dynamicHideParams: DynamicHideParams = {
-    hideTitleArea: true,
-    mode: HideMode.SCROLL_UP,
-    hideStatusBar: false
-  }
 
-  private searchPageBack() {
-    this.getUIContext().animateTo({ duration: 350, curve: Curve.Friction }, () => {
-      this.isSearchPageShow = false;
-    })
-  }
 
   build() {
 
@@ -447,6 +608,12 @@ struct Colors {
             this.searchPageBack();
           }
         },
+        // 退出时重置默认筛选和清空文本
+        onDisappear: () => {
+          this.matchingMode = MatchingMode.ResourceName;
+          this.searchText = '';
+          this.searchResultIndex = undefined;
+          },
         transition: TransitionEffect.OPACITY.animation({ duration: 350 })
       }
     )
@@ -466,77 +633,14 @@ struct Colors {
     })
   }
 
-  private searchItemInIndex(keyWord: string, mode: MatchingMode): number[] | undefined {
-    if (!keyWord) { return }
-    const COLOR_VALUE = this.useAppInfo.COLOR_VALUE;
-    // 将关键词全转小写
-    const value: string = keyWord.toLowerCase();
-    const resultIndex: number[] = [];
 
-    const matchingResourceName = (arr: Array<string>) => {
-      for (let i = 0; i < arr.length; i++) {
-        if (ColorSysString[i].toLowerCase().includes(value)) {
-          resultIndex.push(i);
-        }
-      }
-    }
-
-    switch (mode) {
-      case MatchingMode.ResourceName:
-        matchingResourceName(ColorSysString);
-        break;
-      case MatchingMode.Rgba:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.RgbaArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.RgbaArray]);
-        break;
-      case MatchingMode.Hex:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.HexArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.HexArray]);
-        break;
-      case MatchingMode.readableHEX:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.readableHexArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.readableHexArray]);
-        break;
-      case MatchingMode.Cmyk:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.CmykArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.CmykArray]);
-        break;
-      case MatchingMode.Hsl:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.HslArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.HslArray]);
-        break;
-      case MatchingMode.Hsv:
-        matchingResourceName(COLOR_VALUE[0][ColorArray.HsvArray]);
-        matchingResourceName(COLOR_VALUE[1][ColorArray.HsvArray]);
-        break;
-    }
-
-    // console.log(`[Colors] 搜索未去重数组: ${resultIndex}`);
-    const quChongResultIndex: number[] = Array.from(new Set(resultIndex));
-    // console.log(`[Colors] 搜索已去重数组: ${quChongResultIndex}`);
-    return quChongResultIndex;
-  }
-
-  // 判断窗口宽度决定列表列数
-  private outListLanes(): number {
-    console.info('触发列数调整')
-    // 第一个区间：宽度 <= 320，返回 1
-    if (this.windowWith <= 320) {
-      return 1;
-    }
-    // 后续区间：阈值每次增加 400，返回值每次增加 2
-    const step = 400; // 阈值步长
-    const baseThreshold = 321;  // 第一个非特殊区间的起始宽度（>320）
-    const index = Math.floor((this.windowWith - baseThreshold) / step); // 区间索引，从0开始
-    return 2 * (index + 1); // 返回值：2, 4, 6, 8, ...
-  }
 
 
   @Builder SearchBox() {
     Row() {
       Search({
         value: this.searchText!!,
-        placeholder: '搜索资源的名称和值',
+        placeholder: this.outSearchPlaceholder(this.matchingMode),
         controller: this.searchController
       })
         .width('auto')
@@ -549,7 +653,7 @@ struct Colors {
         .transition(TransitionEffect.OPACITY)
         .onChange((value: string, previewText: PreviewText, options: TextChangeOptions) => {
           // TODO: 做搜索模式
-          const indexArr: number[] | undefined = this.searchItemInIndex(value, MatchingMode.ResourceName);
+          const indexArr: number[] | undefined = this.searchItemInIndex(value, this.matchingMode);
           this.searchResultIndex = indexArr;
         })
         .keyboardAppearance(KeyboardAppearance.IMMERSIVE)
@@ -567,31 +671,59 @@ struct Colors {
     .flexGrow(5)
   }
 
-  private readonly searchTitleOptions: HdsNavigationTitleBarOptions = {
-    content: {
-      // title: { mainTitle: '搜索' },
-      stackBuilder: () => this.SearchBox(),
-      bottomBuilder: {
-        builder: () => this.SwitchColorMode2()
-      },
-      backIcon: {
-        action: () => {
-          this.searchPageBack();
+  /**
+   * 搜索筛选组件
+   */
+  @LocalBuilder SearchFiltration() {
+    Column() {
+      Column() {
+        Column() {
+          Text('筛选类别搜索')
+            .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+            .fontSize(16)
+        }
+        Flex({
+          direction: FlexDirection.Row,
+          wrap: FlexWrap.Wrap,
+          alignItems: ItemAlign.Center,
+          alignContent: FlexAlign.SpaceBetween,
+          space: { main: LengthMetrics.vp(6), cross: LengthMetrics.vp(8) }
+        }) {
+          Repeat(this.leiBieString)
+            .each((obj) => {
+              Button(obj.item, {
+                buttonStyle: ButtonStyleMode.TEXTUAL,
+                type: ButtonType.Normal
+              })
+                .borderRadius(8)
+                .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
+                .onClick(() => {
+                  this.matchingMode = obj.index;
+                })
+            })
         }
       }
     }
+    .width('100%')
+    .height('100%')
+    .padding({ top: 56 * 3, bottom: 8 })
   }
-
+  /**
+   * 搜索页主组件
+   */
   @Builder SearchPage() {
     HdsNavDestination() {
       Column() {
         List() {
+          // 顶部间距
           ListItemGroup()
             .padding({ top: 56 * 3 })
-          if (this.searchResultIndex && this.searchResultIndex.length > 0) {
-            ListItemGroup() {
-
-              // 循环加载搜索结果Index
+          if (!this.searchResultIndex || this.searchResultIndex.length <= 0) {
+            ListItemGroup({ header: this.SearchFiltration() })
+          }
+          ListItemGroup() {
+            // 循环加载搜索结果Index
+            if (this.searchResultIndex && this.searchResultIndex.length > 0) {
               Repeat(this.searchResultIndex)
                 .each((obj) => {
                   this.ListItemColorChunk(100, '100%', ColorSysResourse[obj.item], String(obj.item + 1),
@@ -599,22 +731,8 @@ struct Colors {
                     obj.index, obj.item, true);
                 })
             }
-          } else {
-            ListItemGroup() {
-              ListItem() {
-                Column() {
-                  Text('搜索资源名称')
-                    .fontSize(20)
-                    .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
-                }
-                .width('100%')
-                .height(200)
-                .constraintSize({ maxWidth: 640 })
-                .justifyContent(FlexAlign.Center)
-                .backgroundColor(Color.Red)
-              }
-            }
           }
+          // 底部间距
           ListItemGroup()
             .padding({ bottom: 120 })
         }
@@ -629,6 +747,7 @@ struct Colors {
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
         })
+        .sticky(StickyStyle.Header)
       }
       .width('100%')
       .height('100%')

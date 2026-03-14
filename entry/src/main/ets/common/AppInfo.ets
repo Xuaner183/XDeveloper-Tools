@@ -18,23 +18,23 @@ export enum SwitchColorModeIndex {
 
 export enum ColorArray {
   RgbaArray,
-  HexArray,
   readableHexArray,
+  HexArray,
   CmykArray,
   HslArray,
   HsvArray
 }
 
 namespace ColorType {
-  export type RGBA = string
-  export type HEX  = string;
+  export type RGBA = string;
   export type readableHEX = string;
+  export type HEX  = string;
   export type CMYK = string;
   export type HSL  = string;
   export type HSV  = string;
 }
-type DARK   = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
-type LIGHT  = [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type DARK   = [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type LIGHT  = [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
 
 export { DARK, LIGHT, ColorType }
 

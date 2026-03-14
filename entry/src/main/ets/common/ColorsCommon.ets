@@ -63,7 +63,7 @@ export class ColorsPageInit extends UIAbilityContext {
     // 定义结果函数不执行
     const forResult = () => {
       // 建立元组
-      const colorValue: [ColorType.RGBA[], ColorType.HEX[], ColorType.readableHEX[], ColorType.CMYK[],
+      const colorValue: [ColorType.RGBA[], ColorType.readableHEX[], ColorType.HEX[], ColorType.CMYK[],
         ColorType.HSL[], ColorType.HSV[]] = [[], [], [], [], [], []];
       // 定义循环执行的函数
       const forColor = (resColorName: string) => {
@@ -73,7 +73,8 @@ export class ColorsPageInit extends UIAbilityContext {
           // 将Alpha的[0-255]转换成[0-1]
           const colorAlpha: string = ColorUtils.alpha255To01(colorObj.alpha);
           // RGBA结果
-          const colorRgbaResult: ColorType.RGBA = `rgba(${colorObj.red.toString()}, ${colorObj.green.toString()}, ${colorObj.blue.toString()}, ${colorAlpha})`;
+          const colorRgbaResult: ColorType.RGBA =
+            `rgba(${colorObj.red.toString()}, ${colorObj.green.toString()}, ${colorObj.blue.toString()}, ${colorAlpha})`;
           // 将RGBA结果转换成十六进制HEX
           const rgbaObj: RgbaObj = {
             r: colorObj.red,
@@ -92,8 +93,8 @@ export class ColorsPageInit extends UIAbilityContext {
           const colorHSV = ColorUtils.rgbaToHsv(rgbaObj);
           // 存储到数组中
           colorValue[ColorArray.RgbaArray].push(colorRgbaResult);
-          colorValue[ColorArray.HexArray].push(colorHEX);
           colorValue[ColorArray.readableHexArray].push(colorReadableHEXResult);
+          colorValue[ColorArray.HexArray].push(colorHEX);
           colorValue[ColorArray.CmykArray].push(colorCMYK);
           colorValue[ColorArray.HslArray].push(colorHSL);
           colorValue[ColorArray.HsvArray].push(colorHSV);
