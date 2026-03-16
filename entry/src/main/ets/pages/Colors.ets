@@ -327,7 +327,7 @@ struct Colors {
 
     // console.log(`[Colors] 搜索未去重数组: ${resultIndex}`);
     const quChongResultIndex: number[] = Array.from(new Set(resultIndex)).sort((a, b) => a - b);
-    console.log(`[Colors] 搜索已去重数组: ${quChongResultIndex}`);
+    console.log(`[Search] 搜索已去重数组: ${quChongResultIndex}`);
     return quChongResultIndex;
   }
 
@@ -750,6 +750,9 @@ struct Colors {
                   this.ListItemColorChunk(100, '100%', ColorSysResourse[obj.item], String(obj.item + 1),
                     ColorSysString[obj.item],
                     obj.index, obj.item, true);
+                })
+                .virtualScroll({
+                  reusable: false
                 })
             }
           }
