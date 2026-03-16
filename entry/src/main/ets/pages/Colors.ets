@@ -716,7 +716,8 @@ struct Colors {
                 .onClick(() => {
                   this.matchingMode = obj.index;
                 })
-                .backgroundColor(this.matchingMode === obj.index ? $r('sys.color.segment_button_v2_tab_button_background') : Color.Transparent)
+                .buttonStyle(this.matchingMode === obj.index ? ButtonStyleMode.NORMAL : ButtonStyleMode.TEXTUAL)
+                .stateEffect(false)
             })
         }
         .width('100%')
