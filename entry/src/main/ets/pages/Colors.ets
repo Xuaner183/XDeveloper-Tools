@@ -84,7 +84,7 @@ export function ColorsBuilder() {
 @ComponentV2
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
-  // private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
+  private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
   private readonly symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { icon: $r('app.media.routine') },
     { symbol: $r('sys.symbol.sun_max_fill') },
@@ -670,7 +670,7 @@ struct Colors {
           const indexArr: number[] | undefined = this.searchItemInIndex(text, this.matchingMode);
           this.searchResultIndex = indexArr;
         })
-        .keyboardAppearance(KeyboardAppearance.IMMERSIVE)
+        .keyboardAppearance(this.useOnListen.isDarkMode ? KeyboardAppearance.DARK_IMMERSIVE : KeyboardAppearance.LIGHT_IMMERSIVE)
         .onEditChange((v: boolean) => {
           this.isStopBackPress = v;
           console.info(`[Colors] 搜索框编辑状态：${v}`)
