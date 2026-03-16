@@ -572,13 +572,13 @@ struct Colors {
                     obj.index, obj.index)
                 })
             }
+            .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
             // 底部间距
             ListItemGroup()
               .padding({ bottom: 120 })
           }
           .width('100%')
           .height('auto')
-          .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
           .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
           .lanes(this.outListLanes(), 8)
           .alignListItem(ListItemAlign.Center)
@@ -716,13 +716,13 @@ struct Colors {
                 .onClick(() => {
                   this.matchingMode = obj.index;
                 })
-                .backgroundColor(this.matchingMode === obj.index ? '#12818c99' : Color.Transparent)
+                .backgroundColor(this.matchingMode === obj.index ? $r('sys.color.segment_button_v2_tab_button_background') : Color.Transparent)
             })
         }
         .width('100%')
       }
     }
-    .padding({ top: 56})
+    .padding({ top: 56 })
     .width('100%')
     .height('auto')
   }
@@ -740,6 +740,7 @@ struct Colors {
             ListItemGroup({ header: this.SearchFiltration() })
               .width('100%')
               .height(LayoutPolicy.wrapContent)
+              .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
           }
           ListItemGroup() {
             // 循环加载搜索结果Index
@@ -752,11 +753,11 @@ struct Colors {
                 })
             }
           }
+          .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
           // 底部间距
           ListItemGroup()
             .padding({ bottom: 120 })
         }
-        .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
         .width('100%')
         .height('auto')
         .flexGrow(3)
