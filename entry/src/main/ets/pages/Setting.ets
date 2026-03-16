@@ -3,6 +3,8 @@ import { AppInfo } from '../common/Index';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import lazy { AboutBuilder } from './About';
 
+export const cardMaxWidth: number = 640;
+
 @Builder export function SettingBuilder() {
   Setting();
 }
@@ -93,7 +95,7 @@ export struct ListBox {
     }
     .justifyContent(FlexAlign.SpaceBetween)
     .width('100%')
-    .constraintSize({ maxWidth: 640 })
+    .constraintSize({ maxWidth: cardMaxWidth })
     .padding({ left: 8, right: 8 })
     .borderRadius(13)
     .HighLightStyle()
