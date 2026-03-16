@@ -1,11 +1,11 @@
 import { AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index'
-import { AppStorageV2, LengthMetrics } from '@kit.ArkUI';
+import { AppStorageV2 } from '@kit.ArkUI';
 import { bundleManager } from '@kit.AbilityKit';
 import lazy { LikeBuilder } from './Like';
 import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
 import { common } from "@kit.AbilityKit";
-import { ListTitle1, ListBox, cardMaxWidth } from './Setting';
-import { HdsNavigation, HdsNavigationTitleBarOptions } from '@hms.hds.hdsBaseComponent';
+import { ListTitle1, ListBox } from './Setting';
+import { HdsNavigation, HdsNavigationTitleBarOptions } from '@kit.UIDesignKit';
 
 export interface NavHomeParm {
   isColors?: boolean;

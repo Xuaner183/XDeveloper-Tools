@@ -1,4 +1,6 @@
-import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType, ColorArray } from '../common/Index';
+import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType, ColorArray,
+  ColorSysStringArrSortOrder,
+  ColorSysResourseParamsArr} from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier, LengthMetrics } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
@@ -62,6 +64,15 @@ interface PlaceholderObj {
   hsv: ResourceStr,
 }
 
+export const symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+  // { icon: $r('app.media.routine') },
+  { symbol: $r('sys.symbol.circle_filled_and_circle') },
+  { symbol: $r('sys.symbol.sun_max_fill') },
+  { symbol: $r('sys.symbol.moon_fill') }
+]);
+
+const ColorSysResourseParamOriginalMode = ColorSysResourseParamsArr(ColorSysStringArrSortOrder.Original);
+
 @Extend(Text)
 function TextStyle() {
   .fontColor(Color.White)
@@ -85,11 +96,6 @@ export function ColorsBuilder() {
 struct Colors {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.getContext()))!;
   private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
-  private readonly symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
-    { icon: $r('app.media.routine') },
-    { symbol: $r('sys.symbol.sun_max_fill') },
-    { symbol: $r('sys.symbol.moon_fill') }
-  ]);
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private mainScroller: Scroller = new Scroller();
   private readonly saveIcon: SymbolGlyphModifier = new SymbolGlyphModifier($r('sys.symbol.save'));
@@ -148,6 +154,8 @@ struct Colors {
     }
   }
 
+  @Local private paiLieMode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original;
+
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
   }
@@ -155,7 +163,7 @@ struct Colors {
   /**
    * 导出所有颜色为JSON文件
    */
-  private async outColorJson() {
+  private async outColorJson() { // TODO: 添加不同排列顺序导出
     const docPicker = new picker.DocumentViewPicker(AppInfo.getContext(this));
     const saveUrl: string[] = await docPicker.save({
       defaultFilePathUri: 'file://docs/storage/Users/currentUser/Documents',
@@ -352,7 +360,6 @@ struct Colors {
   TextOverlay(
     resourceIndexString: string | Resource | undefined = undefined,
     resourceName: string | undefined = undefined,
-    index: number
   ) {
     Column() {
       Column() {
@@ -423,27 +430,26 @@ struct Colors {
     isSearchPage: boolean = false
   ) {
     ListItem() {
-      // WithTheme({ colorMode: this.useAppInfo.colorModeLocalInColorsPage === darkModeIndex ? ThemeColorMode.DARK : ThemeColorMode.LIGHT }) {
-        Flex({
-          direction: FlexDirection.Column,
-          justifyContent: FlexAlign.SpaceEvenly,
-          alignItems: ItemAlign.Center
-        }) {
-          Rect({ width: '100%', height: '100%' })
-            .fill(chunkColor)
-            .radius(14.4)
-        }
-        .height(height)
-        .width(width)
-        .zIndex(zIndex)
-        .backgroundImage($r('app.media.mosaic'), {
-          repeat: ImageRepeat.XY
-        })
-        .backgroundImagePosition(Alignment.Center)
-        .borderRadius(16)
-        .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-        .overlay(this.TextOverlay(resourceIndexString, resourceColorName, index))
-      // }
+      Flex({
+        direction: FlexDirection.Column,
+        justifyContent: FlexAlign.SpaceEvenly,
+        alignItems: ItemAlign.Center
+      }) {
+        Rect({ width: '100%', height: '100%' })
+          .fill(chunkColor)
+          .radius(14.4)
+      }
+      .height(height)
+      .width(width)
+      .zIndex(zIndex)
+      .backgroundImage($r('app.media.mosaic'), {
+        repeat: ImageRepeat.XY
+      })
+      .backgroundImagePosition(Alignment.Center)
+      .borderRadius(16)
+      .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+      .overlay(this.TextOverlay(resourceIndexString, resourceColorName))
+
     }
     .width('100%')
     .height('auto')
@@ -472,14 +478,61 @@ struct Colors {
 
   }
 
+  private readonly paiLieFangShiIcon = new SymbolGlyphModifier($r('sys.symbol.text_and_arrow_up_and_down'));
+  private readonly shenXuIcon = new SymbolGlyphModifier($r('sys.symbol.text_and_arrow_up'));
+  private readonly jiangXuIcon = new SymbolGlyphModifier($r('sys.symbol.text_and_arrow_down'));
+  private readonly yuanShiIcon = new SymbolGlyphModifier($r('sys.symbol.book_closed_right_left'));
+  private readonly rightArrowIcon = new SymbolGlyphModifier($r('sys.symbol.chevron_right'))
+    .fontColor([$r('sys.color.ohos_id_color_secondary')]);
+
   @Builder MoreMenu() {
     Menu() {
+      MenuItem({
+        symbolStartIcon: this.paiLieFangShiIcon,
+        content: '排列方式',
+        builder: () => this.PaiLieMenu(),
+      })
       MenuItem({
         symbolStartIcon: this.saveIcon,
         content: '导出为JSON',
       })
         .onClick(() => {
           this.outColorJson();
+        })
+    }
+    .subMenuExpandSymbol(this.rightArrowIcon)
+    .subMenuExpandingMode(SubMenuExpandingMode.STACK_EXPAND)
+  }
+
+  @Builder PaiLieMenu() {
+    Menu() {
+      MenuItem({
+        symbolStartIcon: this.yuanShiIcon,
+        content: '原始'
+      })
+        .selected(this.paiLieMode === ColorSysStringArrSortOrder.Original)
+        .selectIcon(true)
+        .onClick(() => {
+          this.paiLieMode = ColorSysStringArrSortOrder.Original; // TODO: 切换回Original没有任何反应
+          ColorSysResourse(this.paiLieMode)
+        })
+      MenuItem({
+        symbolStartIcon: this.shenXuIcon,
+        content: '升序'
+      })
+        .selected(this.paiLieMode === ColorSysStringArrSortOrder.ShengXu)
+        .selectIcon(true)
+        .onClick(() => {
+          this.paiLieMode = ColorSysStringArrSortOrder.ShengXu
+        })
+      MenuItem({
+        symbolStartIcon: this.jiangXuIcon,
+        content: '降序'
+      })
+        .selected(this.paiLieMode === ColorSysStringArrSortOrder.DaoXu)
+        .selectIcon(true)
+        .onClick(() => {
+          this.paiLieMode = ColorSysStringArrSortOrder.DaoXu
         })
     }
   }
@@ -509,7 +562,7 @@ struct Colors {
   SwitchColorMode2() {
     Column() {
       TabSegmentButtonV2({
-        items: this.symbolItems,
+        items: symbolItems,
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
         onItemClicked: (index: number) => {
           this.useAppInfo.switchColorModeIndexManager(index);
@@ -549,7 +602,6 @@ struct Colors {
 
 
 
-
   build() {
 
     HdsNavDestination() {
@@ -563,13 +615,20 @@ struct Colors {
             // 内容
             ListItemGroup({ footer: this.IsEnd() }) {
               // 批量加载 ListItem
-              Repeat(ColorSysResourse)
-              // .virtualScroll({
-              //   onTotalCount: () => ColorSysResourse.length
-              // })
+              Repeat(ColorSysResourse(this.paiLieMode))
                 .each((obj) => {
-                  this.ListItemColorChunk(100, '100%', obj.item, String(obj.index + 1), ColorSysString[obj.index],
-                    obj.index, obj.index)
+                  this.ListItemColorChunk(
+                    100,
+                    '100%',
+                    obj.item,
+                    String((ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params)) + 1)),
+                    ColorSysString[obj.index],
+                    obj.index,
+                    ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params)) + 1
+                  )
+                })
+                .virtualScroll({
+                  reusable: false
                 })
             }
             .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
@@ -748,7 +807,8 @@ struct Colors {
             if (this.searchResultIndex && this.searchResultIndex.length > 0) {
               Repeat(this.searchResultIndex)
                 .each((obj) => {
-                  this.ListItemColorChunk(100, '100%', ColorSysResourse[obj.item], String(obj.item + 1),
+                  this.ListItemColorChunk(100, '100%', ColorSysResourse(ColorSysStringArrSortOrder.Original)[obj.item],
+                    String(obj.item + 1),
                     ColorSysString[obj.item],
                     obj.index, obj.item, true);
                 })

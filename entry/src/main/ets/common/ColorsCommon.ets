@@ -47,7 +47,7 @@ export class ColorsPageInit extends UIAbilityContext {
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(this.uiContext))!;
   // private useRM: RM = new RM(this.uiContext);
   // private usePreferencesControl: PreferencesControl = new PreferencesControl(this.uiContext);
-  private useRS: RS = new RS(this.uiContext);
+  // private useRS: RS = new RS(this.uiContext);
   private useOnListen = AppStorageV2.connect<OnListen>(OnListen, () => new OnListen())!;
 
   public async init(isFull: boolean = false): Promise<boolean> {

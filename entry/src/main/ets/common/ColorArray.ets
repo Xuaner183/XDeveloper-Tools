@@ -6,153 +6,7 @@ export enum ColorSysStringArrSortOrder {
   DaoXu
 }
 
-export const ColorResourseBackgroundArray: Resource[] = [
-  $r('sys.color.ohos_id_color_background'),
-  $r('sys.color.ohos_id_color_background_dark'),
-  $r('sys.color.ohos_id_color_background_transparent'),
-  $r('sys.color.ohos_id_color_sub_background'),
-  $r('sys.color.ohos_id_color_sub_background_dark'),
-  $r('sys.color.ohos_id_color_sub_background_transparent'),
-  $r('sys.color.ohos_id_color_tooltip_background'),
-  $r('sys.color.ohos_id_color_tooltip_background_dark'),
-  $r('sys.color.ohos_id_color_tooltip_background_transparent'),
-  $r('sys.color.ohos_fa_background_blur'),
-  $r('sys.color.ohos_fa_background_blur_dark'),
-  $r('sys.color.ohos_fa_background'),
-  $r('sys.color.ohos_fa_background_dark'),
-  $r('sys.color.ohos_fa_sub_background'),
-  $r('sys.color.ohos_fa_sub_background_dark'),
-  $r('sys.color.ohos_id_color_calendar_focus_area_background'),
-  $r('sys.color.ohos_id_color_calendar_blur_area_background'),
-  $r('sys.color.ohos_id_video_control_bar_background_color'),
-  $r('sys.color.ohos_id_counter_title_background_color'),
-  $r('sys.color.ohos_id_scroll_bar_background_color'),
-  $r('sys.color.ohos_id_list_background_color'),
-  $r('sys.color.ohos_id_background_secondary'),
-  $r('sys.color.ohos_id_blur_style_background_thin_color'),
-  $r('sys.color.ohos_id_blur_style_background_thin_color_dark'),
-  $r('sys.color.ohos_id_blur_style_background_regular_color'),
-  $r('sys.color.ohos_id_blur_style_background_regular_color_dark'),
-  $r('sys.color.ohos_id_blur_style_background_thick_color'),
-  $r('sys.color.ohos_id_blur_style_background_thick_color_dark'),
-  $r('sys.color.ohos_id_blur_style_background_ultra_thick_color'),
-  $r('sys.color.ohos_id_blur_style_background_ultra_thick_color_dark'),
-  $r('sys.color.ohos_id_color_navigation_background_blur'),
-  $r('sys.color.comp_background_primary'),
-  $r('sys.color.comp_background_primary_contrary'),
-  $r('sys.color.comp_background_gray'),
-  $r('sys.color.comp_background_secondary'),
-  $r('sys.color.comp_background_tertiary'),
-  $r('sys.color.comp_background_emphasize'),
-  $r('sys.color.comp_background_focus'),
-  $r('sys.color.background_primary'),
-  $r('sys.color.background_secondary'),
-  $r('sys.color.background_tertiary'),
-  $r('sys.color.background_fourth'),
-  $r('sys.color.background_emphasize'),
-  $r('sys.color.titlebar_icon_background_color'),
-  $r('sys.color.titlebar_icon_background_hover_color'),
-  $r('sys.color.titlebar_icon_background_pressed_color'),
-  $r('sys.color.titlebar_icon_background_focus_outline_color'),
-  $r('sys.color.comp_background_list_card'),
-  $r('sys.color.container_modal_background'),
-  $r('sys.color.container_modal_unfocus_background'),
-  $r('sys.color.comp_background_warning_secondary'),
-  $r('sys.color.popup_background_color_api_twelve'),
-  $r('sys.color.button_background_color_transparent'),
-  $r('sys.color.sheet_panel_background_color'),
-  $r('sys.color.chip_background_color'),
-  $r('sys.color.picker_background_color'),
-  $r('sys.color.comp_background_primary_contrary_secondary'),
-  $r('sys.color.segment_button_v2_tab_button_background'),
-  $r('sys.color.segment_button_v2_tab_selected_item_background'),
-  $r('sys.color.segment_button_v2_capsule_button_background'),
-  $r('sys.color.segment_button_v2_capsule_selected_item_background'),
-  $r('sys.color.segment_button_v2_multi_capsule_button_background'),
-  $r('sys.color.segment_button_v2_multi_capsule_selected_item_background'),
-  $r('sys.color.arc_scroll_bar_background_color'),
-  $r('sys.color.popup_primary_button_background_color_sys'),
-  $r('sys.color.popup_primary_button_background_color'),
-  $r('sys.color.popup_secondary_button_background_color_sys'),
-  $r('sys.color.popup_secondary_button_background_color'),
-  $r('sys.color.container_modal_special_background'),
-  $r('sys.color.picker_selected_background_color'),
-  $r('sys.color.comp_background_float'),
-]
 
-export const ColorSysBackgroundString: string[] = [
-  'ohos_id_color_background',
-  'ohos_id_color_background_dark',
-  'ohos_id_color_background_transparent',
-  'ohos_id_color_sub_background',
-  'ohos_id_color_sub_background_dark',
-  'ohos_id_color_sub_background_transparent',
-  'ohos_id_color_tooltip_background',
-  'ohos_id_color_tooltip_background_dark',
-  'ohos_id_color_tooltip_background_transparent',
-  'ohos_fa_background_blur',
-  'ohos_fa_background_blur_dark',
-  'ohos_fa_background',
-  'ohos_fa_background_dark',
-  'ohos_fa_sub_background',
-  'ohos_fa_sub_background_dark',
-  'ohos_id_color_calendar_focus_area_background',
-  'ohos_id_color_calendar_blur_area_background',
-  'ohos_id_video_control_bar_background_color',
-  'ohos_id_counter_title_background_color',
-  'ohos_id_scroll_bar_background_color',
-  'ohos_id_list_background_color',
-  'ohos_id_background_secondary',
-  'ohos_id_blur_style_background_thin_color',
-  'ohos_id_blur_style_background_thin_color_dark',
-  'ohos_id_blur_style_background_regular_color',
-  'ohos_id_blur_style_background_regular_color_dark',
-  'ohos_id_blur_style_background_thick_color',
-  'ohos_id_blur_style_background_thick_color_dark',
-  'ohos_id_blur_style_background_ultra_thick_color',
-  'ohos_id_blur_style_background_ultra_thick_color_dark',
-  'ohos_id_color_navigation_background_blur',
-  'comp_background_primary',
-  'comp_background_primary_contrary',
-  'comp_background_gray',
-  'comp_background_secondary',
-  'comp_background_tertiary',
-  'comp_background_emphasize',
-  'comp_background_focus',
-  'background_primary',
-  'background_secondary',
-  'background_tertiary',
-  'background_fourth',
-  'background_emphasize',
-  'titlebar_icon_background_color',
-  'titlebar_icon_background_hover_color',
-  'titlebar_icon_background_pressed_color',
-  'titlebar_icon_background_focus_outline_color',
-  'comp_background_list_card',
-  'container_modal_background',
-  'container_modal_unfocus_background',
-  'comp_background_warning_secondary',
-  'popup_background_color_api_twelve',
-  'button_background_color_transparent',
-  'sheet_panel_background_color',
-  'chip_background_color',
-  'picker_background_color',
-  'comp_background_primary_contrary_secondary',
-  'segment_button_v2_tab_button_background',
-  'segment_button_v2_tab_selected_item_background',
-  'segment_button_v2_capsule_button_background',
-  'segment_button_v2_capsule_selected_item_background',
-  'segment_button_v2_multi_capsule_button_background',
-  'segment_button_v2_multi_capsule_selected_item_background',
-  'arc_scroll_bar_background_color',
-  'popup_primary_button_background_color_sys',
-  'popup_primary_button_background_color',
-  'popup_secondary_button_background_color_sys',
-  'popup_secondary_button_background_color',
-  'container_modal_special_background',
-  'picker_selected_background_color',
-  'comp_background_float',
-]
 /**
  * 完整系统颜色资源字符串
  * 来自SDK的 sysResource.js
@@ -1168,7 +1022,7 @@ export const ColorSysStringArrOriginal: string[] = [
 
 // export const ColorSysString = ColorSysStringArrOriginal.sort();
 
-export function ColorSysStringArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+export function ColorSysStringArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original): string[] {
   switch (mode) {
     case ColorSysStringArrSortOrder.Original:
       return ColorSysStringArrOriginal;
@@ -1184,17 +1038,39 @@ export const ColorSysString = ColorSysStringArr(ColorSysStringArrSortOrder.Origi
 /**
  * 将字符串拼成资源类型
  */
-export const ColorSysResourse: Resource[] =
-  ColorSysString.map((value) => {
+export const ColorSysResourse2: Resource[] = ColorSysString.map((value) => {
   return $r('sys.color.' + value);
 })
+
+export function ColorSysResourse(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original): Resource[] {
+  const res = ColorSysStringArr(mode).map((value) => {
+    return $r('sys.color.' + value);
+  });
+  return res;
+}
+
 /**
- * 将资源类型的id输出
+ * 将资源类型的id输出（对系统资源无效，全是-1）
  */
-export const ColorSysResourseId: number[] =
-  ColorSysResourse.map((value) => {
+export function ColorSysResourseId(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+  const resId = ColorSysResourse(mode).map((value) => {
     return value.id;
-  })
+  });
+  return resId;
+}
+/**
+ * 将资源类型的Params输出（资源名称字符串）
+ * @param mode
+ * @returns
+ */
+export function ColorSysResourseParamsArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+  const resParams = ColorSysResourse(mode).map((value) => {
+    return String(value.params);
+  });
+  // console.info(`[ColorSysResourseId] resParams =  ${resParams}`);
+  return resParams;
+}
+
 /**
  * 获取资源形颜色真实颜色值
  * @param 输入资源名称字符串

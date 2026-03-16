@@ -3,6 +3,7 @@ import { AppStorageV2 } from '@kit.ArkUI';
 import {
   AppInfo, OnListen, ColorArray, ColorType, PasteboardUtil } from '../common/Index';
 import { CustomListItemCardWithTitle2AndSub } from '../components/CustomListItemCardWithTitle2AndSub';
+import { symbolItems } from './Colors';
 
 // const errorText: string = '您当前系统不存在';
 
@@ -46,12 +47,6 @@ struct ColorsDetail {
   // 资源数组的Index
   @Param public resourceIndexNumber: number = -1;
   // @Local private isDarkOrLight: boolean = false;
-
-  @Local private symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
-    { icon: $r('app.media.routine') },
-    { symbol: $r('sys.symbol.sun_max_fill') },
-    { symbol: $r('sys.symbol.moon_fill') }
-  ]);
 
   private outDarkOrLightString(isDark: boolean, colorType: ColorArray): string {
     const darkColor = this.useAppInfo.COLOR_VALUE[1];
@@ -142,7 +137,7 @@ struct ColorsDetail {
   SwitchColorMode() {
     Flex({ direction: FlexDirection.RowReverse }) {
       TabSegmentButtonV2({
-        items: this.symbolItems,
+        items: symbolItems,
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
         onItemClicked: async (index: number) => {
           this.useAppInfo.switchColorModeIndexManager(index);
