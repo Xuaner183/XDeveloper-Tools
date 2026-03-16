@@ -152,7 +152,7 @@ export const ColorSysBackgroundString: string[] = [
  * 完整系统颜色资源字符串
  * 来自SDK的 sysResource.js
  */
-export const ColorSysString: string[] = [
+export const ColorSysStringOriginal: string[] = [
   'ohos_id_color_foreground',
   'ohos_id_color_foreground_dark',
   'ohos_id_color_foreground_transparent',
@@ -1160,6 +1160,8 @@ export const ColorSysString: string[] = [
   'checkbox_hover_border_color',
   'checkbox_click_effect_color'
 ]
+
+export const ColorSysString = ColorSysStringOriginal.sort();
 
 /**
  * 将字符串拼成资源类型
