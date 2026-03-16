@@ -1,10 +1,10 @@
 import { AppInfo, PreferencesControl, ClientGlobalPrefKeys } from '../common/Index'
-import { AppStorageV2 } from '@kit.ArkUI';
+import { AppStorageV2, LengthMetrics } from '@kit.ArkUI';
 import { bundleManager } from '@kit.AbilityKit';
 import lazy { LikeBuilder } from './Like';
 import { PrivacyPolicyDialog } from './PrivacyPolicyDialog';
 import { common } from "@kit.AbilityKit";
-import { ListTitle1, ListBox } from './Setting';
+import { ListTitle1, ListBox, cardMaxWidth } from './Setting';
 import { HdsNavigation, HdsNavigationTitleBarOptions } from '@hms.hds.hdsBaseComponent';
 
 export interface NavHomeParm {
@@ -135,16 +135,19 @@ export struct Home {
 
           ListTitle1('系统变量')
           ListItem() {
-            ListBox() {
+            ListBox({
+              cardBorderRadius: 19.6
+            }) {
               Column() {
-                Image($r('app.media.color2'))
+                Image($r('app.media.color3'))
                   .objectFit(ImageFit.Cover)
                   .draggable(false)
-                  .borderRadius(11)
+                  .borderRadius(19)
               }
-              .height(200)
+              .height('auto')
               .width('100%')
               .margin({ top: 8 })
+              .clip(true)
 
               Row() {
                 Text('颜色')
@@ -185,6 +188,7 @@ export struct Home {
             }
           })
           .shadow(ShadowStyle.OUTER_DEFAULT_SM)
+          .borderRadius(22)
 
           ListItem() {
             Column() {

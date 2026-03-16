@@ -15,6 +15,18 @@
     {
       "name": "modal_card_background",
       "value": "#fff"
+    },
+    {
+      "name": "stateStyles_focused",
+      "value": "#0CE3E3E3"
+    },
+    {
+      "name": "stateStyles_clicked",
+      "value": "#27E3E3E3"
+    },
+    {
+      "name": "stateStyles_normal",
+      "value": "#00000000"
     }
   ]
 }

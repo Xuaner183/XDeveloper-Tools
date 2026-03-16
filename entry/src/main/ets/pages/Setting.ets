@@ -50,20 +50,21 @@ function listItemText2() {
 @Styles function HighLightStyle() {
   .stateStyles({
     normal: {
-      .colorBlend(Color.Transparent)
+      .backgroundColor($r('app.color.stateStyles_normal'))
       .grayscale(0.0)
     },
     focused: {
-      .colorBlend('#16aeaeae')
+      .backgroundColor($r('app.color.stateStyles_focused'))
       .grayscale(0.1)
     },
     clicked: {
-      .colorBlend('#20aeaeae')
+      .backgroundColor($r('app.color.stateStyles_clicked'))
       .grayscale(0.1)
     }
   })
   .animation({
-    duration: 300
+    duration: 400,
+    curve: Curve.Smooth
   })
 }
 
@@ -85,6 +86,7 @@ function listItemText2() {
 
 @ComponentV2
 export struct ListBox {
+  @Param public cardBorderRadius: Length = 13;
 
   @Builder someListItem() {}
   @BuilderParam myListItem: () => void = this.someListItem;
@@ -97,7 +99,7 @@ export struct ListBox {
     .width('100%')
     .constraintSize({ maxWidth: cardMaxWidth })
     .padding({ left: 8, right: 8 })
-    .borderRadius(13)
+    .borderRadius(this.cardBorderRadius)
     .HighLightStyle()
     .clip(true)
   }
