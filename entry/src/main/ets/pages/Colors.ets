@@ -624,7 +624,7 @@ struct Colors {
                     String((ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params)) + 1)),
                     ColorSysString[obj.index],
                     obj.index,
-                    ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params)) + 1
+                    ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params))
                   )
                 })
                 .virtualScroll({
