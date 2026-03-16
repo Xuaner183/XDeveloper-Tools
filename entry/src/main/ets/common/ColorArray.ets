@@ -1,5 +1,10 @@
 import { ColorMetrics } from '@kit.ArkUI';
 
+export enum ColorSysStringArrSortOrder {
+  Original,
+  ShengXu,
+  DaoXu
+}
 
 export const ColorResourseBackgroundArray: Resource[] = [
   $r('sys.color.ohos_id_color_background'),
@@ -152,7 +157,7 @@ export const ColorSysBackgroundString: string[] = [
  * 完整系统颜色资源字符串
  * 来自SDK的 sysResource.js
  */
-export const ColorSysStringOriginal: string[] = [
+export const ColorSysStringArrOriginal: string[] = [
   'ohos_id_color_foreground',
   'ohos_id_color_foreground_dark',
   'ohos_id_color_foreground_transparent',
@@ -1161,7 +1166,20 @@ export const ColorSysStringOriginal: string[] = [
   'checkbox_click_effect_color'
 ]
 
-export const ColorSysString = ColorSysStringOriginal.sort();
+// export const ColorSysString = ColorSysStringArrOriginal.sort();
+
+export function ColorSysStringArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+  switch (mode) {
+    case ColorSysStringArrSortOrder.Original:
+      return ColorSysStringArrOriginal;
+    case ColorSysStringArrSortOrder.ShengXu:
+      return ColorSysStringArrOriginal.sort();
+    case ColorSysStringArrSortOrder.DaoXu:
+      return ColorSysStringArrOriginal.sort().reverse();
+  }
+}
+
+export const ColorSysString = ColorSysStringArr(ColorSysStringArrSortOrder.Original);
 
 /**
  * 将字符串拼成资源类型
