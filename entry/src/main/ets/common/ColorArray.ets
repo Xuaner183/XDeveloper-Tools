@@ -1092,7 +1092,7 @@ export const colorSysStringObj: ColorSortObj<string[]> = {
 }
 
 /**
- * 将字符串拼成资源类型
+ * 将颜色资源名字符串数组拼成资源数组
  */
 export function colorSysResourceArr(mode: ColorSysStringSortMode = ColorSysStringSortMode.Original): Resource[] {
   const v = ColorArrayUtils.categoryJudgmentColorSysStringSortMode(
