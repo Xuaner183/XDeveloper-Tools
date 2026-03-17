@@ -319,6 +319,7 @@ struct Colors {
       case MatchingMode.Aarrggbb:
         matchingResourceName(COLOR_VALUE[0][ColorArray.AarrggbbArray]);
         matchingResourceName(COLOR_VALUE[0][ColorArray.AarrggbbArray]);
+        break;
       case MatchingMode.Cmyk:
         matchingResourceName(COLOR_VALUE[0][ColorArray.CmykArray]);
         matchingResourceName(COLOR_VALUE[1][ColorArray.CmykArray]);
