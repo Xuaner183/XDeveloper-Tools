@@ -1,15 +1,15 @@
 import { ColorMetrics } from '@kit.ArkUI';
 
-export enum ColorSysStringArrSortOrder {
+export enum ColorSysStringSortMode {
   Original,
   ShengXu,
   DaoXu
 }
 
 interface ColorSortObj<T> {
-  origin: T[],
-  daoxu: T[],
-  shenxu: T[]
+  origin: T,
+  shenxu: T,
+  daoxu: T
 }
 
 
@@ -1026,6 +1026,9 @@ export const ColorSysStringArrOriginal: string[] = [
   'checkbox_click_effect_color'
 ]
 
+/**
+ * 颜色数组相关工具
+ */
 export class ColorArrayUtils {
   /**
    * 将字符串数组转换成系统颜色资源
@@ -1038,6 +1041,25 @@ export class ColorArrayUtils {
     })
     return result;
   }
+  /**
+   * 判断颜色排序模式做对应回调
+   * @param mode
+   * @param obj
+   * @returns
+   */
+  public static categoryJudgmentColorSysStringSortMode<T>(
+    mode: ColorSysStringSortMode, doSomethingObj: ColorSortObj<T>
+  ): T {
+    switch (mode) {
+      case ColorSysStringSortMode.Original:
+        return doSomethingObj.origin;
+      case ColorSysStringSortMode.DaoXu:
+        return doSomethingObj.daoxu;
+      case ColorSysStringSortMode.ShengXu:
+        return doSomethingObj.shenxu;
+    }
+  }
+
 }
 
 /**
@@ -1045,58 +1067,60 @@ export class ColorArrayUtils {
  * @param mode
  * @returns
  */
-export function ColorSysStringArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original): string[] {
-  switch (mode) {
-    case ColorSysStringArrSortOrder.Original:
-      return ColorSysStringArrOriginal;
-    case ColorSysStringArrSortOrder.ShengXu:
-      return ColorSysStringArrOriginal.sort();
-    case ColorSysStringArrSortOrder.DaoXu:
-      return ColorSysStringArrOriginal.sort().reverse();
-  }
+export function ColorSysStringArr(mode: ColorSysStringSortMode = ColorSysStringSortMode.Original): string[] {
+  const v = ColorArrayUtils.categoryJudgmentColorSysStringSortMode(
+    mode,
+    {
+      origin: [...ColorSysStringArrOriginal],
+      shenxu: [...ColorSysStringArrOriginal].sort(),
+      daoxu: [...ColorSysStringArrOriginal].sort().reverse()
+    }
+  )
+  return v;
 }
 
-export const ColorSysString = ColorSysStringArr(ColorSysStringArrSortOrder.Original);
+export const ColorSysString = ColorSysStringArr(ColorSysStringSortMode.Original);
 
 
 /**
  * 不同排列顺序的颜色字符串对象
  */
-export const colorSysStringObj: ColorSortObj<string> = {
-  origin: ColorSysStringArr(ColorSysStringArrSortOrder.Original),
-  shenxu: ColorSysStringArr(ColorSysStringArrSortOrder.ShengXu),
-  daoxu: ColorSysStringArr(ColorSysStringArrSortOrder.DaoXu)
+export const colorSysStringObj: ColorSortObj<string[]> = {
+  origin: ColorSysStringArr(ColorSysStringSortMode.Original),
+  shenxu: ColorSysStringArr(ColorSysStringSortMode.ShengXu),
+  daoxu: ColorSysStringArr(ColorSysStringSortMode.DaoXu)
 }
 
 /**
  * 将字符串拼成资源类型
  */
-export function colorSysResourceArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original): Resource[] {
-  switch (mode) {
-    case ColorSysStringArrSortOrder.Original:
-      return ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.origin);
-    case ColorSysStringArrSortOrder.DaoXu:
-      return ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.daoxu);
-    case ColorSysStringArrSortOrder.ShengXu:
-      return ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.shenxu);
-  }
+export function colorSysResourceArr(mode: ColorSysStringSortMode = ColorSysStringSortMode.Original): Resource[] {
+  const v = ColorArrayUtils.categoryJudgmentColorSysStringSortMode(
+    mode,
+    {
+      origin: ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.origin),
+      shenxu: ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.daoxu),
+      daoxu: ColorArrayUtils.stringArrToResourceArr(colorSysStringObj.shenxu)
+    }
+  )
+  return v;
 }
 export const ColorSysResource = colorSysResourceArr;
 
 /**
  * 不同排列顺序的颜色资源对象
  */
-export const colorSysResourceObj: ColorSortObj<Resource> = {
-  origin: colorSysResourceArr(ColorSysStringArrSortOrder.Original),
-  shenxu: colorSysResourceArr(ColorSysStringArrSortOrder.ShengXu),
-  daoxu: colorSysResourceArr(ColorSysStringArrSortOrder.DaoXu),
+export const colorSysResourceObj: ColorSortObj<Resource[]> = {
+  origin: colorSysResourceArr(ColorSysStringSortMode.Original),
+  shenxu: colorSysResourceArr(ColorSysStringSortMode.ShengXu),
+  daoxu: colorSysResourceArr(ColorSysStringSortMode.DaoXu),
 }
 
 
 /**
  * 将资源类型的id输出（对系统资源无效，全是-1）
  */
-export function ColorSysResourceId(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+export function ColorSysResourceId(mode: ColorSysStringSortMode = ColorSysStringSortMode.Original) {
   const resId = ColorSysResource(mode).map((value) => {
     return value.id;
   });
@@ -1107,7 +1131,7 @@ export function ColorSysResourceId(mode: ColorSysStringArrSortOrder = ColorSysSt
  * @param mode
  * @returns
  */
-export function ColorSysResourceParamsArr(mode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original) {
+export function ColorSysResourceParamsArr(mode: ColorSysStringSortMode = ColorSysStringSortMode.Original) {
   const resParams = ColorSysResource(mode).map((value) => {
     return String(value.params);
   });
