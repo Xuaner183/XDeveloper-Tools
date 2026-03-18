@@ -1,7 +1,8 @@
 import { ColorSysResource, ColorSysString, AppInfo, OnListen, ColorType, ColorArray,
   ColorSysStringSortMode,
   ColorSysStringArr,
-  ColorSysStringArrOriginal} from '../common/Index';
+  ColorSysStringArrOriginal,
+  StringUtils} from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2, LengthUnit, Binding, UIUtils } from '@kit.ArkUI';
@@ -81,9 +82,12 @@ function TextStyle() {
   })
   .fontWeight(FontWeight.Bold)
   .lineBreakStrategy(LineBreakStrategy.BALANCED)
-  .maxFontScale(4)
-  .minFontScale(1)
-  .heightAdaptivePolicy(TextHeightAdaptivePolicy.MIN_FONT_SIZE_FIRST)
+  .minFontSize(4)
+  .maxFontSize(18)
+  .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
+  .textOverflow({ overflow: TextOverflow.Ellipsis })
+  .wordBreak(WordBreak.NORMAL)
+  .textAlign(TextAlign.Center)
 }
 
 @Builder
@@ -405,7 +409,7 @@ struct Colors {
   @Builder
   TextOverlay(
     resourceIndexString: string | Resource | undefined = undefined,
-    resourceName: string | undefined = undefined,
+    resourceName: string = '',
   ) {
     Column() {
       Column() {
@@ -415,6 +419,7 @@ struct Colors {
             .constraintSize({ minWidth: 30, minHeight: 30 })
             .fontWeight(FontWeight.Bold)
             .shadow(ShadowStyle.OUTER_DEFAULT_XS)
+            .maxFontScale(1)
         }
         .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
         .alignSelf(ItemAlign.Start)
@@ -424,10 +429,16 @@ struct Colors {
       }
       .width('100%')
       Column() {
-        Text(resourceName)
+        Text(StringUtils.addZeroWidthSpaceToString(resourceName))
           .TextStyle()
-          .zIndex(8)
+          .width('auto')
+          .height(LayoutPolicy.matchParent)
+          .baselineOffset(8)
       }
+      .width('100%')
+      .alignItems(HorizontalAlign.Center)
+      .justifyContent(FlexAlign.Start)
+      .flexGrow(3)
     }
     .padding(4)
     .width('100%').height('100%')
@@ -598,6 +609,7 @@ struct Colors {
         symbolStartIcon: this.paiLieFangShiIcon,
         content: '排列方式',
         builder: () => this.PaiLieMenu(),
+        symbolEndIcon: this.rightArrowIcon
       })
       MenuItem({
         symbolStartIcon: this.saveIcon,
@@ -607,8 +619,6 @@ struct Colors {
           this.outColorJson();
         })
     }
-    .subMenuExpandSymbol(this.rightArrowIcon)
-    .subMenuExpandingMode(SubMenuExpandingMode.STACK_EXPAND)
   }
 
   @Builder PaiLieMenu() {
@@ -872,26 +882,35 @@ struct Colors {
           Repeat(this.leiBieStringArr)
             .each((obj) => {
               GridItem() {
-                Button(obj.item, {
-                  buttonStyle: ButtonStyleMode.TEXTUAL,
-                  type: ButtonType.Normal
-                })
-                  .borderRadius(8)
-                  .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
-                  .onClick(() => {
-                    this.matchingMode = obj.index;
+                Column() {
+                  Button(obj.item, {
+                    buttonStyle: ButtonStyleMode.TEXTUAL,
+                    type: ButtonType.Normal
                   })
-                  .buttonStyle(this.matchingMode === obj.index ? ButtonStyleMode.NORMAL : ButtonStyleMode.TEXTUAL)
-                  .stateEffect(false)
-                  .width(LayoutPolicy.matchParent)
+                    .borderRadius(8)
+                    .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
+                    .onClick(() => {
+                      this.matchingMode = obj.index;
+                    })
+                    .buttonStyle(this.matchingMode === obj.index ? ButtonStyleMode.NORMAL : ButtonStyleMode.TEXTUAL)
+                    .stateEffect(false)
+                    .flexGrow(8)
+                    .width(LayoutPolicy.matchParent)
+                    .height(LayoutPolicy.matchParent)
+                }
+                .width(LayoutPolicy.matchParent)
+                .height(LayoutPolicy.wrapContent)
+                .constraintSize({ minWidth: String(16*5) + 'fp', minHeight: String(16*3) + 'fp' })
+                .margin({ bottom: 4 })
               }
-              .width(LayoutPolicy.matchParent)
             })
+            .key((item) => String(item))
         }
         .width('auto')
+        .constraintSize({ minHeight: 200 })
         .columnsTemplate('repeat(auto-fit, 110)')
         .columnsGap(8)
-        .rowsGap(4)
+        // .backgroundColor(Color.Green)
       }
       .justifyContent(FlexAlign.Center)
     }

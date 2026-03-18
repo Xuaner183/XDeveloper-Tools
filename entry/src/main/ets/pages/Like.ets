@@ -96,9 +96,13 @@ export struct Like {
                   Image($r('app.media.wechatpay_qrcode'))
                     .width('50%')
                     .bindContextMenu(this.ImageMenu($r('app.media.wechatpay_qrcode')),
+                      ResponseType.RightClick)
+                    .bindContextMenu(this.ImageMenu($r('app.media.wechatpay_qrcode')),
                       ResponseType.LongPress)
                   Image($r('app.media.alipay_qrcode'))
                     .width('50%')
+                    .bindContextMenu(this.ImageMenu($r('app.media.alipay_qrcode')),
+                      ResponseType.RightClick)
                     .bindContextMenu(this.ImageMenu($r('app.media.alipay_qrcode')),
                       ResponseType.LongPress)
                 }

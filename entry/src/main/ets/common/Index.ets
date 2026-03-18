@@ -10,3 +10,4 @@ export { CurrentModeData } from '../myabilitystage/MyAbilityStage';
 export { OnListen } from './OnListen';
 export { ColorUtils } from './ColorUtils';
 export { PasteboardUtil } from './PasteboardUtil';
+export { StringUtils } from './StringUtils';

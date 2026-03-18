@@ -1,7 +1,7 @@
-import { TabSegmentButtonV2, SegmentButtonV2Items } from '@kit.ArkUI';
+import { TabSegmentButtonV2 } from '@kit.ArkUI';
 import { AppStorageV2 } from '@kit.ArkUI';
 import {
-  AppInfo, OnListen, ColorArray, ColorType, PasteboardUtil } from '../common/Index';
+  AppInfo, OnListen, ColorArray, PasteboardUtil, StringUtils } from '../common/Index';
 import { CustomListItemCardWithTitle2AndSub } from '../components/CustomListItemCardWithTitle2AndSub';
 import { symbolItems } from './Colors';
 
@@ -15,9 +15,12 @@ function TextStyle() {
   })
   .fontWeight(FontWeight.Bold)
   .lineBreakStrategy(LineBreakStrategy.BALANCED)
-  .maxFontScale(4)
-  .minFontScale(1)
-  .heightAdaptivePolicy(TextHeightAdaptivePolicy.MIN_FONT_SIZE_FIRST)
+  .minFontSize(4)
+  .maxFontSize(18)
+  .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
+  .textOverflow({ overflow: TextOverflow.Ellipsis })
+  .wordBreak(WordBreak.NORMAL)
+  .textAlign(TextAlign.Center)
 }
 
 @Builder export function ColorsDetailBuilder(
@@ -94,16 +97,20 @@ struct ColorsDetail {
   @Builder
   TextOverlay(
     resourceIndexString: string | Resource | undefined = undefined,
-    resourceName: string | Resource | undefined = undefined
+    resourceName: string = '',
   ) {
     Stack() {
       Column() {
         Row() {
-          Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: false, controlSize: ControlSize.SMALL })
+          Button(resourceIndexString, { type: ButtonType.Capsule, stateEffect: true, controlSize: ControlSize.SMALL })
             .backgroundColor('#fffd2872')
             .constraintSize({ minWidth: 30, minHeight: 30 })
             .fontWeight(FontWeight.Bold)
             .shadow(ShadowStyle.OUTER_DEFAULT_XS)
+            .maxFontScale(1)
+            .onClick(() => {
+              this.copy(String(resourceIndexString))
+            })
         }
         .justifyContent(FlexAlign.Center).alignItems(VerticalAlign.Center)
         .alignSelf(ItemAlign.Start)
@@ -112,25 +119,42 @@ struct ColorsDetail {
           .flexShrink(8)
       }
       .width('100%')
+      .height('100%')
       Column() {
-        Text(resourceName)
+        Text(StringUtils.addZeroWidthSpaceToString(resourceName))
           .TextStyle()
-          .zIndex(8)
+          .width('auto')
+          .height('auto')
+          .baselineOffset(8)
+          .stateStyles({
+            normal: {
+              .backgroundColor(Color.Transparent)
+              .grayscale(0)
+            },
+            focused: {
+              .backgroundColor('#36888888')
+              .grayscale(0.4)
+            },
+            clicked: {
+              .backgroundColor('#36888888')
+              .grayscale(0.5)
+            }
+          })
+          .padding(4)
+          .borderRadius(4)
+          .onClick(() => {
+            this.copy(resourceName)
+          })
       }
       .width('100%')
       .height('100%')
-      .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
-      Column()
-        .width('100%').height(4)
+      .alignItems(HorizontalAlign.Center)
+      .justifyContent(FlexAlign.Center)
+      .flexGrow(3)
+      .hitTestBehavior(HitTestMode.None)
     }
     .padding(4)
     .width('100%').height('100%')
-    // .justifyContent(FlexAlign.SpaceBetween)
-    // .alignItems(HorizontalAlign.Center)
-    .alignContent(Alignment.Start)
-    .onClick(() => {
-      resourceName && this.copy(resourceName.toString())
-    })
   }
 
   @Builder
@@ -175,7 +199,7 @@ struct ColorsDetail {
           Column()
             .height(40)
 
-          Column() {
+          Stack() {
             Column() {
               Rect({ width: '100%', height: '100%' })
                 .fill(this.chunkColor)
@@ -187,11 +211,13 @@ struct ColorsDetail {
               repeat: ImageRepeat.XY
             })
             .backgroundImagePosition(Alignment.Center)
-            .overlay(this.TextOverlay(this.resourceIndexString, this.resourceColorName))
-            .width('100%')
-            .height(120)
+            Column() {
+              this.TextOverlay(this.resourceIndexString, this.resourceColorName)
+            }
           }
           .padding({ left: 12, right: 12 })
+          .width('100%')
+          .height(120)
 
           Column().height(24)
 
