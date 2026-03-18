@@ -1,9 +1,13 @@
-import { ColorSysResourse, ColorSysString, AppInfo, OnListen, ColorType, ColorArray,
-  ColorSysStringArrSortOrder,
-  ColorSysResourseParamsArr} from '../common/Index';
+import { ColorSysResource, ColorSysString, AppInfo, OnListen, ColorType, ColorArray,
+  ColorSysStringSortMode,
+  ColorSysResourceParamsArr,
+  colorSysResourceArr,
+  ColorSysStringArr,
+  ColorArrayUtils,
+  ColorSysStringArrOriginal} from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier, LengthMetrics } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
-import { AppStorageV2, LengthUnit } from '@kit.ArkUI';
+import { AppStorageV2, LengthUnit, Binding, UIUtils } from '@kit.ArkUI';
 import lazy { ColorsDetailBuilder } from './ColorsDetail';
 import { picker } from '@kit.CoreFileKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
@@ -71,7 +75,7 @@ export const symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
   { symbol: $r('sys.symbol.moon_fill') }
 ]);
 
-const ColorSysResourseParamOriginalMode = ColorSysResourseParamsArr(ColorSysStringArrSortOrder.Original);
+const ColorSysResourceParamOriginalMode = ColorSysResourceParamsArr(ColorSysStringSortMode.Original);
 
 @Extend(Text)
 function TextStyle() {
@@ -89,6 +93,50 @@ function TextStyle() {
 @Builder
 export function ColorsBuilder() {
   Colors();
+}
+
+class ListItemColorChunkParam {
+  public height: Length = 100;
+  public width: Length = '100%';
+  public colorName: string = '';
+  public forIndex: number = 0;
+  private _colorRes: ResourceStr = '';
+  private _colorOriginArrIndex: number = 0;
+  private _colorOriginArrIndexPlusOne: string = '';
+  public get colorRes(): ResourceStr {
+    this._colorRes = $r('sys.color.' + this.colorName);
+    return this._colorRes;
+  }
+  public get colorOriginArrIndex(): number {
+    this._colorOriginArrIndex = ColorSysStringArrOriginal.indexOf(this.colorName);
+    return this._colorOriginArrIndex;
+  }
+  public get colorOriginArrIndexPlusOne(): string {
+    this._colorOriginArrIndexPlusOne = String(this.colorOriginArrIndex + 1);
+    return this._colorOriginArrIndexPlusOne;
+  }
+
+  constructor(height: Length, width: Length, colorName: string, forIndex: number) {
+    this.height = height;
+    this.width = width;
+    this.colorName = colorName;
+    this.forIndex = forIndex;
+  }
+}
+
+class ListItemColorChunkParam2 {
+  public height: Length = 100;
+  public width: Length = '100%';
+  public repeatItem: RepeatItem<number> = {
+    item: 0,
+    index: -1
+  };
+
+  constructor(height: Length, width: Length, repeatItem: RepeatItem<number>) {
+    this.height = height;
+    this.width = width;
+    this.repeatItem = repeatItem;
+  }
 }
 
 
@@ -154,7 +202,7 @@ struct Colors {
     }
   }
 
-  @Local private paiLieMode: ColorSysStringArrSortOrder = ColorSysStringArrSortOrder.Original;
+  @Local private paiLieMode: ColorSysStringSortMode = ColorSysStringSortMode.Original;
 
   private getContext(): common.UIAbilityContext {
     return this.getUIContext().getHostContext() as common.UIAbilityContext
@@ -283,19 +331,19 @@ struct Colors {
    */
   private searchItemInIndex(keyWord: string, mode: MatchingMode): number[] | undefined {
     if (!keyWord) { return }
-    console.info(`[Search] 匹配模式: ${mode}`);
-    console.info(`[Search] 匹配keyWord: ${keyWord}`)
+    // console.info(`[Search] 匹配模式: ${mode}`);
+    // console.info(`[Search] 匹配keyWord: ${keyWord}`)
     const COLOR_VALUE = this.useAppInfo.COLOR_VALUE;
     // 将关键词全转小写
     const value: string = keyWord.toLowerCase();
-    const resultIndex: number[] = [];
-    console.info(`[Search] 小写keyWord: ${value}`)
+    const resultIndex = new Set<number>();
+    // console.info(`[Search] 小写keyWord: ${value}`)
 
     const matchingResourceName = (arr: Array<string>) => {
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].toLowerCase().includes(value)) {
-          console.info(`[Search] 匹配到 ${arr[i]}`)
-          resultIndex.push(i);
+          // console.info(`[Search] 匹配到 ${arr[i]}`)
+          resultIndex.add(i);
         }
       }
     }
@@ -335,8 +383,8 @@ struct Colors {
     }
 
     // console.log(`[Colors] 搜索未去重数组: ${resultIndex}`);
-    const quChongResultIndex: number[] = Array.from(new Set(resultIndex)).sort((a, b) => a - b);
-    console.log(`[Search] 搜索已去重数组: ${quChongResultIndex}`);
+    const quChongResultIndex: number[] = Array.from(resultIndex).sort((a, b) => a - b);
+    // console.log(`[Search] 搜索已排序数组: ${quChongResultIndex}`);
     return quChongResultIndex;
   }
 
@@ -345,7 +393,7 @@ struct Colors {
    * @returns
    */
   private outListLanes(): number {
-    console.info('触发列数调整')
+    console.info('[Colors] outListLanes 触发列数调整');
     // 第一个区间：宽度 <= 320，返回 1
     if (this.windowWith <= 320) {
       return 1;
@@ -418,18 +466,14 @@ struct Colors {
     .padding({ right: 16, left: 16 })
   }
 
-
+  /**
+   * 遍历显示色块
+   * @param height
+   * @param width
+   * @param repeatItem
+   */
   @LocalBuilder
-  ListItemColorChunk(
-    height: Length,
-    width: Length,
-    chunkColor: ResourceColor,
-    resourceIndexString: string | Resource = '-1',
-    resourceColorName: string | undefined = undefined,
-    zIndex: number = 1,
-    index: number,
-    isSearchPage: boolean = false
-  ) {
+  ListItemColorChunk(param: Binding<ListItemColorChunkParam>) {
     ListItem() {
       Flex({
         direction: FlexDirection.Column,
@@ -437,19 +481,24 @@ struct Colors {
         alignItems: ItemAlign.Center
       }) {
         Rect({ width: '100%', height: '100%' })
-          .fill(chunkColor)
+          .fill(param.value.colorRes)
           .radius(14.4)
       }
-      .height(height)
-      .width(width)
-      .zIndex(zIndex)
+      .height(param.value.height)
+      .width(param.value.width)
+      .zIndex(param.value.forIndex)
       .backgroundImage($r('app.media.mosaic'), {
         repeat: ImageRepeat.XY
       })
       .backgroundImagePosition(Alignment.Center)
       .borderRadius(16)
       .shadow(ShadowStyle.OUTER_DEFAULT_MD)
-      .overlay(this.TextOverlay(resourceIndexString, resourceColorName))
+      .overlay(this.TextOverlay(
+        // 原始排序数组Index+1后的序号
+        param.value.colorOriginArrIndexPlusOne,
+        // 显示资源名
+        param.value.colorName
+      ))
 
     }
     .width('100%')
@@ -457,16 +506,20 @@ struct Colors {
     .clickEffect({ level: ClickEffectLevel.LIGHT })
     .padding({ top: 8, bottom: 8 })
     .onClick(() => {
-      this.useAppInfo.modalOpen[index] = true;
+      this.useAppInfo.modalOpen[param.value.colorOriginArrIndex] = true;
       // console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
     })
     .bindSheet(
-      isSearchPage ? this.useAppInfo.searchPageModalOpen[index]!! : this.useAppInfo.modalOpen[index]!!,
+      this.useAppInfo.modalOpen[param.value.colorOriginArrIndex]!!,
       ColorsDetailBuilder(
-        chunkColor,
-        resourceIndexString,
-        resourceColorName ? resourceColorName : '' ,
-        index
+        // 色块颜色值
+        param.value.colorRes,
+        // 原始排序数组Index+1后的序号
+        param.value.colorOriginArrIndexPlusOne,
+        // 显示资源名
+        param.value.colorName,
+        // 原始排序数组Index
+        param.value.colorOriginArrIndex
       ),
       {
         title: { title: '颜色详细' },
@@ -477,6 +530,62 @@ struct Colors {
       }
     )
 
+  }
+
+  /**
+   * 搜索页遍历显示色块
+   * @param height
+   * @param width
+   * @param repeatItem
+   */
+  @LocalBuilder
+  ListItemColorChunk2(param: Binding<ListItemColorChunkParam2>) {
+    ListItem() {
+      Flex({
+        direction: FlexDirection.Column,
+        justifyContent: FlexAlign.SpaceEvenly,
+        alignItems: ItemAlign.Center
+      }) {
+        Rect({ width: '100%', height: '100%' })
+          .fill(ColorSysResource()[param.value.repeatItem.item])
+          .radius(14.4)
+      }
+      .height(100)
+      .width('100%')
+      .zIndex(param.value.repeatItem.index)
+      .backgroundImage($r('app.media.mosaic'), {
+        repeat: ImageRepeat.XY
+      })
+      .backgroundImagePosition(Alignment.Center)
+      .borderRadius(16)
+      .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+      .overlay(this.TextOverlay(String(param.value.repeatItem.item + 1), ColorSysString[param.value.repeatItem.item]))
+
+    }
+    .width('100%')
+    .height('auto')
+    .clickEffect({ level: ClickEffectLevel.LIGHT })
+    .padding({ top: 8, bottom: 8 })
+    .onClick(() => {
+      this.useAppInfo.searchPageModalOpen[param.value.repeatItem.item] = true;
+      // console.info(`[Colors] 点击了 ${index}: ${this.useAppInfo.modalOpen[index]}`)
+    })
+    .bindSheet(
+      this.useAppInfo.searchPageModalOpen[param.value.repeatItem.item]!!,
+      ColorsDetailBuilder(
+        ColorSysResource()[param.value.repeatItem.item],
+        String(param.value.repeatItem.item + 1),
+        ColorSysString[param.value.repeatItem.item],
+        param.value.repeatItem.item
+      ),
+      {
+        title: { title: '颜色详细' },
+        dragBar: true,
+        height: SheetSize.MEDIUM,
+        detents: [SheetSize.MEDIUM, SheetSize.LARGE],
+        enableOutsideInteractive: false
+      }
+    )
   }
 
   private readonly paiLieFangShiIcon = new SymbolGlyphModifier($r('sys.symbol.text_and_arrow_up_and_down'));
@@ -511,29 +620,29 @@ struct Colors {
         symbolStartIcon: this.yuanShiIcon,
         content: '原始'
       })
-        .selected(this.paiLieMode === ColorSysStringArrSortOrder.Original)
+        .selected(this.paiLieMode === ColorSysStringSortMode.Original)
         .selectIcon(true)
         .onClick(() => {
-          this.paiLieMode = ColorSysStringArrSortOrder.Original; // TODO: 切换回Original没有任何反应
-          ColorSysResourse(this.paiLieMode)
+          this.paiLieMode = ColorSysStringSortMode.Original;
+          ColorSysResource(this.paiLieMode)
         })
       MenuItem({
         symbolStartIcon: this.shenXuIcon,
         content: '升序'
       })
-        .selected(this.paiLieMode === ColorSysStringArrSortOrder.ShengXu)
+        .selected(this.paiLieMode === ColorSysStringSortMode.ShengXu)
         .selectIcon(true)
         .onClick(() => {
-          this.paiLieMode = ColorSysStringArrSortOrder.ShengXu
+          this.paiLieMode = ColorSysStringSortMode.ShengXu;
         })
       MenuItem({
         symbolStartIcon: this.jiangXuIcon,
         content: '降序'
       })
-        .selected(this.paiLieMode === ColorSysStringArrSortOrder.DaoXu)
+        .selected(this.paiLieMode === ColorSysStringSortMode.DaoXu)
         .selectIcon(true)
         .onClick(() => {
-          this.paiLieMode = ColorSysStringArrSortOrder.DaoXu
+          this.paiLieMode = ColorSysStringSortMode.DaoXu;
         })
     }
   }
@@ -601,6 +710,10 @@ struct Colors {
     .padding({ left: this.titleBarPadding, right: this.titleBarPadding })
   }
 
+  aboutToAppear(): void {
+    this.paiLieMode = ColorSysStringSortMode.Original
+  }
+
 
 
   build() {
@@ -616,20 +729,20 @@ struct Colors {
             // 内容
             ListItemGroup({ footer: this.IsEnd() }) {
               // 批量加载 ListItem
-              Repeat(ColorSysResourse(this.paiLieMode))
-                .each((obj) => {
-                  this.ListItemColorChunk(
+              Repeat(ColorSysStringArr(this.paiLieMode))
+                .each((obj: RepeatItem<string>) => {
+                  this.ListItemColorChunk(UIUtils.makeBinding(() => new ListItemColorChunkParam(
                     100,
                     '100%',
                     obj.item,
-                    String((ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params)) + 1)),
-                    ColorSysString[obj.index],
-                    obj.index,
-                    ColorSysResourseParamOriginalMode.indexOf(String(obj.item.params))
-                  )
+                    obj.index
+                  )))
                 })
                 .virtualScroll({
-                  reusable: false
+                  reusable: true
+                })
+                .key((item: string) => {
+                  return item;
                 })
             }
             .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
@@ -807,15 +920,14 @@ struct Colors {
             // 循环加载搜索结果Index
             if (this.searchResultIndex && this.searchResultIndex.length > 0) {
               Repeat(this.searchResultIndex)
-                .each((obj) => {
-                  this.ListItemColorChunk(100, '100%', ColorSysResourse(ColorSysStringArrSortOrder.Original)[obj.item],
-                    String(obj.item + 1),
-                    ColorSysString[obj.item],
-                    obj.index, obj.item, true);
+                .each((obj: RepeatItem<number>) => {
+                  this.ListItemColorChunk2(UIUtils.makeBinding(() => new ListItemColorChunkParam2(
+                    100,
+                    '100%',
+                    obj
+                  )));
                 })
-                .virtualScroll({
-                  reusable: false
-                })
+                .key((item: number) => ColorSysString[item])
             }
           }
           .padding({ right: this.titleBarPadding, left: this.titleBarPadding })
