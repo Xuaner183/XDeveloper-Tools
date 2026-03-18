@@ -2,6 +2,7 @@ import { AppStorageV2, SegmentButtonV2Items, TabSegmentButtonV2 } from '@kit.Ark
 import { AppInfo } from '../common/Index';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import lazy { AboutBuilder } from './About';
+import { symbolItems } from './Colors';
 
 export const cardMaxWidth: number = 640;
 
@@ -109,18 +110,13 @@ export struct ListBox {
 export struct Setting {
   private mainNavPathStack: NavPathStack = new NavPathStack();
   private useAppInfo: AppInfo = AppStorageV2.connect<AppInfo>(AppInfo, () => new AppInfo(AppInfo.getContext(this)))!;
-  @Local private symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
-    { icon: $r('app.media.routine') },
-    { symbol: $r('sys.symbol.sun_max_fill') },
-    { symbol: $r('sys.symbol.moon_fill') }
-  ]);
   @Local private isModalShow: boolean = false;
 
   @Builder
   SwitchColorMode() {
     Flex({ direction: FlexDirection.RowReverse }) {
       TabSegmentButtonV2({
-        items: this.symbolItems,
+        items: symbolItems,
         selectedIndex: this.useAppInfo.switchColorModeIndex!!,
         onItemClicked: async (index: number) => {
           this.useAppInfo.switchColorModeIndexManager(index);

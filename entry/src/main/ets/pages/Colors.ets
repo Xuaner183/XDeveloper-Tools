@@ -69,7 +69,6 @@ interface PlaceholderObj {
 }
 
 export const symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
-  // { icon: $r('app.media.routine') },
   { symbol: $r('sys.symbol.circle_filled_and_circle') },
   { symbol: $r('sys.symbol.sun_max_fill') },
   { symbol: $r('sys.symbol.moon_fill') }

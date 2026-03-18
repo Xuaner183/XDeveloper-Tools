@@ -14,11 +14,6 @@
       "name": "Setting",
       "pageSourceFile": "src/main/ets/pages/Setting.ets",
       "buildFunction": "SettingBuilder"
-    },
-    {
-      "name": "SearchItem",
-      "pageSourceFile": "src/main/ets/pages/SearchItem.ets",
-      "buildFunction": "SearchItemBuilder"
     }
   ]
 }
