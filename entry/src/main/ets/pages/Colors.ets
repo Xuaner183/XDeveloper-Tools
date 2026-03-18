@@ -1,9 +1,6 @@
 import { ColorSysResource, ColorSysString, AppInfo, OnListen, ColorType, ColorArray,
   ColorSysStringSortMode,
-  ColorSysResourceParamsArr,
-  colorSysResourceArr,
   ColorSysStringArr,
-  ColorArrayUtils,
   ColorSysStringArrOriginal} from '../common/Index';
 import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier, LengthMetrics } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
@@ -74,7 +71,6 @@ export const symbolItems: SegmentButtonV2Items = new SegmentButtonV2Items([
   { symbol: $r('sys.symbol.moon_fill') }
 ]);
 
-const ColorSysResourceParamOriginalMode = ColorSysResourceParamsArr(ColorSysStringSortMode.Original);
 
 @Extend(Text)
 function TextStyle() {
