@@ -2,7 +2,7 @@ import { ColorSysResource, ColorSysString, AppInfo, OnListen, ColorType, ColorAr
   ColorSysStringSortMode,
   ColorSysStringArr,
   ColorSysStringArrOriginal} from '../common/Index';
-import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier, LengthMetrics } from '@kit.ArkUI';
+import { TabSegmentButtonV2, SegmentButtonV2Items, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { AppStorageV2, LengthUnit, Binding, UIUtils } from '@kit.ArkUI';
 import lazy { ColorsDetailBuilder } from './ColorsDetail';
@@ -14,6 +14,7 @@ import {
   HdsNavigationTitleBarOptions,
   HideMode
 } from '@kit.UIDesignKit';
+import { cardMaxWidth } from './Setting';
 
 // 标题栏根据页面宽度设置左右间距
 // 单位vp
@@ -256,9 +257,10 @@ struct Colors {
 
     try {
       const openFile = await fs.open(saveUrl[0], 0o1);
-      fs.write(openFile.fd, JSON.stringify(outAllModeColorObj(), null, '\t')).then((result) => {
+      fs.write(openFile.fd, JSON.stringify(outAllModeColorObj(), null, '\t'))
+        // .then((result) => {
         // console.info(` 写入了 ${result} 字节`);
-      });
+      // });
     } catch (e) {
       this.getUIContext().getPromptAction().showToast({ message: `失败：${(e as BusinessError).message}` })
     }
@@ -830,7 +832,7 @@ struct Colors {
         })
         .geometryTransition('search')
         .transition(TransitionEffect.OPACITY)
-        .onChange((value: string, previewText: PreviewText, options: TextChangeOptions) => {
+        .onChange((value: string) => {
           const indexArr: number[] | undefined = this.searchItemInIndex(value, this.matchingMode);
           this.searchResultIndex = indexArr;
         })
@@ -866,34 +868,37 @@ struct Colors {
         .width('100%')
         .alignItems(HorizontalAlign.Center)
         .padding({ bottom: 8 })
-        Flex({
-          direction: FlexDirection.Row,
-          wrap: FlexWrap.Wrap,
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.SpaceBetween,
-          space: { main: LengthMetrics.vp(6), cross: LengthMetrics.vp(4) }
-        }) {
+        Grid() {
           Repeat(this.leiBieStringArr)
             .each((obj) => {
-              Button(obj.item, {
-                buttonStyle: ButtonStyleMode.TEXTUAL,
-                type: ButtonType.Normal
-              })
-                .borderRadius(8)
-                .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
-                .onClick(() => {
-                  this.matchingMode = obj.index;
+              GridItem() {
+                Button(obj.item, {
+                  buttonStyle: ButtonStyleMode.TEXTUAL,
+                  type: ButtonType.Normal
                 })
-                .buttonStyle(this.matchingMode === obj.index ? ButtonStyleMode.NORMAL : ButtonStyleMode.TEXTUAL)
-                .stateEffect(false)
+                  .borderRadius(8)
+                  .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
+                  .onClick(() => {
+                    this.matchingMode = obj.index;
+                  })
+                  .buttonStyle(this.matchingMode === obj.index ? ButtonStyleMode.NORMAL : ButtonStyleMode.TEXTUAL)
+                  .stateEffect(false)
+                  .width(LayoutPolicy.matchParent)
+              }
+              .width(LayoutPolicy.matchParent)
             })
         }
-        .width('100%')
+        .width('auto')
+        .columnsTemplate('repeat(auto-fit, 110)')
+        .columnsGap(8)
+        .rowsGap(4)
       }
+      .justifyContent(FlexAlign.Center)
     }
     .padding({ top: 56 })
     .width('100%')
     .height('auto')
+    .constraintSize({ maxWidth: cardMaxWidth })
   }
   /**
    * 搜索页主组件

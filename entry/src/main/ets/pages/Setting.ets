@@ -1,4 +1,4 @@
-import { AppStorageV2, SegmentButtonV2Items, TabSegmentButtonV2 } from '@kit.ArkUI';
+import { AppStorageV2, TabSegmentButtonV2 } from '@kit.ArkUI';
 import { AppInfo } from '../common/Index';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import lazy { AboutBuilder } from './About';
@@ -19,26 +19,6 @@ function listItemText1() {
   .fontColor($r('sys.color.ohos_id_color_text_primary'))
   .fontSize($r('sys.float.ohos_id_text_size_body1'))
   .fontWeight(FontWeight.Medium)
-}
-@Extend(Text)
-function listItemText1Important() {
-  .fontColor($r('sys.color.ohos_id_color_warning'))
-  .fontSize($r('sys.float.ohos_id_text_size_body1'))
-  .fontWeight(FontWeight.Medium)
-}
-
-@Extend(Text)
-function listItemText2() {
-  .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-  .fontSize($r('sys.float.ohos_id_text_size_body2'))
-}
-
-@Styles function MyListItemStyle() {
-  .padding({ left: 8, right: 8 })
-    .align(Alignment.Start)
-    .height('auto')
-    .width('100%')
-  // .constraintSize({ maxWidth: 608 })
 }
 
 @Styles function MyListItemStyle2() {
@@ -81,7 +61,7 @@ function listItemText2() {
   }
   .padding({ left: 10, right: 10 })
   .height('auto')
-  .constraintSize({ maxWidth: 640 })
+  .constraintSize({ maxWidth: cardMaxWidth })
   .margin({ left: 14, right: 14, top: 10, bottom: 10 })
 }
 
