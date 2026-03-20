@@ -131,7 +131,7 @@ export class ColorDatabaseManager {
 
       // 提交事务
       await this.rdbStore.commit(affairId);
-      console.log('Color data stored successfully');
+      console.log('[ColorDatabase] 颜色数据存储成功');
 
     } catch (error) {
       // 回滚事务
