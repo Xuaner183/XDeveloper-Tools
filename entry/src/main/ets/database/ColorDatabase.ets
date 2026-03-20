@@ -156,7 +156,7 @@ export class ColorDatabaseManager {
   private async insertColorData(
     theme: ThemeMode,
     colorName: string,
-    colorArray: ColorType.RGBA[][],
+    colorArray: string[][],
     index: number
   ): Promise<void> {
     if (!this.rdbStore) {
@@ -175,7 +175,11 @@ export class ColorDatabaseManager {
       hsv: colorArray[ColorArray.HsvArray][index]
     };
 
-    await this.rdbStore.insert(ColorDatabaseManager.TABLE_NAME, valueBucket);
+    await this.rdbStore.insert(ColorDatabaseManager.TABLE_NAME, valueBucket)
+      .catch((e: BusinessError) => {
+        console.error(`[ColorDatabase] 插入单条数据失败: ${JSON.stringify(e)}`);
+        return Promise.reject(e);
+      });
   }
 
   /**
