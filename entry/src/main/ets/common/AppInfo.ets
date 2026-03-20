@@ -9,12 +9,6 @@ export enum SwitchColorModeIndex {
   Light,
   Dark
 }
-// export enum RGBA {
-//   red,
-//   green,
-//   blue,
-//   alpha
-// }
 
 export enum ColorArray {
   RgbaArray,
@@ -37,6 +31,7 @@ namespace ColorType {
 }
 
 namespace ThemeModeType {
+  export type LIGHT = DARK;
   export type DARK = [
     ColorType.RGBA[],
     ColorType.RRGGBBAA[],
@@ -46,7 +41,6 @@ namespace ThemeModeType {
     ColorType.HSL[],
     ColorType.HSV[]
   ];
-  export type LIGHT = DARK;
 }
 
 export { ColorType, ThemeModeType }

@@ -1,5 +1,5 @@
 import { relationalStore } from '@kit.ArkData';
-import { ColorArray, ColorType } from '../common/Index';
+import { ColorArray, ColorType, ThemeModeType } from '../common/Index';
 import { common } from '@kit.AbilityKit';
 
 enum ThemeMode {
@@ -99,7 +99,7 @@ export class ColorDatabaseManager {
    */
   async storeColorData(
     colorSysStringArrOriginal: string[],
-    colorValue: [ColorType.RGBA[][], ColorType.RGBA[][]]
+    colorValue: [ThemeModeType.LIGHT, ThemeModeType.DARK]
   ): Promise<void> {
     if (!this.isInitialized || !this.rdbStore) {
       throw new Error('颜色数据库未初始化');
