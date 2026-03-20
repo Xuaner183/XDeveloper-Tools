@@ -92,7 +92,7 @@ export class ColorDatabaseManager {
   }
 
   /**
-   * 存储颜色数据
+   * 先清空数据再存储颜色数据
    * @param colorSysStringArrOriginal
    * @param colorValue
    * @returns
