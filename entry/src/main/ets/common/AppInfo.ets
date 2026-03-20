@@ -35,10 +35,21 @@ namespace ColorType {
   export type HSL  = string;
   export type HSV  = string;
 }
-type DARK   = [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
-type LIGHT  = DARK;
 
-export { DARK, LIGHT, ColorType }
+namespace ThemeModeType {
+  export type DARK = [
+    ColorType.RGBA[],
+    ColorType.RRGGBBAA[],
+    ColorType.AARRGGBB[],
+    ColorType.HEX[],
+    ColorType.CMYK[],
+    ColorType.HSL[],
+    ColorType.HSV[]
+  ];
+  export type LIGHT = DARK;
+}
+
+export { ColorType, ThemeModeType }
 
 /**
    // AppStorageV2————应用全局UI状态存储
@@ -67,7 +78,7 @@ export class AppInfo extends UIAbilityContext {
   // 判断Colors页是否需要初始化
   public isLoadDown = false;
   // 所有颜色值字符串数组
-  public COLOR_VALUE: [LIGHT, DARK] = [[[], [], [], [], [], [], []], [[], [], [], [], [], [], []]];
+  public COLOR_VALUE: [ThemeModeType.LIGHT, ThemeModeType.DARK] = [[[], [], [], [], [], [], []], [[], [], [], [], [], [], []]];
   public appName: string = 'unknown';
   public appVersion: string = 'unknown';
   public pushColorsPageTimeId: number = 0;

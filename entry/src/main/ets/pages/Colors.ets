@@ -46,7 +46,7 @@ export interface ColorsDetailRouterParam {
   colorHex?: string;
 }
 
-interface ColorTypeObj {
+export interface ColorTypeObj {
   RGBA: ColorType.RGBA;
   RRGGBBAA: ColorType.RRGGBBAA;
   AARRGGBB: ColorType.AARRGGBB;
