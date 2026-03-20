@@ -36,7 +36,7 @@ namespace ColorType {
   export type HSV  = string;
 }
 type DARK   = [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
-type LIGHT  = [ColorType.RGBA[], ColorType.RRGGBBAA[], ColorType.AARRGGBB[], ColorType.HEX[], ColorType.CMYK[], ColorType.HSL[], ColorType.HSV[]];
+type LIGHT  = DARK;
 
 export { DARK, LIGHT, ColorType }
 
