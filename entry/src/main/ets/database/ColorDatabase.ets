@@ -36,8 +36,11 @@ export interface JsonObj {
   Dark: Record<string, ColorTypeObj>
 }
 
-// 数据库管理器类
+/**
+ * 颜色值数据管理器
+ */
 export class ColorDatabaseManager {
+
   private ctx: common.BaseContext;
 
   constructor(ctx: common.BaseContext) {
