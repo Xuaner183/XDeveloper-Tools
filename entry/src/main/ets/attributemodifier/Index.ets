@@ -1,0 +1,1 @@
+export { TextOverlayStyle } from './TextOverlayStyle';
