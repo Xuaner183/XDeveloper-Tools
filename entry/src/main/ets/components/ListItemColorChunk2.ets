@@ -10,21 +10,18 @@ interface bindSheetOpt {
 }
 
 class ListItemColorChunk2Param {
-  public height: Length = 100;
-  public width: Length = '100%';
-  public repeatItem: RepeatItem<number> = {
-    item: 0,
-    index: -1
-  };
-  public onClick: (event: ClickEvent) => void = () => {}
+  public height: Length;
+  public width: Length;
+  public repeatItem: RepeatItem<number>;
+  public onClick: (event: ClickEvent) => void;
   public bindSheet: bindSheetOpt;
 
   constructor(
-    height: Length = 100,
-    width: Length = '100%',
     repeatItem: RepeatItem<number>,
     binSheet: bindSheetOpt,
-    onClick: (event: ClickEvent) => void = () => {}
+    onClick: (event: ClickEvent) => void = () => {},
+    height: Length = 100,
+    width: Length = '100%'
   ) {
     this.height = height;
     this.width = width;
