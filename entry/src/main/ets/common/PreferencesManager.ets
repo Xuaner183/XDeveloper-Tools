@@ -1,13 +1,19 @@
 import { preferences } from '@kit.ArkData';
 import { UIAbilityContext } from './UIAbilityContext';
 import type { common } from '@kit.AbilityKit';
-import { BusinessError } from '@kit.BasicServicesKit'
+import { BusinessError } from '@kit.BasicServicesKit';
 
-export interface Entries {
+export {
+  Entries,
+  ValueType,
+  PreferencesControl
+}
+
+interface Entries {
   prefName: string, key: string, value: preferences.ValueType
 }
 
-export type ValueType = preferences.ValueType;
+type ValueType = preferences.ValueType;
 
 /**
  *
@@ -17,7 +23,7 @@ export type ValueType = preferences.ValueType;
  *  - 先调用this.setUIAbilityContext获取上下文再操作
  *
  */
-export class PreferencesControl extends UIAbilityContext {
+class PreferencesControl extends UIAbilityContext {
 
   /**
    * 异步获取用户首选项

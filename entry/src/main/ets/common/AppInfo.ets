@@ -3,14 +3,23 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 import { ClientGlobalPrefKeys, PreferencesControl, ColorModeSwitch } from './Index';
 import { emitter } from '@kit.BasicServicesKit';
 import { CurrentModeData } from './Index';
+import { type window } from '@kit.ArkUI';
 
-export enum SwitchColorModeIndex {
+export {
+  SwitchColorModeIndex,
+  ColorArray,
+  ColorType,
+  ThemeModeType,
+  AppInfo,
+}
+
+enum SwitchColorModeIndex {
   Auto,
   Light,
   Dark
 }
 
-export enum ColorArray {
+enum ColorArray {
   RgbaArray,
   RrggbbaaArray,
   AarrggbbArray,
@@ -43,7 +52,6 @@ namespace ThemeModeType {
   ];
 }
 
-export { ColorType, ThemeModeType }
 
 /**
    // AppStorageV2————应用全局UI状态存储
@@ -53,7 +61,7 @@ export { ColorType, ThemeModeType }
  */
 
 @ObservedV2
-export class AppInfo extends UIAbilityContext {
+class AppInfo extends UIAbilityContext {
   private usePreferencesControl = new PreferencesControl(this.uiContext);
   private useColorModeSwitch = new ColorModeSwitch(this.uiContext);
   // 切换颜色模式条的索引0-2
@@ -77,6 +85,11 @@ export class AppInfo extends UIAbilityContext {
   public appVersion: string = 'unknown';
   public pushColorsPageTimeId: number = 0;
   public privacyPolicyUrl: string = 'https://github.com/Xuaner183/XDeveloper-Tools/blob/main/PRIVACY.md';
+  // 窗口大小
+  @Trace public windowSize: window.Size = {
+    width: -1,
+    height: -1
+  }
 
 
   /**

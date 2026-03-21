@@ -1,6 +1,10 @@
 export * from './ColorArray';
 export { ColorsCommon, ColorsPageInit } from './ColorsCommon';
-export * from './PreferencesManager';
+export {
+  Entries,
+  ValueType,
+  PreferencesControl
+} from './PreferencesManager';
 export { ResourceManager } from './ResourceManager';
 export { ClientGlobalPrefKeys } from './ClientGlobalPrefKeys';
 export { Initialize } from './Initialize';
@@ -11,3 +15,4 @@ export { OnListen } from './OnListen';
 export { ColorUtils } from './ColorUtils';
 export { PasteboardUtil } from './PasteboardUtil';
 export { StringUtils } from './StringUtils';
+export { UIAbilityContext } from './UIAbilityContext';
